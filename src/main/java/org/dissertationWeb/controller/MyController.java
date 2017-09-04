@@ -20,23 +20,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-
-
 @Controller
 public class MyController {
 	private Connection newConnection;
+	
+	private void startDBConnection() {
+		//Create a connection to the DB as soon as we need it
+		DBConnection connect = new DBConnection();
+		newConnection = connect.connect();
+	}
 
 	@RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
 	public String homePage(Model model) {
-		DBConnection connect = new DBConnection();
-		newConnection = connect.connect();
-
+	if(newConnection == null) startDBConnection();
 		return "homePage";
 	}
 
-
 	@RequestMapping(value = { "/contactus" }, method = RequestMethod.GET)
 	public String contactusPage(Model model) throws SQLException {
+		if(newConnection == null) startDBConnection();
 		String query = "SELECT * FROM Lecturer";
 		Statement st = newConnection.createStatement();
 		ResultSet rs = st.executeQuery(query);
@@ -51,6 +53,7 @@ public class MyController {
 	}
 	@RequestMapping(value = { "/projectlist" }, method = RequestMethod.GET)
 	public ModelAndView projectListPage(Model model) throws SQLException {
+		if(newConnection == null) startDBConnection();
 		String query = "SELECT * FROM project";
 		Statement st = newConnection.createStatement();
 		ResultSet rs = st.executeQuery(query);
@@ -66,13 +69,16 @@ public class MyController {
 		System.out.println("List size" + projectList.size());
 		return new ModelAndView("projectListPage","projectList",projectList);  
 	}
+	
 	@RequestMapping( "/newproject")
-	public ModelAndView newprojectPage(Model model) throws SQLException {      
+	public ModelAndView newprojectPage(Model model) throws SQLException {   
+		if(newConnection == null) startDBConnection();
 		return new ModelAndView("newprojectPage","command",new Project());  
 	}
 
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView save(@ModelAttribute("project") Project project, Model model){  
+		if(newConnection == null) startDBConnection();
 		//write code to save project object  
 		//here, we are displaying project object to prove project has data  
 		System.out.println(project.getTitle()+" "+project.getDescription()); 
@@ -82,14 +88,12 @@ public class MyController {
 		model.addAttribute("description",project.getDescription());
 		String query = " insert into project (title, description)"
 				+ " values (?, ?)";
-
 		try {
 			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
 			preparedStmt.setString (1, project.getTitle());
 			preparedStmt.setString (2, project.getDescription());
 			preparedStmt.execute();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new ModelAndView("projectPage","project",model);//will display object data  

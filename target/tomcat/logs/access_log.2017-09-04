@@ -94,3 +94,7 @@
 0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:24:54 +0100] "GET /DissertationWeb/newproject HTTP/1.1" 200 1771 http-bio-8080-exec-6 53
 0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:25:01 +0100] "POST /DissertationWeb/save HTTP/1.1" 200 1446 http-bio-8080-exec-7 233
 0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:25:04 +0100] "GET /DissertationWeb/projectlist HTTP/1.1" 200 1447 http-bio-8080-exec-8 36
+0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:31:54 +0100] "GET /DissertationWeb/ HTTP/1.1" 200 1255 http-bio-8080-exec-1 1005
+0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:31:56 +0100] "GET /DissertationWeb/projectlist HTTP/1.1" 200 1447 http-bio-8080-exec-2 73
+0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:31:58 +0100] "GET /DissertationWeb/contactus HTTP/1.1" 200 1349 http-bio-8080-exec-3 45
+0:0:0:0:0:0:0:1 - - [04/Sep/2017:16:32:00 +0100] "GET /DissertationWeb/ HTTP/1.1" 200 1255 http-bio-8080-exec-4 6

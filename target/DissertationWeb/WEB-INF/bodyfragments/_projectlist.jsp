@@ -4,8 +4,7 @@
 Project title: ${project.title}
 <br>
 ID: ${project.projectID}
-
 <br>
 Description: ${project.description}
-
+<br>
 </c:forEach>
