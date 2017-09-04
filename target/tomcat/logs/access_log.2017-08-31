@@ -127,3 +127,8 @@
 0:0:0:0:0:0:0:1 - - [31/Aug/2017:17:47:11 +0100] "GET /DissertationWeb/ HTTP/1.1" 200 1184 http-bio-8080-exec-1 213
 0:0:0:0:0:0:0:1 - - [31/Aug/2017:17:47:12 +0100] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-3 0
 0:0:0:0:0:0:0:1 - - [31/Aug/2017:17:47:14 +0100] "GET /DissertationWeb/projectlist HTTP/1.1" 200 1511 http-bio-8080-exec-4 783
+0:0:0:0:0:0:0:1 - - [31/Aug/2017:18:08:50 +0100] "GET /DissertationWeb/ HTTP/1.1" 200 1184 http-bio-8080-exec-6 8
+0:0:0:0:0:0:0:1 - - [31/Aug/2017:21:21:13 +0100] "GET /DissertationWeb/projectlist HTTP/1.1" 200 1511 http-bio-8080-exec-8 29
+0:0:0:0:0:0:0:1 - - [31/Aug/2017:21:21:14 +0100] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-9 0
+0:0:0:0:0:0:0:1 - - [31/Aug/2017:21:21:23 +0100] "GET /DissertationWeb/contactus HTTP/1.1" 200 1250 http-bio-8080-exec-10 358
+0:0:0:0:0:0:0:1 - - [31/Aug/2017:21:21:29 +0100] "GET /DissertationWeb/ HTTP/1.1" 200 1184 http-bio-8080-exec-10 7

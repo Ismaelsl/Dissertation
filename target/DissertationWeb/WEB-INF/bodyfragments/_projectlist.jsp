@@ -1,22 +1,11 @@
-Project title: ${title}
+   <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>   
+     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
+<c:forEach items="${projectList}" var="project">
+Project title: ${project.title}
 <br>
-ID: ${id}
+ID: ${project.projectID}
+
 <br>
-Year: ${year}
-<br>
-Description: ${description}
-<br>
-Lecturer <br>
-Name: ${lecturername}
-<br>
-Department: ${lecturerdept}
-<br>
-Email: ${lectureremail}
-<br>
-Visible: ${visible}
-<br>
-Document: ${document}
-<br>
-Waiting to be approved: ${waitingtoapproved}
-<br>
-CheckList: ${checklist}
+Description: ${project.description}
+
+</c:forEach>

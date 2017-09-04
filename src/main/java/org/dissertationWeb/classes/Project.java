@@ -14,8 +14,10 @@ public class Project {
 	private Document document;
 	private boolean waitingToBeApproved;
 	private CheckList checkList;
-	
 
+	public Project() {
+
+	}
 	public Project(int projectID, int year, String title, List<String> topics, 
 			List<String> compulsoryReading,String description, Lecturer lecturer, 
 			boolean visible, Document document, boolean waitingToBeApproved,
@@ -104,5 +106,5 @@ public class Project {
 	public void setCheckList(CheckList checkList) {
 		this.checkList = checkList;
 	}
-	
+
 }

@@ -31,6 +31,17 @@
        <put-attribute name="title" value="Project List" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectlist.jsp" />  
    </definition>  
- 
+   
+ <!-- new project Page -->
+   <definition name="newprojectPage" extends="base.definition">  
+       <put-attribute name="title" value="New Project" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_newproject.jsp" />  
+   </definition> 
+    
+   <!-- see one project Page -->
+   <definition name="projectPage" extends="base.definition">  
+       <put-attribute name="title" value="New Project" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_seeproject.jsp" />  
+   </definition>  
  
 </tiles-definitions>

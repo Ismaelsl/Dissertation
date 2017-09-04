@@ -15,7 +15,11 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
- 
+		 <dependency>
+		    <groupId>jstl</groupId>
+		    <artifactId>jstl</artifactId>
+		    <version>1.2</version>
+		</dependency>
         <!-- Servlet Library -->
         <!-- http://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
@@ -43,8 +47,11 @@
             <artifactId>javax.servlet.jsp.jstl-api</artifactId>
             <version>1.2.1</version>
         </dependency>
- 
- 
+ 		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.18</version>
+  		</dependency>
  
         <!-- Spring dependencies -->
         <!-- http://mvnrepository.com/artifact/org.springframework/spring-core -->
