@@ -1,13 +1,13 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>      
-  
+  <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>    
        <form:form method="post" action="save">    
         <table >    
          <tr>    
-          <td>Name : </td>   
+          <td>Title : </td>   
           <td><form:input path="title"  /></td>  
          </tr>    
          <tr>    
-          <td>Salary :</td>    
+          <td>Description :</td>    
           <td><form:input path="description" /></td>  
          </tr>   
          <tr>    
