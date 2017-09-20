@@ -1,0 +1,10 @@
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:13 +0100] "GET /DissertationWeb/ HTTP/1.1" 200 1788 http-bio-8080-exec-1 1603
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:13 +0100] "GET /DissertationWeb/bootstrap/css/bootstrap.min.css HTTP/1.1" 200 124962 http-bio-8080-exec-2 44
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:13 +0100] "GET /DissertationWeb/bootstrap/js/bootstrap.min.js HTTP/1.1" 200 51143 http-bio-8080-exec-3 259
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:14 +0100] "GET /DissertationWeb/bootstrap/css/bootstrap.min.css.map HTTP/1.1" 304 - http-bio-8080-exec-5 49
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:14 +0100] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-6 0
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:27 +0100] "GET /DissertationWeb/login HTTP/1.1" 200 3845 http-bio-8080-exec-7 89
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:40 +0100] "GET /DissertationWeb/projectlist HTTP/1.1" 200 12847 http-bio-8080-exec-8 285
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:26:51 +0100] "POST /DissertationWeb/edit HTTP/1.1" 200 2809 http-bio-8080-exec-9 1006
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:10:28:06 +0100] "GET /DissertationWeb/newproject HTTP/1.1" 200 2809 http-bio-8080-exec-1 10
+0:0:0:0:0:0:0:1 - - [18/Sep/2017:12:40:10 +0100] "GET /DissertationWeb/contactus HTTP/1.1" 500 7982 http-bio-8080-exec-3 114

@@ -1,3 +1,3 @@
-<h2>Hi All</h2>
+<h2>Hi There</h2>
  
-This is Home Page
+This is the Home Page

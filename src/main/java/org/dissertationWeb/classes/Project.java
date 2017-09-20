@@ -1,13 +1,17 @@
 package org.dissertationWeb.classes;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 public class Project {
 	private int projectID;
 	private int year;
 	private String title;
-	private List<String> topics;
-	private List<String> compulsoryReading;
+	private String topics;
+	private String compulsoryReading;
 	private String description;
 	private Lecturer lecturer;
 	private boolean visible;
@@ -18,8 +22,8 @@ public class Project {
 	public Project() {
 
 	}
-	public Project(int projectID, int year, String title, List<String> topics, 
-			List<String> compulsoryReading,String description, Lecturer lecturer, 
+	public Project(int projectID, int year, String title, String topics, 
+			String compulsoryReading,String description, Lecturer lecturer, 
 			boolean visible, Document document, boolean waitingToBeApproved,
 			CheckList checkList) {
 		super();
@@ -36,7 +40,31 @@ public class Project {
 		this.checkList = checkList;
 	}
 	public Project getProject(int id) {
-		//here should be a sql query based on the ID, if project exist, will return the object
+		DBConnection connect = new DBConnection();
+		Connection newConnection = connect.connect();
+		String query = "SELECT * FROM project WHERE projectID = " + id + ";";
+		Statement st;
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while (rs.next())
+			{
+				/*
+				 * instead of creating new Lecturer, Docyment and CheckList I should make a call based on the project ID
+				 * and get the reference to the DB to those items and create new objects populated with the data from the DB in this way
+				 * should work better
+				 */
+				Project project = new Project(rs.getInt("projectID"), rs.getInt("year"), rs.getString("title"), rs.getString("topic"),
+						rs.getString("compulsoryReading"), rs.getString("description"), new Lecturer(rs.getInt("lecturerID")), 
+						rs.getBoolean("visible"),new Document(rs.getInt("documentID")), rs.getBoolean("waitingtobeapproved"), 
+						new CheckList(rs.getInt("checklistID")));
+				//System.out.println("test " + rs.getString("title"));
+				return project;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 
@@ -58,16 +86,16 @@ public class Project {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public List<String> getTopics() {
+	public String getTopics() {
 		return topics;
 	}
-	public void setTopics(List<String> topics) {
+	public void setTopics(String topics) {
 		this.topics = topics;
 	}
-	public List<String> getCompulsoryReading() {
+	public String getCompulsoryReading() {
 		return compulsoryReading;
 	}
-	public void setCompulsoryReading(List<String> compulsoryReading) {
+	public void setCompulsoryReading(String compulsoryReading) {
 		this.compulsoryReading = compulsoryReading;
 	}
 	public String getDescription() {

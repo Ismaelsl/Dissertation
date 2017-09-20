@@ -4,11 +4,16 @@ public class Lecturer {
 	private String name;
 	private String department;
 	private String email;
+	private int lecturerID;
 	
-	public Lecturer(String n, String d, String e){
+	public Lecturer(String n, String d, String e, int lecturerID){
 		this.name = n;
 		this.department = d;
 		this.email = e;
+		this.lecturerID = lecturerID;
+	}
+	public Lecturer(int lecturerID){
+		this.lecturerID = lecturerID;
 	}
 	
 	public String getEmail() {
@@ -33,6 +38,10 @@ public class Lecturer {
 
 	public void setDepartment(String department) {
 		this.department = department;
+	}
+	
+	public int getID() {
+		return lecturerID;
 	}
 	
 }

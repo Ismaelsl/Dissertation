@@ -1,6 +1,7 @@
+<%-- The item within the {} must be the same name that the string use on the modal on the controller method --%>
 Project title: ${title}
 <br>
-ID: ${id}
+ID: ${projectID}
 <br>
 Year: ${year}
 <br>
@@ -15,8 +16,12 @@ Email: ${lectureremail}
 <br>
 Visible: ${visible}
 <br>
-Document: ${document}
+Document: ${documentID}
 <br>
-Waiting to be approved: ${waitingtoapproved}
+Waiting to be approved: ${waitingToBeApproved}
 <br>
-CheckList: ${checklist}
+CheckList: ${checklistID}
+<br>
+Topics: ${topics}
+<br>
+Compulsory Readings: ${compulsoryReading}

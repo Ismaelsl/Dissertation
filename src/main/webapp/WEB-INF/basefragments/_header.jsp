@@ -4,12 +4,12 @@
 <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
 <div style="background: #E0E0E0; height: 55px; padding: 5px;">
   <div style="float: left">
-     <h1>My Site</h1>
+     <h1>Dissertation Web Application</h1>
   </div>
  
   <div style="float: right; padding: 10px; text-align: right;">
  
-     Search <input name="search">
+     <%-- Search <input name="search"> --%>
  
   </div>
  

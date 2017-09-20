@@ -7,7 +7,6 @@ import java.util.Properties;
 
 public class DBConnection {
 	private static final String DATABASE_DRIVER = "com.mysql.jdbc.Driver";
-	//"jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=MYDB;";
 	private static final String DATABASE_URL = "jdbc:mysql://mysql0.cs.stir.ac.uk/isa";
 	private static final String USERNAME = "isa";
 	private static final String PASSWORD = "isa";
