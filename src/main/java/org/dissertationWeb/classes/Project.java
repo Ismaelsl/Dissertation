@@ -39,6 +39,15 @@ public class Project {
 		this.waitingToBeApproved = waitingToBeApproved;
 		this.checkList = checkList;
 	}
+	public Project(int projectID,int year, String title, String topics,
+			String compulsoryReading,String description){
+		this.projectID = projectID;
+		this.year = year;
+		this.title = title;
+		this.topics = topics;
+		this.compulsoryReading = compulsoryReading;
+		this.description = description;
+	}
 	public Project getProject(int id) {
 		DBConnection connect = new DBConnection();
 		Connection newConnection = connect.connect();

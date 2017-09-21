@@ -1,0 +1,1 @@
+<h2>Project removed successfully</h2>

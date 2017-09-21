@@ -14,9 +14,11 @@ function modalPopulator(title,projectID,description,topics,compulsoryReading) {
     actualID = projectID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
-function editProject() {
+function getProjectID() {
     var projectID = document.getElementById("modal-edit-id");
+    var projectIDRemove = document.getElementById("modal-remove-id");
     projectID.value = actualID;
+    projectIDRemove.value = actualID;
 }
  </script>
 <%-- The item within the {} must be the same name that the variable pass 
@@ -64,9 +66,11 @@ to the view from the controller or the variable names from the class --%>
 			</div>
 			<div class="modal-footer">
 				<form:form method="post" action="edit">
-					<button onclick="editProject();" id = "modal-edit-id" name="projectID" class="btn btn-success" value =" ">Edit</button>
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Close</button>
+					<button onclick="getProjectID();" id = "modal-edit-id" name="projectID" class="btn btn-success" value =" ">Edit</button>
+				</form:form>
+				<form:form method="post" action="remove">
+					<button onclick="getProjectID();" id = "modal-remove-id" name="projectID" class="btn btn-danger" value =" ">Remove</button>
+				    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 				</form:form>
 			</div>
 		</div>

@@ -37,6 +37,19 @@
        <put-attribute name="title" value="New Project" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_newproject.jsp" />  
    </definition> 
+   
+    <!-- edit project Page -->
+   <definition name="editprojectPage" extends="base.definition">  
+       <put-attribute name="title" value="Edit Project" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_editproject.jsp" />  
+   </definition> 
+   
+    <!-- remove project Page -->
+   <definition name="projectRemovedPage" extends="base.definition">  
+       <put-attribute name="title" value="Remove Project" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectremoved.jsp" />  
+   </definition> 
+    
     
    <!-- see one project Page -->
    <definition name="projectPage" extends="base.definition">  

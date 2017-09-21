@@ -39,8 +39,9 @@ public class MyController {
 	}
 	
 	@RequestMapping(value = { "/login" }, method = RequestMethod.GET)
-	public String loginPage(Model model) {
+	public String loginPage(@RequestParam(value="username, userPassword")String username, String userPassword) {
 	if(newConnection == null) startDBConnection();
+	System.out.println("username " + username + " password " + userPassword);
 	actualLecturerID = 15;
 		return "loginPage";
 	}
@@ -88,12 +89,60 @@ public class MyController {
 	}
 	
 	@RequestMapping( value="/edit",method = RequestMethod.POST)
-	public ModelAndView editprojectPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+	public ModelAndView editprojectPage(@RequestParam(value="projectID") int projectID) throws SQLException { 
 		Project project = new Project();
 		project = project.getProject(projectID);
 		if(newConnection == null) startDBConnection();
 		System.out.println("test description " + project.getDescription());
-		return new ModelAndView("newprojectPage","command",new Project());  
+		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
+		//update the constructor on project class
+		return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
+				project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));  
+	}
+	@RequestMapping( value="/remove",method = RequestMethod.POST)
+	public ModelAndView removeprojectPage(@RequestParam(value="projectID") int projectID) throws SQLException { 
+
+		if(newConnection == null) startDBConnection();
+		System.out.println("test projectID " + projectID);
+		PreparedStatement st = newConnection.prepareStatement("DELETE FROM project WHERE projectID = ?");
+		st.setInt(1,projectID);
+		st.executeUpdate(); 
+		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
+		//update the constructor on project class
+		return new ModelAndView("projectRemovedPage");
+	}
+	
+	@RequestMapping(value="/saveEdit",method = RequestMethod.POST)  
+	public ModelAndView saveEditProject(@ModelAttribute("project") Project project, Model model){  
+		System.out.println(project.getProjectID() +" inside edit project page!!");
+		if(newConnection == null) startDBConnection();
+		model.addAttribute("year",project.getYear());
+		model.addAttribute("title",project.getTitle());
+		model.addAttribute("topics",project.getTopics());
+		model.addAttribute("compulsoryReading",project.getCompulsoryReading());
+		model.addAttribute("description",project.getDescription());
+		/*model.addAttribute("lecturerID",actualLecturerID);
+		model.addAttribute("visible",false);
+		model.addAttribute("documentID",1);
+		model.addAttribute("waitingToBeApproved",false);
+		model.addAttribute("checklistID",1);*/
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(
+				      "UPDATE project SET year = ?, title = ?, topic = ?, compulsoryreading = ? WHERE projectID = ?");
+			ps.setInt(1,project.getYear());
+		    ps.setString(2,project.getTitle());
+		    ps.setString(3,project.getTopics());
+		    ps.setString(4,project.getCompulsoryReading());
+		    ps.setInt(5,project.getProjectID());
+		    
+		    ps.executeUpdate();
+		    ps.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ModelAndView("projectPage","project",model);//will display object data  
 	}
 
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
