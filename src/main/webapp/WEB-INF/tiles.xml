@@ -48,8 +48,7 @@
    <definition name="projectRemovedPage" extends="base.definition">  
        <put-attribute name="title" value="Remove Project" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectremoved.jsp" />  
-   </definition> 
-    
+   </definition>     
     
    <!-- see one project Page -->
    <definition name="projectPage" extends="base.definition">  
@@ -57,10 +56,10 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_seeproject.jsp" />  
    </definition>  
    
-    <!-- login Page -->
+   <!-- Login Page -->
    <definition name="loginPage" extends="base.definition">  
        <put-attribute name="title" value="Login" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_login.jsp" />  
-   </definition>  
+   </definition>   
  
 </tiles-definitions>

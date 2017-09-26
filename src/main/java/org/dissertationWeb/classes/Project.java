@@ -13,7 +13,7 @@ public class Project {
 	private String topics;
 	private String compulsoryReading;
 	private String description;
-	private Lecturer lecturer;
+	private User user;
 	private boolean visible;
 	private Document document;
 	private boolean waitingToBeApproved;
@@ -23,7 +23,7 @@ public class Project {
 
 	}
 	public Project(int projectID, int year, String title, String topics, 
-			String compulsoryReading,String description, Lecturer lecturer, 
+			String compulsoryReading,String description, User user, 
 			boolean visible, Document document, boolean waitingToBeApproved,
 			CheckList checkList) {
 		super();
@@ -33,7 +33,7 @@ public class Project {
 		this.topics = topics;
 		this.compulsoryReading = compulsoryReading;
 		this.description = description;
-		this.lecturer = lecturer;
+		this.user = user;
 		this.visible = visible;
 		this.document = document;
 		this.waitingToBeApproved = waitingToBeApproved;
@@ -59,12 +59,32 @@ public class Project {
 			while (rs.next())
 			{
 				/*
-				 * instead of creating new Lecturer, Docyment and CheckList I should make a call based on the project ID
+				 * instead of creating new Lecturer, Document and CheckList I should make a call based on the project ID
 				 * and get the reference to the DB to those items and create new objects populated with the data from the DB in this way
 				 * should work better
 				 */
+				String queryUser = "SELECT * FROM user WHERE userID = " + rs.getInt("lecturerID") + ";";
+				Statement stUser;
+				User user = new User();
+				try {
+					stUser = newConnection.createStatement();
+					ResultSet rsUser = stUser.executeQuery(queryUser);
+					
+					while (rsUser.next())
+					{
+						user.setUserID(rsUser.getInt("userID"));
+						user.setEmail(rsUser.getString("email"));
+						user.setUsername(rsUser.getString("username"));
+						user.setPassword(rsUser.getString("password"));
+						user.setUserType(rsUser.getInt("userType"));
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				System.out.println("Get project user test " + user.getEmail());
+				
 				Project project = new Project(rs.getInt("projectID"), rs.getInt("year"), rs.getString("title"), rs.getString("topic"),
-						rs.getString("compulsoryReading"), rs.getString("description"), new Lecturer(rs.getInt("lecturerID")), 
+						rs.getString("compulsoryReading"), rs.getString("description"), user, 
 						rs.getBoolean("visible"),new Document(rs.getInt("documentID")), rs.getBoolean("waitingtobeapproved"), 
 						new CheckList(rs.getInt("checklistID")));
 				//System.out.println("test " + rs.getString("title"));
@@ -113,11 +133,11 @@ public class Project {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Lecturer getLecturer() {
-		return lecturer;
+	public User getUser() {
+		return user;
 	}
-	public void setLecturer(Lecturer lecturer) {
-		this.lecturer = lecturer;
+	public void setUser(User user) {
+		this.user = user;
 	}
 	public boolean isVisible() {
 		return visible;

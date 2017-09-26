@@ -10,8 +10,6 @@ Description: ${description}
 Lecturer <br>
 Name: ${lecturername}
 <br>
-Department: ${lecturerdept}
-<br>
 Email: ${lectureremail}
 <br>
 Visible: ${visible}
