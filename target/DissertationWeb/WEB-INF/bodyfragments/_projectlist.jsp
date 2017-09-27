@@ -5,6 +5,7 @@
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
 var actualID;
+
 function modalPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
     $(".modal-title").html( title );
     $("#modal-description").html(description );
@@ -28,88 +29,48 @@ function getSearchValue() {
     search.value = searchValue;
 }
 
-function checkboxes(){
-
-    var lecturer = document.getElementById('lecturer');
-    var technology = document.getElementById('technology');
-    var title = document.getElementById('title');
-
-    if (lecturer.checked === false && technology.checked === false && title.checked === false)
-    {
-    lecturer.checked = false;
-      technology.checked = false;
-      title.checked = false;
-    }
-    if (lecturer.checked === false && technology.checked === false && title.checked === true)
-    {
-    lecturer.checked = false;
-      technology.checked = false;
-      title.checked = true;
-    }
-    if (lecturer.checked === false && technology.checked === true && title.checked === false)
-    {
-    lecturer.checked = false;
-      technology.checked = true;
-      title.checked = false;
-    }
-    if (lecturer.checked === false && technology.checked === true && title.checked === true)
-    {
-    lecturer.checked = false;
-      technology.checked = false;
-      title.checked = true;
-    }
-    if (lecturer.checked === true && technology.checked === false && title.checked === false)
-    {
-    lecturer.checked = true;
-      technology.checked = false;
-      title.checked = false;
-    }
-    if (lecturer.checked === true && technology.checked === false && title.checked === true)
-    {
-    lecturer.checked = false;
-      technology.checked = false;
-      title.checked = true;
-    }
-    if (lecturer.checked === true && technology.checked === true && title.checked === false)
-    {
-    lecturer.checked = false;
-      technology.checked = true;
-      title.checked = false;
-    }
-    if (lecturer.checked === true && technology.checked === true && title.checked === true)
-    {
-    lecturer.checked = true;
-      technology.checked = false;
-      title.checked = false;
-    }
- }
  function checkone(d){
-
  if (!d.checked) return; //if it's unchecked, then do nothing
-  
- var group=document.getElementsByName('checkboxGroupName');
-
  var os=document.getElementsByTagName('input');
-  
  for (var i=0;i<os.length;i++){
-
     if (os[i].checked&&os[i]!=d) os[i].checked=false;
-
-  }
+  } 
  }
+ <%-- Method that show options based on which kind of user you are --%>
+window.onload = function() {
+	var user = document.getElementById("userType").value;
+   	var userdiv = document.getElementById("modal-footer-user");
+   	var admindiv = document.getElementById("modal-footer-admin");
+    if(user == 1){
+    	admindiv.style.display = 'visible';
+        userdiv.style.display = 'none';
+    }
+    if(user == 2){
+        admindiv.style.display = 'none';
+        userdiv.style.display = 'visible';
+    }
+   <%-- DC code, is comment out because I am still not implementing his functionality
+   if(user == 3){
+        admindiv.style.display = 'none';
+        userdiv.style.display = 'none';
+        dcdiv.style.display = 'visible';
+    } --%>
+   
+}
  </script>
 <form:form method="post" action="search">
 	<table>
 		<tr>
 			<td>Search:</td>
-			<td><textarea id="search-value-id" rows="1" cols="50">Introduce search criteria</textarea></td>
+			<td><textarea id="search-value-id" rows="1" cols="50">Introduce search criteria...</textarea></td>
 		</tr>
 		<tr>
-			<td colspan="2"><input onclick="checkone(this);" type="checkbox" name="checkboxGroupName"
-				value="lecturer" id="lecturer" checked> Lecturer <input 
-				onclick="checkone(this);" type="checkbox" name="checkboxGroupName" value="technology" id="technology">
-				Technology <input onclick="checkone(this);" type="checkbox" name="checkboxGroupName" value="title"
-				id="title"> Title
+			<td colspan="2"><input onclick="checkone(this);" type="checkbox"
+				name="lecturer" value="lecturer" id="lecturer" checked>
+				Lecturer <input onclick="checkone(this);" type="checkbox"
+				name="technology" value="technology" id="technology">
+				Technology <input onclick="checkone(this);" type="checkbox"
+				name="title" value="title" id="title"> Title
 				<button onclick="getSearchValue();" id="search-id"
 					name="searchValue" class="btn btn-success" value=" ">Search</button>
 			</td>
@@ -119,7 +80,7 @@ function checkboxes(){
 
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
-<input type="hidden" name="userID" value="${userType}">
+<input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
 	<li><a
 		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}",
@@ -163,7 +124,7 @@ to the view from the controller or the variable names from the class --%>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer">
+			<div class="modal-footer" id = "modal-footer-admin">
 				<form:form method="post" action="edit">
 					<button onclick="getProjectID();" id="modal-edit-id"
 						name="projectID" class="btn btn-success" value=" ">Edit</button>
@@ -171,6 +132,18 @@ to the view from the controller or the variable names from the class --%>
 				<form:form method="post" action="remove">
 					<button onclick="getProjectID();" id="modal-remove-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">Close</button>
+				</form:form>
+			</div>
+			<div class="modal-footer" id = "modal-footer-user">
+				<form:form method="post" action="edit">
+					<button onclick="getProjectID();" id="modal-edit-id"
+						name="projectID" class="btn btn-success" value=" ">Register Interest</button>
+				</form:form>
+				<form:form method="post" action="remove">
+					<button onclick="getProjectID();" id="modal-remove-id"
+						name="projectID" class="btn btn-danger" value=" ">Remove Interest</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>

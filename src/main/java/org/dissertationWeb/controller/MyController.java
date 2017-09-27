@@ -105,7 +105,7 @@ public class MyController {
 		List<Project> projectList = new ArrayList<Project>();
 		while (rs.next())
 		{
-			if(rs.getBoolean("waitingtobeapproved") == true) continue; //if the project is not approved, then you wont show the project
+			if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then you wont show the project
 			Project project = new Project();
 			if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 				User actualUser = getUser(rs.getInt("lecturerID"));
@@ -125,9 +125,10 @@ public class MyController {
 		System.out.println("List size " + projectList.size());
 		User user = getUser(userLoginID);
 		model.addAttribute("userType", user.getUserType());
+		System.out.println("user type " + user.getUserType());
 		return new ModelAndView("projectListPage","projectList",projectList);  
 	}
-	//TODO I need to implement the view for this method and then add the logic to only be able to bee accessible by DC
+
 	@RequestMapping(value = { "/projectlisttoapprove" }, method = RequestMethod.GET)
 	public ModelAndView projectListToApprovePage(Model model) throws SQLException {
 		//redirect to login page if you are not login
@@ -139,7 +140,7 @@ public class MyController {
 		List<Project> projectList = new ArrayList<Project>();
 		while (rs.next())
 		{
-			if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then added to the view
+			if(rs.getBoolean("waitingtobeapproved") == true) continue; //if the project is not approved, then added to the view
 			Project project = new Project();
 			if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 				User actualUser = getUser(rs.getInt("lecturerID"));
@@ -159,7 +160,41 @@ public class MyController {
 		System.out.println("List size " + projectList.size());
 		User user = getUser(userLoginID);
 		model.addAttribute("userType", user.getUserType());
-		return new ModelAndView("projectListPage","projectList",projectList);  
+		return new ModelAndView("projectListtoapprovePage","projectList",projectList);  
+	}
+
+	@RequestMapping( value="/approveproject",method = RequestMethod.POST)
+	public ModelAndView approveprojectPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+
+		//first I update the project
+		PreparedStatement ps = newConnection.prepareStatement(
+				"UPDATE project SET waitingtobeapproved = ? WHERE projectID = ?");
+		ps.setBoolean(1,true);
+		ps.setInt(2,projectID);
+		ps.executeUpdate();
+		ps.close();
+		
+		//Then I populate the view with the project itself
+		Project project = new Project();
+		project = project.getProject(projectID);
+
+		model.addAttribute("year",project.getYear());
+		model.addAttribute("title",project.getTitle());
+		model.addAttribute("topics",project.getTopics());
+		model.addAttribute("compulsoryReading",project.getCompulsoryReading());
+		model.addAttribute("description",project.getDescription());
+		model.addAttribute("visible",false);
+		model.addAttribute("documentID",1);
+		model.addAttribute("waitingToBeApproved",project.isWaitingToBeApproved());
+		model.addAttribute("checklistID",1);
+		//Populating user part
+		User actualUser = getUser(userLoginID);
+		model.addAttribute("lecturerID",userLoginID);
+		model.addAttribute("lecturername", actualUser.getUsername());
+		model.addAttribute("lectureremail", actualUser.getEmail());
+		return new ModelAndView("projectPage","project",model);//will display object data 
 	}
 
 	@RequestMapping( "/newproject")
@@ -365,7 +400,7 @@ public class MyController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return new ModelAndView("projectListPage","projectList",projectList);
 	}
 
@@ -381,7 +416,7 @@ public class MyController {
 		return 0;
 	}
 	public User getUser(int userID) {
-		String query = "SELECT * FROM user WHERE userID = " + userID;
+		String query = "SELECT * FROM user WHERE userID = " + "'"+ userID + "';";
 		Statement st;
 		try {
 			st = newConnection.createStatement();
@@ -393,6 +428,7 @@ public class MyController {
 				user.setEmail(rs.getString("email"));
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
+				user.setUserType(rs.getInt("userType"));
 				return user;
 			}
 		} catch (SQLException e) {

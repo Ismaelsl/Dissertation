@@ -9,5 +9,6 @@
        <li><a href="${pageContext.request.contextPath}/contactus">Contact Us</a></li>
        <li><a href="${pageContext.request.contextPath}/newproject">New Project</a></li>
        <li><a href="${pageContext.request.contextPath}/projectlist">Project List</a></li>
+       <li><a href="${pageContext.request.contextPath}/projectlisttoapprove">Project List to approve</a></li> 
    </ul>
 </div>
