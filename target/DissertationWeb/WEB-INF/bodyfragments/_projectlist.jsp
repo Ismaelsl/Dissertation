@@ -16,7 +16,7 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     actualID = projectID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
-function getProjectID() {
+function getProjectID() { 
     var projectID = document.getElementById("modal-edit-id");
     var projectIDRemove = document.getElementById("modal-remove-id");
     projectID.value = actualID;

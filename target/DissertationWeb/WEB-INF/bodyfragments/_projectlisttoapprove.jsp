@@ -18,8 +18,10 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getProjectID() {
     var projectID = document.getElementById("modal-edit-id");
+    var approveID = document.getElementById("modal-approve-id");
     var projectIDRemove = document.getElementById("modal-remove-id");
     projectID.value = actualID;
+    approveID.value = actualID;
     projectIDRemove.value = actualID;
 }
 <%-- Method that pass as value the search criteria to the back end --%>
@@ -106,8 +108,12 @@ to the view from the controller or the variable names from the class --%>
 			</div>
 			<div class="modal-footer">
 				<form:form method="post" action="approveproject">
-					<button onclick="getProjectID();" id="modal-edit-id"
+					<button onclick="getProjectID();" id="modal-approve-id"
 						name="projectID" class="btn btn-success" value=" ">Approve</button>
+				</form:form>
+				<form:form method="post" action="edit">
+					<button onclick="getProjectID();" id="modal-edit-id"
+						name="projectID" class="btn btn-primary" value=" ">Edit</button>
 				</form:form>
 				<form:form method="post" action="remove">
 					<button onclick="getProjectID();" id="modal-remove-id"

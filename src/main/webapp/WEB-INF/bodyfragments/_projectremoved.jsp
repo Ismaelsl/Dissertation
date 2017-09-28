@@ -1,1 +1,1 @@
-<h2>Project removed successfully</h2>
+<h2>Removed successfully from our list</h2>

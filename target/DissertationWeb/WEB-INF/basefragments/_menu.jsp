@@ -10,5 +10,7 @@
        <li><a href="${pageContext.request.contextPath}/newproject">New Project</a></li>
        <li><a href="${pageContext.request.contextPath}/projectlist">Project List</a></li>
        <li><a href="${pageContext.request.contextPath}/projectlisttoapprove">Project List to approve</a></li> 
+       <li><a href="${pageContext.request.contextPath}/newchecklist">New Checklist</a></li>
+       <li><a href="${pageContext.request.contextPath}/checklistlist">List of Checklist</a></li>
    </ul>
 </div>

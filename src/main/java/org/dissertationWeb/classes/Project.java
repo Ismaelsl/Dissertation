@@ -86,7 +86,7 @@ public class Project {
 				Project project = new Project(rs.getInt("projectID"), rs.getInt("year"), rs.getString("title"), rs.getString("topic"),
 						rs.getString("compulsoryReading"), rs.getString("description"), user, 
 						rs.getBoolean("visible"),new Document(rs.getInt("documentID")), rs.getBoolean("waitingtobeapproved"), 
-						new CheckList(rs.getInt("checklistID")));
+						new CheckList());
 				//System.out.println("test " + rs.getString("title"));
 				return project;
 			}

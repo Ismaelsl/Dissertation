@@ -5,8 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.dissertationWeb.classes.CheckList;
 import org.dissertationWeb.classes.DBConnection;
@@ -99,28 +104,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
-		String query = "SELECT * FROM project";
-		Statement st = newConnection.createStatement();
-		ResultSet rs = st.executeQuery(query);
-		List<Project> projectList = new ArrayList<Project>();
-		while (rs.next())
-		{
-			if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then you wont show the project
-			Project project = new Project();
-			if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
-				User actualUser = getUser(rs.getInt("lecturerID"));
-				if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
-				project.setUser(actualUser);
-			}	
-
-			project.setProjectID(rs.getInt("projectID"));
-			project.setTitle(rs.getString("title"));
-			project.setDescription(rs.getString("description"));
-			project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
-			project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
-
-			projectList.add(project);
-		}
+		List<Project> projectList = getProjectList(false);
 
 		System.out.println("List size " + projectList.size());
 		User user = getUser(userLoginID);
@@ -134,29 +118,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
-		String query = "SELECT * FROM project";
-		Statement st = newConnection.createStatement();
-		ResultSet rs = st.executeQuery(query);
-		List<Project> projectList = new ArrayList<Project>();
-		while (rs.next())
-		{
-			if(rs.getBoolean("waitingtobeapproved") == true) continue; //if the project is not approved, then added to the view
-			Project project = new Project();
-			if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
-				User actualUser = getUser(rs.getInt("lecturerID"));
-				if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
-				project.setUser(actualUser);
-			}	
-
-			project.setProjectID(rs.getInt("projectID"));
-			project.setTitle(rs.getString("title"));
-			project.setDescription(rs.getString("description"));
-			project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
-			project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
-
-			projectList.add(project);
-		}
-
+		List<Project> projectList = getProjectList(true);
 		System.out.println("List size " + projectList.size());
 		User user = getUser(userLoginID);
 		model.addAttribute("userType", user.getUserType());
@@ -175,7 +137,7 @@ public class MyController {
 		ps.setInt(2,projectID);
 		ps.executeUpdate();
 		ps.close();
-		
+
 		//Then I populate the view with the project itself
 		Project project = new Project();
 		project = project.getProject(projectID);
@@ -294,8 +256,8 @@ public class MyController {
 		model.addAttribute("lectureremail", actualUser.getEmail());
 		//model.addAttribute("projectID",project.getTitle());
 		String query = " insert into project (year, title, topic, compulsoryreading, description, lecturerID,"
-				+ "visible, documentID, waitingtobeapproved, checklistID)"
-				+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				+ "visible, documentID, waitingtobeapproved, checklistID, visitcounter)"
+				+ " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try {
 			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
 			preparedStmt.setInt (1, project.getYear());
@@ -308,6 +270,7 @@ public class MyController {
 			preparedStmt.setInt (8, 1);
 			preparedStmt.setBoolean (9, project.isWaitingToBeApproved());
 			preparedStmt.setInt (10, 1);
+			preparedStmt.setInt (11, 0);
 			preparedStmt.execute();
 			if(getLastProjectID() == 0) return new ModelAndView("errorPage","project",null);
 			model.addAttribute("projectID",getLastProjectID());
@@ -404,6 +367,110 @@ public class MyController {
 		return new ModelAndView("projectListPage","projectList",projectList);
 	}
 
+	@RequestMapping( "/newchecklist")
+	public ModelAndView newchecklistPage(Model model) throws SQLException {  
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		return new ModelAndView("checklistPage","command",new CheckList());  
+	}
+
+	@RequestMapping(value="/savechecklist",method = RequestMethod.POST)  
+	public ModelAndView saveChecklist(@ModelAttribute("checklist") CheckList checklist, Model model){  
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		System.out.println("Checklist date: " + checklist.getDate() + " Checklist name: " + checklist.getEventName());
+
+		String query = " insert into checklist (date, eventname, place)"
+				+ " values (?, ?, ?)";
+		try {
+			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
+			preparedStmt.setString (1, checklist.getDate());
+			preparedStmt.setString (2, checklist.getEventName());
+			preparedStmt.setString (3, checklist.getPlace());
+			preparedStmt.execute();
+			model.addAttribute("date", checklist.getDate());
+			model.addAttribute("eventname", checklist.getEventName());
+			model.addAttribute("place", checklist.getPlace());
+			if(getLastChecklistID() == 0) return new ModelAndView("errorPage","project",null);
+			System.out.println("testing ID "  + getLastChecklistID());
+			model.addAttribute("checklistID",getLastChecklistID());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+		//Need to change this redirect to a checklistPage to see the checklist that we just added
+		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
+	}
+	
+	@RequestMapping(value = { "/checklistlist" }, method = RequestMethod.GET)
+	public ModelAndView checklistListPage(Model model) throws SQLException {
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		List<CheckList> checklistList = getCheckListList();
+
+		System.out.println("List size " + checklistList.size());
+		//Keep this since I need to check if user is admin or not for now
+		User user = getUser(userLoginID);
+		model.addAttribute("userType", user.getUserType());
+		return new ModelAndView("checklistListPage","checklistList",checklistList);  
+	}
+	
+	@RequestMapping( value="/editChecklist",method = RequestMethod.POST)
+	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, Model model) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		CheckList checkList = new CheckList();
+		System.out.println("test projectID " + checklistID);
+		checkList = checkList.getchecklist(checklistID);
+		if(newConnection == null) startDBConnection();
+		System.out.println("test checklist ID " + checkList.getCheckListID());
+		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
+		//update the constructor on project class
+		model.addAttribute("checklistID", checklistID); //passing checklistID to the frontend
+		return new ModelAndView("editchecklistPage","command",new CheckList(checkList.getCheckListID(), checkList.getDate(),
+				checkList.getEventName(), checkList.getPlace()));  
+	}
+
+	@RequestMapping( value="/removeChecklist",method = RequestMethod.POST)
+	public ModelAndView removeChecklistPage(@RequestParam(value="checklistID") int checklistID) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		System.out.println("test projectID " + checklistID);
+		PreparedStatement st = newConnection.prepareStatement("DELETE FROM checklist WHERE checklistID = ?");
+		st.setInt(1,checklistID);
+		st.executeUpdate(); 
+		//I am using same page since the final message for project or checklist is the same
+		return new ModelAndView("projectRemovedPage");
+	}
+
+	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.POST)  
+	public ModelAndView saveEditChecklist(@ModelAttribute("checklist") CheckList checklist, Model model){ 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		System.out.println(checklist.getCheckListID() +" inside edit checklist page!!");
+		if(newConnection == null) startDBConnection();
+		model.addAttribute("date", checklist.getDate());
+		model.addAttribute("eventname", checklist.getEventName());
+		model.addAttribute("place", checklist.getPlace());
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(
+					"UPDATE checklist SET date = ?, eventname = ?, place = ? WHERE checklistID = ?");
+
+			ps.setString (1, checklist.getDate());
+			ps.setString (2, checklist.getEventName());
+			ps.setString (3, checklist.getPlace());
+			ps.setInt(4,checklist.getCheckListID());
+			ps.executeUpdate();
+			ps.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
+	}
+
 	public int getLastProjectID() throws SQLException {
 		if(newConnection == null) startDBConnection();
 		String query = "SELECT projectID FROM project ORDER BY projectID DESC LIMIT 1";
@@ -412,6 +479,17 @@ public class MyController {
 		while (rs.next())
 		{
 			return(rs.getInt("projectID"));
+		}
+		return 0;
+	}
+	public int getLastChecklistID() throws SQLException {
+		if(newConnection == null) startDBConnection();
+		String query = "SELECT checklistID FROM checklist ORDER BY checklistID DESC LIMIT 1";
+		Statement st = newConnection.createStatement();
+		ResultSet rs = st.executeQuery(query);
+		while (rs.next())
+		{
+			return(rs.getInt("checklistID"));
 		}
 		return 0;
 	}
@@ -456,6 +534,64 @@ public class MyController {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public List<Project> getProjectList(boolean approved) {
+		String query = "SELECT * FROM project";
+		Statement st;
+		List<Project> projectList = new ArrayList<Project>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				if(rs.getBoolean("waitingtobeapproved") == approved) continue; //if the project is not approved, then you wont show the project
+				Project project = new Project();
+				if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
+					User actualUser = getUser(rs.getInt("lecturerID"));
+					if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
+					project.setUser(actualUser);
+				}	
+
+				project.setProjectID(rs.getInt("projectID"));
+				project.setTitle(rs.getString("title"));
+				project.setDescription(rs.getString("description"));
+				project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
+				project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
+
+				projectList.add(project);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return projectList;
+
+	}
+	
+	public List<CheckList> getCheckListList() {
+		String query = "SELECT * FROM checklist";
+		Statement st;
+		List<CheckList> checklistList = new ArrayList<CheckList>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				CheckList checklist = new CheckList();
+				checklist.setCheckListID(rs.getInt("checklistID"));
+				checklist.setDate(rs.getString("date"));
+				checklist.setEventName(rs.getString("eventname"));
+				checklist.setPlace(rs.getString("place"));
+				checklistList.add(checklist);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return checklistList;
 	}
 
 }
