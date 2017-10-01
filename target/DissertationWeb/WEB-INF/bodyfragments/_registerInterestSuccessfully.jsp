@@ -1,0 +1,1 @@
+<h2>Register successfully in the project ${project.title}</h2>

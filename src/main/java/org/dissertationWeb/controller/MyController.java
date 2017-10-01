@@ -223,7 +223,6 @@ public class MyController {
 			ps.close();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new ModelAndView("projectPage","project",model);//will display object data  
@@ -360,7 +359,6 @@ public class MyController {
 				}
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -400,7 +398,7 @@ public class MyController {
 		//Need to change this redirect to a checklistPage to see the checklist that we just added
 		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
 	}
-	
+
 	@RequestMapping(value = { "/checklistlist" }, method = RequestMethod.GET)
 	public ModelAndView checklistListPage(Model model) throws SQLException {
 		//redirect to login page if you are not login
@@ -414,7 +412,7 @@ public class MyController {
 		model.addAttribute("userType", user.getUserType());
 		return new ModelAndView("checklistListPage","checklistList",checklistList);  
 	}
-	
+
 	@RequestMapping( value="/editChecklist",method = RequestMethod.POST)
 	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, Model model) throws SQLException { 
 		//redirect to login page if you are not login
@@ -465,10 +463,69 @@ public class MyController {
 			ps.close();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
+	}
+
+	/**
+	 * I am passing only the projectID since the userID is already save on the session
+	 * That is all the data I need to register the interest of a student with a project
+	 * @param projectID
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/registerinterest",method = RequestMethod.POST)
+	public ModelAndView registerInterestPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userLoginID + "'; ";
+		Statement stCount = newConnection.createStatement();
+		ResultSet rs = stCount.executeQuery(query);
+		if(rs.next()) {
+			if(rs.getInt("total") == 5) return new ModelAndView("noMoreProjectsPage");
+			else {
+				//Need to do a second query since the first one I am only getting the count and no the actual table data
+				System.out.println("This student have " + rs.getInt("total") + " projects already");
+				String queryProject ="SELECT * FROM interestproject";
+				Statement stProject = newConnection.createStatement();
+				ResultSet rsProject = stProject.executeQuery(queryProject);
+				while(rsProject.next()) {
+					//For now I am returning to home but the final version will be returning to the error page
+					//This is taking care that if the student is already register for that project, cannot register again
+					if(rsProject.getInt("projectID") == projectID) return new ModelAndView("homePage");
+				}
+				//If the project is not already on the table and the student has not more than 5 projects already then we will add
+				//the new project to the table
+				String queryInsert = " insert into interestproject (userID, projectID) values (?, ?)";
+				PreparedStatement preparedStmt = newConnection.prepareStatement(queryInsert);
+				preparedStmt.setInt (1, userLoginID);
+				preparedStmt.setInt (2, projectID);
+				preparedStmt.execute();
+				preparedStmt.close();
+			}		
+		}
+		//Then I populate the view with the project itself
+		Project project = new Project();
+		project = project.getProject(projectID);
+		//I am adding the title to the view so the user have a reminder of which project he register
+		model.addAttribute("Title", project.getTitle());			
+		//I am using same page since the final message for project or checklist is the same
+		return new ModelAndView("registerInterestsuccessfullyPage","project",model);
+	}
+	
+	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
+	//TODO I need to take care than if the user is not register to that project then he cannot remove interest
+	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		PreparedStatement st = newConnection.prepareStatement("DELETE FROM interestproject WHERE projectID = ?");
+		st.setInt(1,projectID);
+		st.executeUpdate(); 
+		//I am using same page since the final message for project or checklist is the same
+		return new ModelAndView("projectRemovedPage");
 	}
 
 	public int getLastProjectID() throws SQLException {
@@ -563,13 +620,12 @@ public class MyController {
 				projectList.add(project);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return projectList;
 
 	}
-	
+
 	public List<CheckList> getCheckListList() {
 		String query = "SELECT * FROM checklist";
 		Statement st;
@@ -588,7 +644,6 @@ public class MyController {
 				checklistList.add(checklist);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return checklistList;

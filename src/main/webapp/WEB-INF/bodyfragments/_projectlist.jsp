@@ -19,8 +19,12 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
 function getProjectID() { 
     var projectID = document.getElementById("modal-edit-id");
     var projectIDRemove = document.getElementById("modal-remove-id");
+    var projectRegisterInterest = document.getElementById("modal-registerinterest-id");
+    var removeRegisterInterest = document.getElementById("modal-removeinterest-id");
     projectID.value = actualID;
     projectIDRemove.value = actualID;
+    projectRegisterInterest.value = actualID;
+    removeRegisterInterest.value = actualID;
 }
 <%-- Method that pass as value the search criteria to the back end --%>
 function getSearchValue() {
@@ -137,12 +141,12 @@ to the view from the controller or the variable names from the class --%>
 				</form:form>
 			</div>
 			<div class="modal-footer" id = "modal-footer-user">
-				<form:form method="post" action="edit">
-					<button onclick="getProjectID();" id="modal-edit-id"
+				<form:form method="post" action="registerinterest">
+					<button onclick="getProjectID();" id="modal-registerinterest-id"
 						name="projectID" class="btn btn-success" value=" ">Register Interest</button>
 				</form:form>
-				<form:form method="post" action="remove">
-					<button onclick="getProjectID();" id="modal-remove-id"
+				<form:form method="post" action="removeinterest">
+					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove Interest</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>

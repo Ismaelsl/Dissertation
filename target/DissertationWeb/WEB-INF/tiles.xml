@@ -86,10 +86,16 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_checklistlist.jsp" />  
    </definition>
    
-      <!-- Edit nchecklist list Page -->
+   <!-- Edit checklist list Page -->
    <definition name="editchecklistPage" extends="base.definition">  
        <put-attribute name="title" value="Edit Checklist" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_editchecklist.jsp" />  
    </definition>
- 
+   
+   <!-- Register interest Page -->
+   <definition name="registerInterestsuccessfullyPage" extends="base.definition">  
+       <put-attribute name="title" value="Register interest succesfull" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_registerInterestSuccessfully.jsp" />  
+   </definition>
+
 </tiles-definitions>

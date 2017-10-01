@@ -17,7 +17,6 @@ function getChecklistID() {
     var checklistIDRemove = document.getElementById("modal-remove-id");
     checklistID.value = actualID;
     checklistIDRemove.value = actualID;
-    alert(actualID);
 }
  </script>
 <%-- The item within the {} must be the same name that the variable pass 
