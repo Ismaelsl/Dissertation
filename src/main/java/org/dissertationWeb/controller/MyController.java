@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -79,7 +80,8 @@ public class MyController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return new ModelAndView("loginPage");
+		model.addAttribute("message", "You are not loggin, please go to login page and enter your credentials");
+		return new ModelAndView("errorPage");
 		//return "loginPage";
 	}
 
@@ -110,6 +112,10 @@ public class MyController {
 		User user = getUser(userLoginID);
 		model.addAttribute("userType", user.getUserType());
 		System.out.println("user type " + user.getUserType());
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "You project list is empty");
+			return new ModelAndView("errorPage");
+		}
 		return new ModelAndView("projectListPage","projectList",projectList);  
 	}
 
@@ -122,6 +128,10 @@ public class MyController {
 		System.out.println("List size " + projectList.size());
 		User user = getUser(userLoginID);
 		model.addAttribute("userType", user.getUserType());
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "You do not have any project to approve");
+			return new ModelAndView("errorPage");
+		}
 		return new ModelAndView("projectListtoapprovePage","projectList",projectList);  
 	}
 
@@ -341,6 +351,10 @@ public class MyController {
 				}
 				if(lecturer != null) {
 					User user = getUserByName(searchValue);
+					if(user == null) {
+						model.addAttribute("message", "You search result for lecturer is empty");
+						return new ModelAndView("errorPage");
+					}
 					if(user.getUserID() == rs.getInt("lecturerID")){
 						if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 							User actualUser = getUser(rs.getInt("lecturerID"));
@@ -361,7 +375,10 @@ public class MyController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "Your search criteria does not return any result please try something else");
+			return new ModelAndView("errorPage");
+		}
 		return new ModelAndView("projectListPage","projectList",projectList);
 	}
 
@@ -389,7 +406,10 @@ public class MyController {
 			model.addAttribute("date", checklist.getDate());
 			model.addAttribute("eventname", checklist.getEventName());
 			model.addAttribute("place", checklist.getPlace());
-			if(getLastChecklistID() == 0) return new ModelAndView("errorPage","project",null);
+			if(getLastChecklistID() == 0) {
+				model.addAttribute("message", "Error happens saving the checklist");
+				return new ModelAndView("errorPage");
+			}
 			System.out.println("testing ID "  + getLastChecklistID());
 			model.addAttribute("checklistID",getLastChecklistID());
 		} catch (SQLException e) {
@@ -484,7 +504,10 @@ public class MyController {
 		Statement stCount = newConnection.createStatement();
 		ResultSet rs = stCount.executeQuery(query);
 		if(rs.next()) {
-			if(rs.getInt("total") == 5) return new ModelAndView("noMoreProjectsPage");
+			if(rs.getInt("total") == 5) {
+				model.addAttribute("message", "You already have 5 projects registered on your name, please remove one before you add new ones"); 
+				return new ModelAndView("errorPage");
+			}
 			else {
 				//Need to do a second query since the first one I am only getting the count and no the actual table data
 				System.out.println("This student have " + rs.getInt("total") + " projects already");
@@ -506,13 +529,14 @@ public class MyController {
 				preparedStmt.close();
 			}		
 		}
-		//Then I populate the view with the project itself
-		Project project = new Project();
-		project = project.getProject(projectID);
-		//I am adding the title to the view so the user have a reminder of which project he register
-		model.addAttribute("Title", project.getTitle());			
+			
 		//I am using same page since the final message for project or checklist is the same
-		return new ModelAndView("registerInterestsuccessfullyPage","project",model);
+		List<Project> projectList = getProjectInterestedListByStudent();
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			return new ModelAndView("errorPage");
+		}
+		return new ModelAndView("interestProjectListPage","projectList",projectList);
 	}
 	
 	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
@@ -526,6 +550,43 @@ public class MyController {
 		st.executeUpdate(); 
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("projectRemovedPage");
+	}
+	
+	@RequestMapping( value="/projectinterestedlist",method = RequestMethod.GET)
+	//TODO I need to take care than if the user is not register to that project then he cannot remove interest
+	public ModelAndView getListProjectInterested(Model model) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		List<Project> projectList = getProjectInterestedListByStudent();
+		//If project is empty then I will redirect to error page with a message explaining what to do
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			return new ModelAndView("errorPage");
+		}	
+		return new ModelAndView("interestProjectListPage","projectList",projectList);
+	}
+	
+	@RequestMapping( value="/projectlecturerlist",method = RequestMethod.GET)
+	public ModelAndView getListOfProjectsLecturer(Model model) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		
+		List<Project> projectList = getAllProjectByLecturer();
+		List<Project> projectWithInterest = getLecturerProjectList();
+		//List<User> userList = getAllUserswithInterest();
+		//If project is empty then I will redirect to error page with a message explaining what to do
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			return new ModelAndView("errorPage");
+		}	
+		
+		List<Project> finalList = listComparer(projectList,projectWithInterest);
+		model.addAttribute("projectList", finalList);
+		model.addAttribute("projectWithInterest", projectWithInterest);
+		//model.addAttribute("userList", userList);
+		return new ModelAndView("yourPersonalListPage");
 	}
 
 	public int getLastProjectID() throws SQLException {
@@ -593,6 +654,11 @@ public class MyController {
 		return null;
 	}
 
+	/**
+	 * Method to get all the projects
+	 * @param approved in this way I can reuse the method to get list of project that had been approved or not
+	 * @return
+	 */
 	public List<Project> getProjectList(boolean approved) {
 		String query = "SELECT * FROM project";
 		Statement st;
@@ -603,7 +669,8 @@ public class MyController {
 
 			while (rs.next())
 			{
-				if(rs.getBoolean("waitingtobeapproved") == approved) continue; //if the project is not approved, then you wont show the project
+				//if the project is not approved, then you wont show the project
+				if(rs.getBoolean("waitingtobeapproved") == approved) continue; 
 				Project project = new Project();
 				if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 					User actualUser = getUser(rs.getInt("lecturerID"));
@@ -648,5 +715,140 @@ public class MyController {
 		}
 		return checklistList;
 	}
+	
+	public List<Project> getProjectInterestedListByStudent() {
+		String query = "SELECT * FROM interestproject WHERE userID = '" + userLoginID + "';";
+		Statement st;
+		List<Project> projectList = new ArrayList<Project>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
 
+			while (rs.next())
+			{
+				Project project = new Project();
+				project = project.getProject(rs.getInt("projectID"));
+				User student = new User();
+				student = getUser(rs.getInt("userID"));
+				project.setStudent(student);
+				projectList.add(project);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return projectList;
+	}
+	public List<Project> getProjectInterestedList() {
+		String query = "SELECT * FROM interestproject";
+		Statement st;
+		List<Project> projectList = new ArrayList<Project>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				Project project = new Project();
+				project = project.getProject(rs.getInt("projectID"));
+				User student = new User();
+				student = getUser(rs.getInt("userID"));
+				project.setStudent(student);
+				projectList.add(project);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return projectList;
+	}
+	
+	public List<Project> getAllProjectByLecturer() {
+		String query = "SELECT * FROM project WHERE lecturerID = '" + userLoginID + "';";
+		Statement st;
+		List<Project> projectList = new ArrayList<Project>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				Project project = new Project();
+				project = project.getProject(rs.getInt("projectID"));
+				projectList.add(project);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return projectList;
+	}
+	
+	public List<User> getAllUserswithInterest() {
+		String query = "SELECT * FROM interestproject";
+		Statement st;
+		List<User> userList = new ArrayList<User>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				User user = new User();
+				user = getUser(rs.getInt("userID"));
+				userList.add(user);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return userList;
+	}
+	
+	public List<Project> getLecturerProjectList() {
+		String query = "SELECT * FROM interestproject";
+		Statement st;
+		List<Project> projectList = new ArrayList<Project>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				String queryProject = "SELECT * FROM project WHERE projectID = '" + rs.getString("projectID") + "' "
+						+ "AND lecturerID = '" + userLoginID + "';";
+				Statement stProject = newConnection.createStatement();
+				ResultSet rsProject = stProject.executeQuery(queryProject);
+				while (rsProject.next()) {
+					Project project = new Project();
+					project = project.getProject(rsProject.getInt("projectID"));
+					User student = getUser(rs.getInt("userID"));
+					project.setStudent(student);
+					projectList.add(project);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return projectList;
+	}
+	/**
+	 * This method is taking care that when a lecturer enter to his personal list you will have in the top 
+	 * all the lecturer projects without interest and on the bottom the lecturer project which have interest
+	 * @param projectList
+	 * @param projectWithInterest
+	 * @return
+	 */
+	public List<Project> listComparer(List<Project>projectList, List<Project>projectWithInterest) {
+		List<Project> finalList = new ArrayList<Project>();
+		for (Project projectLect : projectList) {
+	        boolean found=false;
+	        for (Project projectInte : projectWithInterest) {
+	            if (projectLect.getProjectID() == projectInte.getProjectID()) {
+	                found=true;
+	                break;
+	            }
+	        }
+	        if(!found){
+	        	finalList .add(projectLect);
+	        }
+	    }
+		return finalList;
+	}
 }

@@ -97,5 +97,23 @@
        <put-attribute name="title" value="Register interest succesfull" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_registerInterestSuccessfully.jsp" />  
    </definition>
+   
+   <!-- Interest in projects list Page -->
+   <definition name="interestProjectListPage" extends="base.definition">  
+       <put-attribute name="title" value="Project which you are interested" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_interestprojectlist.jsp" />  
+   </definition>
+   
+   <!-- Error Page -->
+   <definition name="errorPage" extends="base.definition">  
+       <put-attribute name="title" value="Web application message" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_error.jsp" />  
+   </definition>
+   
+   <!-- List of projects uploaded by a lecturer Page -->
+   <definition name="yourPersonalListPage" extends="base.definition">  
+       <put-attribute name="title" value="Projects that you uploaded" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_personallecturerprojectlist.jsp" />  
+   </definition>      
 
 </tiles-definitions>

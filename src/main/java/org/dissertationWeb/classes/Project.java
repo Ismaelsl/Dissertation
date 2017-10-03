@@ -18,6 +18,7 @@ public class Project {
 	private Document document;
 	private boolean waitingToBeApproved;
 	private CheckList checkList;
+	private User student;
 
 	public Project() {
 
@@ -91,7 +92,6 @@ public class Project {
 				return project;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -162,6 +162,12 @@ public class Project {
 	}
 	public void setCheckList(CheckList checkList) {
 		this.checkList = checkList;
+	}
+	public User getStudent() {
+		return student;
+	}
+	public void setStudent(User student) {
+		this.student = student;
 	}
 
 }

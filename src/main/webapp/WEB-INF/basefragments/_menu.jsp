@@ -5,12 +5,14 @@
 <div class="form-group" style="padding: 5px;"> 
    <ul>
        <li><a href="${pageContext.request.contextPath}/login">Login</a></li>
-       <li><a href="${pageContext.request.contextPath}/">Home</a></li>
+      <%-- <li><a href="${pageContext.request.contextPath}/">Home</a></li>--%>
        <li><a href="${pageContext.request.contextPath}/contactus">Contact Us</a></li>
        <li><a href="${pageContext.request.contextPath}/newproject">New Project</a></li>
        <li><a href="${pageContext.request.contextPath}/projectlist">Project List</a></li>
        <li><a href="${pageContext.request.contextPath}/projectlisttoapprove">Project List to approve</a></li> 
        <li><a href="${pageContext.request.contextPath}/newchecklist">New Checklist</a></li>
        <li><a href="${pageContext.request.contextPath}/checklistlist">List of Checklist</a></li>
+       <li><a href="${pageContext.request.contextPath}/projectinterestedlist">Your project list</a></li>
+       <li><a href="${pageContext.request.contextPath}/projectlecturerlist">Your project list(Lecturer)</a></li>
    </ul>
 </div>
