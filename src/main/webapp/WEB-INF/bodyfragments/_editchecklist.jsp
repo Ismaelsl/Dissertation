@@ -7,13 +7,17 @@
           <td><form:input type="date" path="date"  value='<fmt:formatDate value="" pattern="dd-MM-yyyy" />'/></td>  
          </tr>  
          <tr>    
-          <td>Event Name : </td>   
+          <td>Event Name : </td>    
           <td><form:input path="eventName"  /></td>  
          </tr> 
           <tr>    
           <td>Place : </td>   
           <td><form:input path="place"  /></td>  
-         </tr>  
+         </tr> 
+         <tr>    
+          <td>Description : </td>   
+          <td><form:input path="description"  /></td>  
+         </tr> 
 		<%-- Hidden this since I need to pass the checkListID to the frontEnd and back to the backEnd --%>
 		<form:hidden path="checkListID" />
 		<tr>

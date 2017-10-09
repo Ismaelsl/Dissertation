@@ -6,5 +6,7 @@
    id="WebApp_ID" version="3.0">
     
    <display-name>DissertationWeb</display-name>
-    
+    <session-config>
+   <session-timeout>15</session-timeout>
+</session-config>
 </web-app>

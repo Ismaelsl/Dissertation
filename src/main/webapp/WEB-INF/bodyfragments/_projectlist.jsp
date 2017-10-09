@@ -145,7 +145,7 @@ to the view from the controller or the variable names from the class --%>
 					<button onclick="getProjectID();" id="modal-registerinterest-id"
 						name="projectID" class="btn btn-success" value=" ">Register Interest</button>
 				</form:form>
-			<%--I comment this out since I think that user should only see the registratio button and the remove
+			<%--I comment this out since I think that user should only see the registration button and the remove
 			button should be only on the list of project that he or she is already registered interest
 			<form:form method="post" action="removeinterest">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"

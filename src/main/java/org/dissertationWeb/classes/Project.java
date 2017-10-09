@@ -79,6 +79,7 @@ public class Project {
 						user.setPassword(rsUser.getString("password"));
 						user.setUserType(rsUser.getInt("userType"));
 					}
+					stUser.close();
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -91,6 +92,7 @@ public class Project {
 				//System.out.println("test " + rs.getString("title"));
 				return project;
 			}
+			st.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

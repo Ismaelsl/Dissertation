@@ -4,3 +4,5 @@ Date: ${date}
 <br>
 Place: ${place}
 <br>
+Description: ${description}
+<br>

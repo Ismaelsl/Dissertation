@@ -15,6 +15,8 @@ public class CheckList {
 	private String date;
 	private String eventName;
 	private String place;
+	private String description;
+	private boolean visible;
 
 	public CheckList() {
 
@@ -23,13 +25,30 @@ public class CheckList {
 		this.date = date;
 		this.eventName = eventName;
 		this.place = place;
+		this.visible = true;
 	}
-	public CheckList(int id, String date, String eventName, String place) {
+	public CheckList(int id, String date, String eventName, String place, String description) {
 		this.checkListID = id;
 		this.date = date;
 		this.eventName = eventName;
 		this.place = place;
+		this.description = description;
+		this.visible = true;
 	}
+	
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public boolean isVisible() {
+		return visible;
+	}
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+	
 	public int getCheckListID() {
 		return checkListID;
 	}
@@ -71,6 +90,7 @@ public class CheckList {
 				checklist.setDate(rs.getString("date"));
 				checklist.setEventName(rs.getString("eventname"));
 				checklist.setPlace(rs.getString("place"));
+				checklist.setDescription(rs.getString("description"));
 			}
 
 		} catch (SQLException e) {

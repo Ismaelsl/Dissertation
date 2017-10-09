@@ -10,7 +10,7 @@ public class DBConnection {
 	private static final String DATABASE_URL = "jdbc:mysql://mysql0.cs.stir.ac.uk/isa";
 	private static final String USERNAME = "isa";
 	private static final String PASSWORD = "isa";
-	private static final String MAX_POOL = "250"; // set your own limit
+	private static final String MAX_POOL = "1050"; // set your own limit
 
 	// init connection object
 	private Connection connection;

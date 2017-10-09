@@ -5,6 +5,7 @@
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
 var actualID;
+var userID;
 
 function modalPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
     $(".modal-title").html( title );
@@ -15,8 +16,12 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     $("#modal-lecturerEmail").html(lecturerEmail );
     $("#modal-studentName").html("No student had apply for this project yet" );
     actualID = projectID;
-}
-function modalInterestPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail, studentName) {
+   	var withoutInterestdiv = document.getElementById("withoutInterest");
+   	var withInterestdiv = document.getElementById("withInterest");
+    withInterestdiv.style.visibility  = 'hidden';
+    withoutInterestdiv.style.visibility  = 'visible';
+} 
+function modalInterestPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail, studentName,user) {
     $(".modal-title").html( title );
     $("#modal-description").html(description );
     $("#modal-topics").html(topics );
@@ -25,22 +30,32 @@ function modalInterestPopulator(title,description,projectID,topics,compulsoryRea
     $("#modal-lecturerEmail").html(lecturerEmail );
     $("#modal-studentName").html(studentName );
     actualID = projectID;
+	var withoutInterestdiv = document.getElementById("withoutInterest");
+   	var withInterestdiv = document.getElementById("withInterest");
+    withInterestdiv.style.visibility  = 'visible';
+    withoutInterestdiv.style.visibility  = 'hidden'; 
+    userID = user;
+    alert(user);
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
-function getChecklistID() { 
-    var removeRegisterInterest = document.getElementById("modal-removeinterest-id");
-    removeRegisterInterest.value = actualID;
+function getProjectID() { 
+    var removeProject = document.getElementById("modal-removeinterest-id");
+    var editProject = document.getElementById("modal-editinterest-id");
+    var approveInterest = document.getElementById("modal-approveinterest-id");
+    var removeInterest = document.getElementById("modal-removeinterestProject-id");
+    removeProject.value = actualID;
+    editProject.value = actualID;
+    approveInterest.value = actualID;
+    removeInterest.value = actualID;
+
 }
-function getUserData(id, userList) { 
-alert(id);
-    var userID = document.getElementById("userData");
-    var user;
-    for (i = 0; i < userList.length; i++) { 
-    if(userList[i] == id){
-    user = userList[i].email;
-    }
-	}
-    userID.value = user;
+<%-- This function will decide which message to show based on the size of the list --%>
+function chooseMessage(listSize){
+if(listSize == 0){
+$("#secondList").html("For now none students applied to your projects");
+}else{
+$("#secondList").html("You have students who had interest on your projects!");
+}
 }
  </script>
 <%-- The item within the {} must be the same name that the variable pass 
@@ -51,20 +66,25 @@ to the view from the controller or the variable names from the class --%>
 		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}",
   "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#projectModal">Project title: ${project.title}</a></li>
 </c:forEach>
-You have students who had interest on your projects!
+<%-- Need to use body here since onload does not work with all the tags and this was the most appropiate based on the situation --%>
+<body onload='chooseMessage("${interestListSize}")'>
+	<h2>
+		<div id="secondList"></div>
+	</h2>
+</body>
 <c:forEach items="${projectWithInterest}" var="project">
 	<li><a
 		onclick='modalInterestPopulator("${project.title}","${project.description}","${project.projectID}",
   "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}",
-  "${project.student.username}")'
+  "${project.student.username}","${project.student.userID}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#projectModal">Project title: ${project.title}</a></li>
 </c:forEach>
-<!-- User login Modal -->
-<div class="modal fade" id="userModal" tabindex="-1" role="dialog"
-	aria-labelledby="profileModal" aria-hidden="true">
+<!-- project Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1" role="dialog"
+	aria-labelledby="projectModal" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -102,17 +122,36 @@ You have students who had interest on your projects!
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" id="modal-footer-user">
-				<form:form method="post" action="removeinterest">
-					<button onclick="getProjectID();" id="modal-removeinterest-id"
-						name="projectID" class="btn btn-success" value=" ">
-						Approve Student</button>
-					<button onclick="getProjectID();" id="modal-removeinterest-id"
-						name="projectID" class="btn btn-danger" value=" ">Reject
-						Student</button>
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Close</button>
-				</form:form>
+			<div class="modal-footer" id="modal-footer-admin">
+			
+				<div id="withoutInterest">
+					<form:form method="post" action="edit">
+						<button onclick="getProjectID();" id="modal-editinterest-id"
+							name="projectID" class="btn btn-success" value=" ">Edit
+							project</button>
+					</form:form>
+					<form:form method="post" action="remove">
+						<button onclick="getProjectID();" id="modal-removeinterest-id"
+							name="projectID" class="btn btn-danger" value=" ">Remove
+							project</button>
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Close</button>
+					</form:form>
+				</div>
+				<div id="withInterest">
+					<form:form method="post" action="approveinterest">
+						<button onclick="getProjectID();" id="modal-approveinterest-id"
+							name="projectID" class="btn btn-success" value=" ">Approve
+							request</button>
+					</form:form>
+					<form:form method="post" action="removeinterest">
+						<button onclick="getProjectID();" id="modal-removeinterestProject-id"
+							name="projectID" class="btn btn-danger" value=" ">Remove
+							Request</button>
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Close</button>
+					</form:form>
+				</div>
 			</div>
 		</div>
 	</div>

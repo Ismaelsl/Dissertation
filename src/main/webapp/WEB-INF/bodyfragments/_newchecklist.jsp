@@ -13,6 +13,10 @@
           <tr>    
           <td>Place : </td>   
           <td><form:input path="place"  /></td>  
+         </tr>
+         <tr>    
+          <td>Description : </td>   
+          <td><form:input path="description"  /></td>  
          </tr>    
          <tr>    
           <td colspan="2"><input type="submit" class="btn btn-success"  value="Save" /></td>    
