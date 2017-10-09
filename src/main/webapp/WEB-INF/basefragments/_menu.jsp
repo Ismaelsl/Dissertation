@@ -13,6 +13,8 @@
        <li><a href="${pageContext.request.contextPath}/newchecklist">New Checklist</a></li>
        <li><a href="${pageContext.request.contextPath}/checklistlist">List of Checklist</a></li>
        <li><a href="${pageContext.request.contextPath}/projectinterestedlist">Your project list</a></li>
+       <li>Lecturer</li>
        <li><a href="${pageContext.request.contextPath}/projectlecturerlist">Your project list(Lecturer)</a></li>
+       <li><a href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">Your not visible project list</a></li>
    </ul>
 </div>
