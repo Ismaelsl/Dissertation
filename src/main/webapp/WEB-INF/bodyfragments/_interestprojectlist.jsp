@@ -14,11 +14,40 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     actualID = projectID;
+    var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
+   	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
+    withInterestdiv.style.visibility  = 'visible';
+    withoutInterestdiv.style.visibility  = 'hidden';
+}
+
+function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
+    $(".modal-title").html( title );
+    $("#modal-description").html(description );
+    $("#modal-topics").html(topics );
+    $("#modal-compulsoryReading").html(compulsoryReading );
+    $("#modal-lecturerName").html(lecturerName );
+    $("#modal-lecturerEmail").html(lecturerEmail );
+    actualID = projectID;
+     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
+   	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
+    withInterestdiv.style.visibility  = 'hidden';
+    withoutInterestdiv.style.visibility  = 'visible';
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
-function getChecklistID() { 
+function getProjectID() { 
     var removeRegisterInterest = document.getElementById("modal-removeinterest-id");
+    var projectRegisterInterest = document.getElementById("modal-makeItVisible-id");
     removeRegisterInterest.value = actualID;
+    projectRegisterInterest.value = actualID;
+}
+
+<%-- This function will decide which message to show based on the size of the list --%>
+function chooseMessage(listSize){
+if(listSize == 0){
+$("#secondList").html("You do not have any not visible projects");
+}else{
+$("#secondList").html("Those are the project that you make not visible, click on them if you want to make them visibles");
+}
 }
  </script>
 <%-- The item within the {} must be the same name that the variable pass 
@@ -27,6 +56,18 @@ to the view from the controller or the variable names from the class --%>
 <c:forEach items="${projectList}" var="project">
 	<li><a
 		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}",
+  "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
+		href="#" class="test" id="userLoginButton" data-toggle="modal"
+		data-target="#userModal">Project title: ${project.title}</a></li>
+</c:forEach>
+<body onload='chooseMessage("${notInterestListSize}")'>
+	<h2>
+		<div id="secondList"></div>
+	</h2>
+</body>
+<c:forEach items="${projectListNotVisible}" var="project">
+	<li><a
+		onclick='modalPopulatorNotVisible("${project.title}","${project.description}","${project.projectID}",
   "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Project title: ${project.title}</a></li>
@@ -67,14 +108,24 @@ to the view from the controller or the variable names from the class --%>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" id = "modal-footer-user">
-			<form:form method="post" action="removeinterest">
+			<div class="modal-footer" id="modal-footer-removeInterest">
+				<form:form method="post" action="removeinterest">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
-						name="projectID" class="btn btn-danger" value=" ">Remove Interest</button>
+						name="projectID" class="btn btn-danger" value=" ">Remove
+						Interest</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>
 			</div>
+			<div class="modal-footer" id="modal-footer-registerInterest">
+				<form:form method="post" action="makeInterestVisible">
+					<button onclick="getProjectID();" id="modal-makeItVisible-id"
+						name="projectID" class="btn btn-success" value=" ">Make
+						it visible</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">Close</button>
+				</form:form>
 			</div>
 		</div>
 	</div>
+</div>

@@ -116,10 +116,17 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_personallecturerprojectlist.jsp" />  
    </definition>   
    
-      <!-- List of projects not visible by a lecturer Page -->
+   <!-- List of projects not visible by a lecturer Page -->
    <definition name="notVisibleProjectPage" extends="base.definition">  
        <put-attribute name="title" value="Projects that you remove" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_notvisibleprojectlist.jsp" />  
-   </definition>    
+   </definition>   
+   
+   <!-- List of projects by lecturer with interest Page -->
+   <definition name="yourPersonalListPageWithInterest" extends="base.definition">  
+       <put-attribute name="title" value="Your project list with student interest" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_personallecturerprojectlistwithinterest.jsp" />  
+   </definition>  
+    
 
 </tiles-definitions>

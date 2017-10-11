@@ -264,7 +264,6 @@ public class MyController {
 			rs.close();
 			st.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -552,7 +551,6 @@ public class MyController {
 			rs.close();
 			st.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
@@ -570,12 +568,14 @@ public class MyController {
 		//redirect to login page if you are not login
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
-		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userLoginID + "'; ";
+		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userLoginID + "' "
+				+ "AND visible = true; ";
 		Statement stCount = newConnection.createStatement();
 		ResultSet rs = stCount.executeQuery(query);
 		if(rs.next()) {
 			if(rs.getInt("total") == 5) {
-				model.addAttribute("message", "You already have 5 projects registered on your name, please remove one before you add new ones"); 
+				model.addAttribute("message", "You already have 5 projects registered on your name, "
+						+ "please remove one before you add new ones"); 
 				return new ModelAndView("errorPage");
 			}
 			else {
@@ -586,57 +586,100 @@ public class MyController {
 				ResultSet rsProject = stProject.executeQuery(queryProject);
 				while(rsProject.next()) {
 					//For now I am returning to home but the final version will be returning to the error page
-					//This is taking care that if the student is already register for that project, cannot register again
-					if(rsProject.getInt("projectID") == projectID) return new ModelAndView("homePage");
+					//This is taking care that if the student is already register for that project, cannot register again 
+					model.addAttribute("message", "You are already register in this project");
+					if(rsProject.getInt("projectID") == projectID && rsProject.getInt("userID") == userLoginID) return new ModelAndView("errorPage");
 				}
 				rsProject.close();
 				stProject.close();
 				//If the project is not already on the table and the student has not more than 5 projects already then we will add
 				//the new project to the table
-				String queryInsert = " insert into interestproject (userID, projectID) values (?, ?)";
+				String queryInsert = " insert into interestproject (userID, projectID, visible) values (?, ?, ?)";
 				PreparedStatement preparedStmt = newConnection.prepareStatement(queryInsert);
 				preparedStmt.setInt (1, userLoginID);
 				preparedStmt.setInt (2, projectID);
+				preparedStmt.setBoolean (3, true);//make the interest visible
 				preparedStmt.execute();
 				preparedStmt.close();
-			}		
+			}	
+			rs.close();
 		}
 
 		//I am using same page since the final message for project or checklist is the same
-		List<Project> projectList = getProjectInterestedListByStudent();
+		List<Project> projectList = getProjectInterestedListByStudent(true);
+		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false);
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
 			return new ModelAndView("errorPage");
 		}
+		model.addAttribute("projectListNotVisible",projectListNotVisible);
+		model.addAttribute("notInterestListSize", projectListNotVisible.size());
 		return new ModelAndView("interestProjectListPage","projectList",projectList);
 	}
-
-	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
-	//TODO I need to take care than if the user is not register to that project then he cannot remove interest
-	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID) throws SQLException { 
+	/**
+	 * Need to have this method since I am having errors when the user have 5 projects already and 
+	 * try to update the visibility of a project, since recognize a 6th project and stop you
+	 * @param projectID
+	 * @param model
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/makeInterestVisible",method = RequestMethod.POST)
+	public ModelAndView makeVisibleInterestPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
 		//redirect to login page if you are not login
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
-		PreparedStatement st = newConnection.prepareStatement("DELETE FROM interestproject WHERE projectID = ?");
-		st.setInt(1,projectID);
-		st.executeUpdate(); 
-		st.close();
+		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userLoginID + "' "
+				+ "AND visible = true; ";
+		Statement stCount = newConnection.createStatement();
+		ResultSet rs = stCount.executeQuery(query);
+		if(rs.next()) {
+			if(rs.getInt("total") == 5) {
+				model.addAttribute("message", "You already have 5 projects registered on your name, "
+						+ "please remove one before you add new ones"); 
+				return new ModelAndView("errorPage");
+			}else {
+				updateInterestProject(projectID,userLoginID,true);
+				List<Project> projectList = getProjectInterestedListByStudent(true);
+				List<Project> projectListNotVisible = getProjectInterestedListByStudent(false);
+				if(projectList.isEmpty()) {
+					model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+					return new ModelAndView("errorPage");
+				}
+				model.addAttribute("projectListNotVisible",projectListNotVisible);
+				model.addAttribute("notInterestListSize", projectListNotVisible.size());
+				return new ModelAndView("interestProjectListPage","projectList",projectList);
+			}
+		}
+		model.addAttribute("message", "You had not register interest for any project yet"); 
+		return new ModelAndView("errorPage");
+	}
+
+	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
+	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID, User user) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		System.out.println("user id is " + user.getUserID() + " and projectID is " + projectID);
+		updateInterestProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("projectRemovedPage");
 	}
 
 	@RequestMapping( value="/projectinterestedlist",method = RequestMethod.GET)
-	//TODO I need to take care than if the user is not register to that project then he cannot remove interest
 	public ModelAndView getListProjectInterested(Model model) throws SQLException { 
 		//redirect to login page if you are not login
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
-		List<Project> projectList = getProjectInterestedListByStudent();
+		List<Project> projectList = getProjectInterestedListByStudent(true);
+		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false);
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
 			return new ModelAndView("errorPage");
 		}	
+		model.addAttribute("projectListNotVisible",projectListNotVisible);
+		model.addAttribute("notInterestListSize", projectListNotVisible.size());
 		return new ModelAndView("interestProjectListPage","projectList",projectList);
 	}
 
@@ -646,26 +689,31 @@ public class MyController {
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
 
-		List<Project> projectList = getProjectListVisible(true);
-		List<Project> projectWithInterest = getLecturerProjectList();
-		//List<Project> projectNotVisibles = getProjectListVisible(false);
-		//List<User> userList = getAllUserswithInterest();
+		List<Project> projectList = getProjectListVisible(true);	
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty()) {
-			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			model.addAttribute("message", "You do not have any project register yet, go to project list and choose one!");
 			return new ModelAndView("errorPage");
 		}	
-
-		List<Project> finalList = listComparer(projectList,projectWithInterest);
-		model.addAttribute("projectList", finalList);
-		model.addAttribute("projectWithInterest", projectWithInterest);
-		//model.addAttribute("projectNotVisibles", projectNotVisibles);
-		//I been forced to send the size separately to the front end because javaScript lenght function
-		//does not work when the list is with objects
-		model.addAttribute("interestListSize",projectWithInterest.size());
-		//model.addAttribute("userList", userList);
+	
+		model.addAttribute("projectList", projectList);
 		return new ModelAndView("yourPersonalListPage");
 	}
+	@RequestMapping( value="/projectlistwithinterest",method = RequestMethod.GET)
+	public ModelAndView lecturerProjectListWithInterest(Model model) throws SQLException { 
+		//redirect to login page if you are not login
+		if(userLoginID == 0) return login();
+		if(newConnection == null) startDBConnection();
+		List<Project> projectWithInterest = getLecturerProjectList();	
+
+		model.addAttribute("projectWithInterest", projectWithInterest);
+		//I been forced to send the size separately to the front end because javaScript length function
+		//does not work when the list is with objects
+		model.addAttribute("interestListSize",projectWithInterest.size());
+		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
+		return new ModelAndView("yourPersonalListPageWithInterest");
+	}
+
 	@RequestMapping( value="/projectlecturerlistnotvisible",method = RequestMethod.GET)
 	public ModelAndView getListOfProjectsNoVisibleLecturer(Model model) throws SQLException { 
 		//redirect to login page if you are not login
@@ -705,26 +753,36 @@ public class MyController {
 		return new ModelAndView("notVisibleProjectPage");
 	}
 
+	//This user is the one passed from the previous method (projectwithinterestlist)
+	//This user should be populate with the userID from the project that we choose to approve
 	@RequestMapping( value="/approveinterest",method = RequestMethod.POST)
-	public ModelAndView approveInterestPage(@RequestParam(value="projectID") int projectID, int userID) throws SQLException { 
+	public ModelAndView approveInterestPage(@RequestParam(value="projectID") int projectID, 
+			User user, Model model) throws SQLException { 
 		//redirect to login page if you are not login
 		if(userLoginID == 0) return login();
 		if(newConnection == null) startDBConnection();
 
 		Project project = new Project();
 		project = project.getProject(projectID);
-
+		//getting user based on the userID, so I can have access to all his data
+		user = getUser(user.getUserID());
 		String queryInsert = " insert into approvedproject (userID, projectID) values (?, ?)";
 		PreparedStatement preparedStmt = newConnection.prepareStatement(queryInsert);
-		preparedStmt.setInt (1, userLoginID);
+		preparedStmt.setInt (1, user.getUserID());
 		preparedStmt.setInt (2, projectID);
 		preparedStmt.execute();
 		preparedStmt.close();
-		removeInterest(projectID);
-		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
-		//update the constructor on project class
-		return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
-				project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));  
+		updateListOfProjectAfterApproveInterest(user.getUserID());
+		List<Project> projectWithInterest = getLecturerProjectList();	
+
+		model.addAttribute("projectWithInterest", projectWithInterest);
+		//I been forced to send the size separately to the front end because javaScript length function
+		//does not work when the list is with objects
+		model.addAttribute("interestListSize",projectWithInterest.size());
+		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
+		model.addAttribute("message", "Student " + user.getUsername() + " had been registered with your project "
+				+ project.getTitle());
+		return new ModelAndView("yourPersonalListPageWithInterest");
 	}
 
 	public int getLastProjectID() throws SQLException {
@@ -853,7 +911,7 @@ public class MyController {
 				//if the project is not approved, then you wont show the project
 				if(rs.getBoolean("visible") == status) {
 					Project project = new Project();
-					if(rs.getInt("projectID") == 33) System.out.println("Here I am!");
+					//if(rs.getInt("projectID") == 33) System.out.println("Here I am!");
 					if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 						User actualUser = getUser(rs.getInt("lecturerID"));
 						if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
@@ -941,7 +999,7 @@ public class MyController {
 		return checklistList;
 	}
 
-	public List<Project> getProjectInterestedListByStudent() {
+	public List<Project> getProjectInterestedListByStudent(boolean status) {
 		String query = "SELECT * FROM interestproject WHERE userID = '" + userLoginID + "';";
 		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
@@ -951,12 +1009,14 @@ public class MyController {
 
 			while (rs.next())
 			{
-				Project project = new Project();
-				project = project.getProject(rs.getInt("projectID"));
-				User student = new User();
-				student = getUser(rs.getInt("userID"));
-				project.setStudent(student);
-				projectList.add(project);
+				if(rs.getBoolean("visible") == status) {
+					Project project = new Project();
+					project = project.getProject(rs.getInt("projectID"));
+					User student = new User();
+					student = getUser(rs.getInt("userID"));
+					project.setStudent(student);
+					projectList.add(project);
+				}			
 			}
 			rs.close();
 			st.close();
@@ -1036,7 +1096,7 @@ public class MyController {
 
 	public List<Project> getLecturerProjectList() {
 		String query = "SELECT * from project,interestproject WHERE interestproject.projectID = project.projectID "
-				+ " AND lecturerID = '" + userLoginID + "';";
+				+ " AND lecturerID = '" + userLoginID + "' AND interestproject.visible = true;";
 		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
 		try {
@@ -1099,10 +1159,8 @@ public class MyController {
 			rs.close();
 			st.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 	public void updateProject(int projectID, boolean status) {
 		String query ="SELECT * FROM project WHERE projectID = '" + projectID + "' FOR UPDATE;";
@@ -1121,9 +1179,52 @@ public class MyController {
 			rs.close();
 			st.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void updateInterestProject(int projectID, int userID, boolean status) {
+		String query ="SELECT * FROM interestproject WHERE projectID = '" + projectID + 
+				"' AND userID =  '" + userID + "'FOR UPDATE;";
+		Statement st;
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				PreparedStatement ps = newConnection.prepareStatement(
+						"UPDATE interestproject SET visible = ? WHERE projectID = ? AND userID = ?");
+				ps.setBoolean(1, status);
+				ps.setInt(2, projectID);
+				ps.setInt(3, userID);
+				ps.execute();
+				ps.close();
+			}
+			rs.close();
+			st.close();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public void updateListOfProjectAfterApproveInterest(int userID) {
+		String query ="SELECT * FROM interestproject WHERE userID =  '" + userID + "'FOR UPDATE;";
+		Statement st;
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				//if(rs.getInt("projectID") == projectID)continue;//if is our project, then keep it visible
+				PreparedStatement ps = newConnection.prepareStatement(
+						"UPDATE interestproject SET visible = ? WHERE userID = ?");
+				ps.setBoolean(1, false);
+				ps.setInt(2, userID);
+				ps.execute();
+				ps.close();
+			}
+			rs.close();
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
