@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.dissertationWeb.classes.CheckList;
@@ -39,7 +40,7 @@ public class MyController {
 	private HttpSession httpSession;
 
 	private Connection newConnection;
-	private int userLoginID;
+	//private int userLoginID;
 
 	private void startDBConnection() {
 		//Create a connection to the DB as soon as we need it
@@ -48,25 +49,26 @@ public class MyController {
 	}
 
 	@RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
-	public ModelAndView homePage() {
+	public ModelAndView homePage(HttpServletRequest request) {
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		return new ModelAndView("homePage");
 	}
 
 	@RequestMapping(value = "/login" , method = RequestMethod.GET)
-	public ModelAndView login() {
+	public ModelAndView login(HttpServletRequest request) {
 		//redirect to home page if you are login and try to login again
-		if(userLoginID != 0) return homePage();
+		if(getSession(request) == null) return homePage(request);
 		if(newConnection == null) startDBConnection();
 		return new ModelAndView("loginPage","command",new User());
 	}
 
 	@RequestMapping(value="/logincheck",method = RequestMethod.POST)  
-	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model){ 
+	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
 		//redirect to home page if you are login and try to login again
-		if(userLoginID != 0) return homePage();
+		if(getSession(request) == null) return homePage(request);
 		System.out.println("Username " + user.getUsername() + " password " + user.getPassword());
 		String query = "SELECT * FROM user";
 		Statement st;
@@ -78,11 +80,10 @@ public class MyController {
 				if(rs.getString("username").equals(user.getUsername()) 
 						&& rs.getString("password").equals(user.getPassword())) {
 
-					userLoginID = rs.getInt("userID");
-					System.out.println("Yeah! " + userLoginID);
-					httpSession.setAttribute("userID", rs.getInt("userID"));
+					//userLoginID = rs.getInt("userID");
+					createSession(request,rs.getInt("userID"));
+					//System.out.println("Yeah! " + userLoginID);
 					return new ModelAndView("homePage");
-					//return "homePage";
 				}
 			}
 			rs.close();
@@ -96,8 +97,22 @@ public class MyController {
 		//return "loginPage";
 	}
 
+	public void createSession(HttpServletRequest request, int userID) {
+		HttpSession session = request.getSession() ;
+		session.setAttribute("userID", userID);
+
+	}
+	public HttpSession getSession(HttpServletRequest request) {
+		HttpSession session = request.getSession() ;
+		if(session!= null) {
+			return request.getSession();
+		}
+		return null;
+	}
+
+
 	@RequestMapping(value = { "/contactus" }, method = RequestMethod.GET)
-	public ModelAndView contactusPage(Model model) throws SQLException {
+	public ModelAndView contactusPage(Model model, HttpServletRequest request) throws SQLException {
 		if(newConnection == null) startDBConnection();
 		String query = "SELECT * FROM lecturer";
 		Statement st = newConnection.createStatement();
@@ -115,14 +130,17 @@ public class MyController {
 		//return "contactusPage";
 	}
 	@RequestMapping(value = { "/projectlist" }, method = RequestMethod.GET)
-	public ModelAndView projectListPage(Model model) throws SQLException {
+	public ModelAndView projectListPage(Model model, HttpServletRequest request) throws SQLException {
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		List<Project> projectList = getProjectListVisibleAnDApprove(true,true);
-		System.out.println("testing sessions " + httpSession.getAttribute("userID"));
+		
+		System.out.println("testing sessions " + session.getAttribute("userID"));
+		System.out.println("testing HttpServletRequest sessions " + request.getAttribute("userID"));
 		System.out.println("List size " + projectList.size());
-		User user = getUser(userLoginID);
+		User user = getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("userType", user.getUserType());
 		System.out.println("user type " + user.getUserType());
 		if(projectList.isEmpty()) {
@@ -133,14 +151,16 @@ public class MyController {
 	}
 
 	@RequestMapping(value = { "/projectlisttoapprove" }, method = RequestMethod.GET)
-	public ModelAndView projectListToApprovePage(Model model) throws SQLException {
+	public ModelAndView projectListToApprovePage(Model model, HttpServletRequest request) throws SQLException {
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		//List<Project> projectList = getProjectList(true);
 		List<Project> projectList = getProjectListVisibleAnDApprove(false,true);
 		System.out.println("List size " + projectList.size());
-		User user = getUser(userLoginID);
+
+		User user = getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("userType", user.getUserType());
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project to approve");
@@ -150,9 +170,11 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/approveproject",method = RequestMethod.POST)
-	public ModelAndView approveprojectPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+	public ModelAndView approveprojectPage(@RequestParam(value="projectID") int projectID, 
+			Model model,HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 
 		//first I update the project
 		String query ="SELECT * FROM project WHERE projectID = '" + projectID + "' FOR UPDATE;";
@@ -180,8 +202,9 @@ public class MyController {
 			model.addAttribute("waitingToBeApproved",project.isWaitingToBeApproved());
 			model.addAttribute("checklistID",1);
 			//Populating user part
-			User actualUser = getUser(userLoginID);
-			model.addAttribute("lecturerID",userLoginID);
+			//HttpSession session = getSession(request);
+			User actualUser = getUser((Integer)session.getAttribute("userID"));
+			model.addAttribute("lecturerID",actualUser.getUserID());
 			model.addAttribute("lecturername", actualUser.getUsername());
 			model.addAttribute("lectureremail", actualUser.getEmail());
 		}
@@ -191,16 +214,18 @@ public class MyController {
 	}
 
 	@RequestMapping( "/newproject")
-	public ModelAndView newprojectPage(Model model) throws SQLException {  
+	public ModelAndView newprojectPage(Model model, HttpServletRequest request) throws SQLException {  
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);if(session.getAttribute("userID") == null) return login(request);
 		return new ModelAndView("newprojectPage","command",new Project());  
 	}
 
 	@RequestMapping( value="/edit",method = RequestMethod.POST)
-	public ModelAndView editprojectPage(@RequestParam(value="projectID") int projectID) throws SQLException { 
+	public ModelAndView editprojectPage(@RequestParam(value="projectID") int projectID, 
+			HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		Project project = new Project();
 		System.out.println("test projectID " + projectID);
 		project = project.getProject(projectID);
@@ -213,9 +238,11 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/remove",method = RequestMethod.POST)
-	public ModelAndView removeprojectPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+	public ModelAndView removeprojectPage(@RequestParam(value="projectID") int projectID,
+			Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		System.out.println("test projectID " + projectID);
 		Project project = new Project();
@@ -228,9 +255,11 @@ public class MyController {
 	}
 
 	@RequestMapping(value="/saveEdit",method = RequestMethod.POST)  
-	public ModelAndView saveEditProject(@ModelAttribute("project") Project project, Model model){ 
+	public ModelAndView saveEditProject(@ModelAttribute("project") Project project, 
+			Model model, HttpServletRequest request){ 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		System.out.println(project.getProjectID() +" inside edit project page!!");
 		if(newConnection == null) startDBConnection();
 		model.addAttribute("year",project.getYear());
@@ -238,9 +267,9 @@ public class MyController {
 		model.addAttribute("topics",project.getTopics());
 		model.addAttribute("compulsoryReading",project.getCompulsoryReading());
 		model.addAttribute("description",project.getDescription());
-		//Populating user part
-		User actualUser = getUser(userLoginID);
-		model.addAttribute("lecturerID",userLoginID);
+		//HttpSession session = getSession(request);
+		User actualUser = getUser((Integer)session.getAttribute("userID"));
+		model.addAttribute("lecturerID",actualUser.getUserID());
 		model.addAttribute("lecturername", actualUser.getUsername());
 		model.addAttribute("lectureremail", actualUser.getEmail());
 		//Using the "For update" method I am locking the project till I close the statement
@@ -272,9 +301,11 @@ public class MyController {
 	}
 
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
-	public ModelAndView save(@ModelAttribute("project") Project project, Model model){  
+	public ModelAndView save(@ModelAttribute("project") Project project, 
+			Model model, HttpServletRequest request){  
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		//write code to save project object  
 		//here, we are displaying project object to prove project has data  
@@ -291,9 +322,9 @@ public class MyController {
 		model.addAttribute("documentID",1);
 		model.addAttribute("waitingToBeApproved",false);
 		model.addAttribute("checklistID",1);
-		//Populating user part
-		User actualUser = getUser(userLoginID);
-		model.addAttribute("lecturerID",userLoginID);
+		//HttpSession session = getSession(request);
+		User actualUser = getUser((Integer)session.getAttribute("userID"));
+		model.addAttribute("lecturerID",actualUser.getUserID());
 		model.addAttribute("lecturername", actualUser.getUsername());
 		model.addAttribute("lectureremail", actualUser.getEmail());
 		//model.addAttribute("projectID",project.getTitle());
@@ -307,7 +338,7 @@ public class MyController {
 			preparedStmt.setString (3, project.getTopics().toString());
 			preparedStmt.setString (4, project.getCompulsoryReading().toString());
 			preparedStmt.setString (5, project.getDescription());
-			preparedStmt.setInt (6, userLoginID);
+			preparedStmt.setInt (6, (Integer)session.getAttribute("userID"));
 			preparedStmt.setBoolean (7, true);
 			preparedStmt.setInt (8, 1);
 			preparedStmt.setBoolean (9, project.isWaitingToBeApproved());
@@ -335,7 +366,9 @@ public class MyController {
 	@RequestMapping(value="/search",method = RequestMethod.POST)  
 	public ModelAndView search(@RequestParam String searchValue, @RequestParam(required = false)
 	String lecturer, @RequestParam(required = false) String technology, @RequestParam(required = false) String title,
-	Model model){ 
+	Model model, HttpServletRequest request){ 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		//System.out.println("test search value " + searchValue + " lecturer value " + lecturer + " technology value " + technology);
 		searchValue.toLowerCase();//better if I put everything on lower case
 		String query = "SELECT * FROM project";
@@ -411,7 +444,7 @@ public class MyController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "Your search criteria does not return any result please try something else");
 			return new ModelAndView("errorPage");
@@ -420,16 +453,18 @@ public class MyController {
 	}
 
 	@RequestMapping( "/newchecklist")
-	public ModelAndView newchecklistPage(Model model) throws SQLException {  
+	public ModelAndView newchecklistPage(Model model, HttpServletRequest request) throws SQLException {  
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);if(session.getAttribute("userID") == null) return login(request);
 		return new ModelAndView("checklistPage","command",new CheckList());  
 	}
 
 	@RequestMapping(value="/savechecklist",method = RequestMethod.POST)  
-	public ModelAndView saveChecklist(@ModelAttribute("checklist") CheckList checklist, Model model){  
+	public ModelAndView saveChecklist(@ModelAttribute("checklist") CheckList checklist, 
+			Model model, HttpServletRequest request){  
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		System.out.println("Checklist date: " + checklist.getDate() + " Checklist name: " + checklist.getEventName());
 
 		String query = " insert into checklist (date, eventname, place, description, visible)"
@@ -461,16 +496,18 @@ public class MyController {
 	}
 
 	@RequestMapping(value = { "/checklistlist" }, method = RequestMethod.GET)
-	public ModelAndView checklistListPage(Model model) throws SQLException {
+	public ModelAndView checklistListPage(Model model, HttpServletRequest request) throws SQLException {
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		List<CheckList> checklistList = getCheckListList(true);
 		List<CheckList> checklistListNotApproved = getCheckListList(false);
 
 		System.out.println("List size " + checklistList.size());
 		//Keep this since I need to check if user is admin or not for now
-		User user = getUser(userLoginID);
+		//HttpSession session = getSession(request);
+		User user = getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("userType", user.getUserType());
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
@@ -478,9 +515,11 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/editChecklist",method = RequestMethod.POST)
-	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, Model model) throws SQLException { 
+	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, 
+			Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		CheckList checkList = new CheckList();
 		System.out.println("test projectID " + checklistID);
 		checkList = checkList.getchecklist(checklistID);
@@ -494,9 +533,11 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/removeChecklist",method = RequestMethod.POST)
-	public ModelAndView removeChecklistPage(@RequestParam(value="checklistID") int checklistID) throws SQLException { 
+	public ModelAndView removeChecklistPage(@RequestParam(value="checklistID") int checklistID, 
+			HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		System.out.println("test projectID " + checklistID);
 		updateChecklist(checklistID,false);
@@ -504,10 +545,12 @@ public class MyController {
 		return new ModelAndView("projectRemovedPage");
 	}
 	@RequestMapping( value="/makeVisibleChecklist",method = RequestMethod.POST)
-	public ModelAndView makeVisibleChecklistPage(@RequestParam(value="checklistID") int checklistID, Model model) 
+	public ModelAndView makeVisibleChecklistPage(@RequestParam(value="checklistID") int checklistID, 
+			Model model, HttpServletRequest request) 
 			throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		//System.out.println("test projectID " + checklistID);
 		updateChecklist(checklistID,true);
@@ -521,9 +564,11 @@ public class MyController {
 	}
 
 	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.POST)  
-	public ModelAndView saveEditChecklist(@ModelAttribute("checklist") CheckList checklist, Model model){ 
+	public ModelAndView saveEditChecklist(@ModelAttribute("checklist") CheckList checklist, 
+			Model model, HttpServletRequest request){ 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		System.out.println(checklist.getCheckListID() +" inside edit checklist page!!");
 		if(newConnection == null) startDBConnection();
 		model.addAttribute("date", checklist.getDate());
@@ -564,11 +609,14 @@ public class MyController {
 	 * @throws SQLException
 	 */
 	@RequestMapping( value="/registerinterest",method = RequestMethod.POST)
-	public ModelAndView registerInterestPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+	public ModelAndView registerInterestPage(@RequestParam(value="projectID") int projectID, 
+			Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userLoginID + "' "
+		//HttpSession session = getSession(request);
+		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   (Integer)session.getAttribute("userID") + "' "
 				+ "AND visible = true; ";
 		Statement stCount = newConnection.createStatement();
 		ResultSet rs = stCount.executeQuery(query);
@@ -588,7 +636,7 @@ public class MyController {
 					//For now I am returning to home but the final version will be returning to the error page
 					//This is taking care that if the student is already register for that project, cannot register again 
 					model.addAttribute("message", "You are already register in this project");
-					if(rsProject.getInt("projectID") == projectID && rsProject.getInt("userID") == userLoginID) return new ModelAndView("errorPage");
+					if(rsProject.getInt("projectID") == projectID && rsProject.getInt("userID") == (Integer)session.getAttribute("userID")) return new ModelAndView("errorPage");
 				}
 				rsProject.close();
 				stProject.close();
@@ -596,7 +644,7 @@ public class MyController {
 				//the new project to the table
 				String queryInsert = " insert into interestproject (userID, projectID, visible) values (?, ?, ?)";
 				PreparedStatement preparedStmt = newConnection.prepareStatement(queryInsert);
-				preparedStmt.setInt (1, userLoginID);
+				preparedStmt.setInt (1, (Integer)session.getAttribute("userID"));
 				preparedStmt.setInt (2, projectID);
 				preparedStmt.setBoolean (3, true);//make the interest visible
 				preparedStmt.execute();
@@ -606,8 +654,8 @@ public class MyController {
 		}
 
 		//I am using same page since the final message for project or checklist is the same
-		List<Project> projectList = getProjectInterestedListByStudent(true);
-		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false);
+		List<Project> projectList = getProjectInterestedListByStudent(true,(Integer)session.getAttribute("userID"));
+		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
 			return new ModelAndView("errorPage");
@@ -625,11 +673,14 @@ public class MyController {
 	 * @throws SQLException
 	 */
 	@RequestMapping( value="/makeInterestVisible",method = RequestMethod.POST)
-	public ModelAndView makeVisibleInterestPage(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+	public ModelAndView makeVisibleInterestPage(@RequestParam(value="projectID") int projectID, 
+			Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userLoginID + "' "
+		//HttpSession session = getSession(request);
+		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   (Integer)session.getAttribute("userID") + "' "
 				+ "AND visible = true; ";
 		Statement stCount = newConnection.createStatement();
 		ResultSet rs = stCount.executeQuery(query);
@@ -639,9 +690,9 @@ public class MyController {
 						+ "please remove one before you add new ones"); 
 				return new ModelAndView("errorPage");
 			}else {
-				updateInterestProject(projectID,userLoginID,true);
-				List<Project> projectList = getProjectInterestedListByStudent(true);
-				List<Project> projectListNotVisible = getProjectInterestedListByStudent(false);
+				updateInterestProject(projectID,(Integer)session.getAttribute("userID"),true);
+				List<Project> projectList = getProjectInterestedListByStudent(true, (Integer)session.getAttribute("userID"));
+				List<Project> projectListNotVisible = getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 				if(projectList.isEmpty()) {
 					model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
 					return new ModelAndView("errorPage");
@@ -656,23 +707,47 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
-	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID, User user) throws SQLException { 
+	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID, 
+			User user, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		System.out.println("user id is " + user.getUserID() + " and projectID is " + projectID);
 		updateInterestProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("projectRemovedPage");
 	}
+	
+	@RequestMapping( value="/removeinterestStudent",method = RequestMethod.POST)
+	public ModelAndView removeInterestStudent(@RequestParam(value="projectID") int projectID, 
+			HttpServletRequest request) throws SQLException { 
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		//System.out.println("user id is " + user.getUserID() + " and projectID is " + projectID);
+		updateInterestProject(projectID,(Integer)session.getAttribute("userID"),false);
+		//I am using same page since the final message for project or checklist is the same
+		return new ModelAndView("projectRemovedPage");
+	}
 
 	@RequestMapping( value="/projectinterestedlist",method = RequestMethod.GET)
-	public ModelAndView getListProjectInterested(Model model) throws SQLException { 
+	public ModelAndView getListProjectInterested(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		List<Project> projectList = getProjectInterestedListByStudent(true);
-		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false);
+		//If the student already have a final project approved, then we will only show that project to him
+		Project project = getFinalProjectStudent((Integer)session.getAttribute("userID"));
+		if(project != null) {
+			List<Project> projectList = new ArrayList<Project>();
+			projectList.add(project);
+			return new ModelAndView("finalProjectPage","projectList",projectList);
+		}
+		//HttpSession session = getSession(request);
+		List<Project> projectList = getProjectInterestedListByStudent(true, (Integer)session.getAttribute("userID"));
+		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
@@ -684,9 +759,10 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/projectlecturerlist",method = RequestMethod.GET)
-	public ModelAndView getListOfProjectsLecturer(Model model) throws SQLException { 
+	public ModelAndView getListOfProjectsLecturer(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 
 		List<Project> projectList = getProjectListVisible(true);	
@@ -695,16 +771,19 @@ public class MyController {
 			model.addAttribute("message", "You do not have any project register yet, go to project list and choose one!");
 			return new ModelAndView("errorPage");
 		}	
-	
+
 		model.addAttribute("projectList", projectList);
 		return new ModelAndView("yourPersonalListPage");
 	}
 	@RequestMapping( value="/projectlistwithinterest",method = RequestMethod.GET)
-	public ModelAndView lecturerProjectListWithInterest(Model model) throws SQLException { 
+	public ModelAndView lecturerProjectListWithInterest(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		List<Project> projectWithInterest = getLecturerProjectList();	
+		//HttpSession session = getSession(request);
+
+		List<Project> projectWithInterest = getLecturerProjectList((Integer)session.getAttribute("userID"));	
 
 		model.addAttribute("projectWithInterest", projectWithInterest);
 		//I been forced to send the size separately to the front end because javaScript length function
@@ -715,9 +794,10 @@ public class MyController {
 	}
 
 	@RequestMapping( value="/projectlecturerlistnotvisible",method = RequestMethod.GET)
-	public ModelAndView getListOfProjectsNoVisibleLecturer(Model model) throws SQLException { 
+	public ModelAndView getListOfProjectsNoVisibleLecturer(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 
 		List<Project> projectNotVisibles = getProjectListVisible(false);
@@ -730,11 +810,13 @@ public class MyController {
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		return new ModelAndView("notVisibleProjectPage");
 	}
-	
+
 	@RequestMapping( value="/makeItVisible",method = RequestMethod.POST)
-	public ModelAndView makeAProjectVisible(@RequestParam(value="projectID") int projectID, Model model) throws SQLException { 
+	public ModelAndView makeAProjectVisible(@RequestParam(value="projectID") int projectID, 
+			Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		updateProject(projectID, true);//update the project to visible
 		//getting the project to obtain the title
@@ -757,11 +839,13 @@ public class MyController {
 	//This user should be populate with the userID from the project that we choose to approve
 	@RequestMapping( value="/approveinterest",method = RequestMethod.POST)
 	public ModelAndView approveInterestPage(@RequestParam(value="projectID") int projectID, 
-			User user, Model model) throws SQLException { 
+			User user, Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		if(userLoginID == 0) return login();
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-
+		//HttpSession session = getSession(request);
+		
 		Project project = new Project();
 		project = project.getProject(projectID);
 		//getting user based on the userID, so I can have access to all his data
@@ -773,7 +857,7 @@ public class MyController {
 		preparedStmt.execute();
 		preparedStmt.close();
 		updateListOfProjectAfterApproveInterest(user.getUserID());
-		List<Project> projectWithInterest = getLecturerProjectList();	
+		List<Project> projectWithInterest = getLecturerProjectList((Integer)session.getAttribute("userID"));	
 
 		model.addAttribute("projectWithInterest", projectWithInterest);
 		//I been forced to send the size separately to the front end because javaScript length function
@@ -999,7 +1083,7 @@ public class MyController {
 		return checklistList;
 	}
 
-	public List<Project> getProjectInterestedListByStudent(boolean status) {
+	public List<Project> getProjectInterestedListByStudent(boolean status, int userLoginID) {
 		String query = "SELECT * FROM interestproject WHERE userID = '" + userLoginID + "';";
 		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
@@ -1050,7 +1134,7 @@ public class MyController {
 		return projectList;
 	}
 
-	public List<Project> getAllProjectByLecturer() {
+	public List<Project> getAllProjectByLecturer(int userLoginID) {
 		String query = "SELECT * FROM project WHERE lecturerID = '" + userLoginID + "';";
 		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
@@ -1094,7 +1178,10 @@ public class MyController {
 		return userList;
 	}
 
-	public List<Project> getLecturerProjectList() {
+	public List<Project> getLecturerProjectList(int userLoginID) {
+		//Since I am only accepting project that their visibility is true, I am controlling that if another lecturer approve
+		//a student all the student list will stop show the interest of that student
+		//The student interest will still be keep on the DB but hidden
 		String query = "SELECT * from project,interestproject WHERE interestproject.projectID = project.projectID "
 				+ " AND lecturerID = '" + userLoginID + "' AND interestproject.visible = true;";
 		Statement st;
@@ -1205,7 +1292,7 @@ public class MyController {
 		}
 
 	}
-	
+
 	public void updateListOfProjectAfterApproveInterest(int userID) {
 		String query ="SELECT * FROM interestproject WHERE userID =  '" + userID + "'FOR UPDATE;";
 		Statement st;
@@ -1227,4 +1314,24 @@ public class MyController {
 			e.printStackTrace();
 		}
 	}
+	
+	public Project getFinalProjectStudent(int userID) {
+		String query ="SELECT * FROM approvedproject WHERE userID =  '" + userID + "';";
+		Statement st;
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) {
+				Project project = new Project();
+				project = project.getProject(rs.getInt("projectID"));
+				return project;
+			}
+			rs.close();
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }

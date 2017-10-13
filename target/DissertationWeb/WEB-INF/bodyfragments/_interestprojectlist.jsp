@@ -18,6 +18,10 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
     withInterestdiv.style.visibility  = 'visible';
     withoutInterestdiv.style.visibility  = 'hidden';
+    var userIDToApprove = document.getElementById("userIDToMakeVisible");
+      var userIDToRemove = document.getElementById("userIDToRemove");
+     userIDToApprove.value = userID;
+     userIDToRemove.value = userID;
 }
 
 function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
@@ -32,6 +36,10 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
     withInterestdiv.style.visibility  = 'hidden';
     withoutInterestdiv.style.visibility  = 'visible';
+        var userIDToApprove = document.getElementById("userIDToMakeVisible");
+      var userIDToRemove = document.getElementById("userIDToRemove");
+     userIDToApprove.value = userID;
+     userIDToRemove.value = userID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getProjectID() { 
@@ -109,21 +117,25 @@ to the view from the controller or the variable names from the class --%>
 				</div>
 			</div>
 			<div class="modal-footer" id="modal-footer-removeInterest">
-				<form:form method="post" action="removeinterest">
+				<form:form method="post" action="removeinterestStudent"
+					modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
+					<form:hidden id="userIDToRemove" path="userID" value="" />
 				</form:form>
 			</div>
 			<div class="modal-footer" id="modal-footer-registerInterest">
-				<form:form method="post" action="makeInterestVisible">
+				<form:form method="post" action="makeInterestVisible"
+					modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
 						name="projectID" class="btn btn-success" value=" ">Make
 						it visible</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
+					<form:hidden id="userIDToMakeVisible" path="userID" value="" />
 				</form:form>
 			</div>
 		</div>
