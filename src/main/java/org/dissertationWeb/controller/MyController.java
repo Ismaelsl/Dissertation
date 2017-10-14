@@ -868,6 +868,43 @@ public class MyController {
 				+ project.getTitle());
 		return new ModelAndView("yourPersonalListPageWithInterest");
 	}
+	
+	@RequestMapping( value="/studentlist",method = RequestMethod.GET)
+	public ModelAndView allStudentsPage(Model model, HttpServletRequest request) throws SQLException { 
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		List<User> studentList = getAllStudentList();
+		return new ModelAndView("studentListPage","studentList",studentList);  
+	}
+	
+	@RequestMapping( value="/getstudentprojects",method = RequestMethod.POST)
+	public ModelAndView getAllProjectStudentList(@RequestParam(value="studentID") int studentID, 
+			Model model, HttpServletRequest request) throws SQLException { 
+		System.out.println("student ID is :" + studentID);
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		//If the student already have a final project approved, then we will only show that project to him
+		Project finalProject = getFinalProjectStudent(studentID);
+		
+		//HttpSession session = getSession(request);
+		//List<Project> projectList = getProjectInterestedListByStudent(true, studentID);
+		List<Project> projectListNotVisible = getProjectInterestedListByStudent(false, studentID);
+		//If project is empty then I will redirect to error page with a message explaining what to do
+		/*if(projectList.isEmpty()) {
+			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			return new ModelAndView("errorPage");
+		}*/	
+		model.addAttribute("projectListNotVisible",projectListNotVisible);
+		model.addAttribute("notInterestListSize", projectListNotVisible.size());
+		if(finalProject == null) model.addAttribute("noFinalProject", true);
+		else model.addAttribute("noFinalProject", false);
+		model.addAttribute("finalProject", finalProject);
+		return new ModelAndView("allStudentProjectPage");
+	}
 
 	public int getLastProjectID() throws SQLException {
 		if(newConnection == null) startDBConnection();
@@ -1007,6 +1044,8 @@ public class MyController {
 					project.setDescription(rs.getString("description"));
 					project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
 					project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
+					project.setVisible(rs.getBoolean("visible"));
+					project.setWaitingToBeApproved(rs.getBoolean("waitingtobeapproved"));
 
 					projectList.add(project);
 				}			
@@ -1043,6 +1082,8 @@ public class MyController {
 					project.setDescription(rs.getString("description"));
 					project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
 					project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
+					project.setVisible(rs.getBoolean("visible"));
+					project.setWaitingToBeApproved(rs.getBoolean("waitingtobeapproved"));
 
 					projectList.add(project);
 				}			
@@ -1332,6 +1373,27 @@ public class MyController {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public List<User> getAllStudentList() {
+		String query = "SELECT * from user WHERE user.userType = 2;";
+		Statement st;
+		List<User> userList = new ArrayList<User>();
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+
+			while (rs.next())
+			{
+				User student = getUser(rs.getInt("userID"));
+				userList.add(student);
+			}
+			rs.close();
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return userList;
 	}
 	
 }

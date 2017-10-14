@@ -133,5 +133,17 @@
        <put-attribute name="title" value="Here is your approved project" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_finalproject.jsp" />  
    </definition>  
-    
+   
+   <!-- Student list Page -->
+   <definition name="studentListPage" extends="base.definition">  
+       <put-attribute name="title" value="List of all the students" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_studentlist.jsp" />  
+   </definition>  
+   
+      <!-- All project of a student Page -->
+   <definition name="allStudentProjectPage" extends="base.definition">  
+       <put-attribute name="title" value="List of all the projects" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_allstudentprojects.jsp" />  
+   </definition>  
+     
 </tiles-definitions>

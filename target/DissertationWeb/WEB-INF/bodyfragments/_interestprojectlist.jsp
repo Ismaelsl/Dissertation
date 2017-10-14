@@ -118,24 +118,23 @@ to the view from the controller or the variable names from the class --%>
 			</div>
 			<div class="modal-footer" id="modal-footer-removeInterest">
 				<form:form method="post" action="removeinterestStudent"
-					modelAttribute="user">
+					>
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
-					<form:hidden id="userIDToRemove" path="userID" value="" />
+					
 				</form:form>
 			</div>
 			<div class="modal-footer" id="modal-footer-registerInterest">
 				<form:form method="post" action="makeInterestVisible"
-					modelAttribute="user">
+					>
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
 						name="projectID" class="btn btn-success" value=" ">Make
 						it visible</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
-					<form:hidden id="userIDToMakeVisible" path="userID" value="" />
 				</form:form>
 			</div>
 		</div>
