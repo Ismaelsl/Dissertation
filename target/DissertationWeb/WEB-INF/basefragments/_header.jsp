@@ -7,9 +7,9 @@
      <h1>Dissertation Web Application</h1>
   </div>
  
-  <div style="float: right; padding: 10px; text-align: right;">
+  <div style="float: right; padding: 0px; text-align: right;">
  
-     <%-- Search <input name="search"> --%>
+    <img src="bootstrap/images/stirling.png" alt="stirlingunilogo" height="50" width="185">
  
   </div>
  

@@ -6,13 +6,15 @@
 in this way I always will have the actual ID of the project open in the modal --%>
 var actualID;
 
-function modalPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
+function modalPopulator(title,description,projectID,visible, approved, topics,compulsoryReading, lecturerName, lecturerEmail) {
     $(".modal-title").html( title );
     $("#modal-description").html(description );
     $("#modal-topics").html(topics );
     $("#modal-compulsoryReading").html(compulsoryReading );
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
+    $("#modal-visible").html(visible );
+    $("#modal-approved").html(approved );
     actualID = projectID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
@@ -65,8 +67,9 @@ to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
 	<li><a
-		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}",
-  "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
+		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}","${project.visible}",
+		"${project.waitingToBeApproved}","${project.topics}","${project.compulsoryReading}",
+		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Project title: ${project.title}</a></li>
 </c:forEach>
@@ -86,6 +89,14 @@ to the view from the controller or the variable names from the class --%>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">
+					<div class="row">
+						<b>Visible:</b>
+						<div class="col-md-12" id="modal-visible"></div>
+					</div>
+					<div class="row">
+						<b>Approved:</b>
+						<div class="col-md-12" id="modal-approved"></div>
+					</div>
 					<div class="row">
 						<b>Description:</b>
 						<div class="col-md-12" id="modal-description"></div>

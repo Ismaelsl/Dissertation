@@ -7,7 +7,7 @@ in this way I always will have the actual ID of the project open in the modal --
 var actualID;
 var userID;
  
-function modalInterestPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail, studentName,user) {
+function modalInterestPopulator(title,description,projectID,visible, approved,topics,compulsoryReading, lecturerName, lecturerEmail, studentName,user) {
     $(".modal-title").html( title );
     $("#modal-description").html(description );
     $("#modal-topics").html(topics );
@@ -15,6 +15,8 @@ function modalInterestPopulator(title,description,projectID,topics,compulsoryRea
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     $("#modal-studentName").html(studentName );
+     $("#modal-visible").html(visible );
+    $("#modal-approved").html(approved );
     actualID = projectID; 
     userID = user;
      var userIDToApprove = document.getElementById("userID");
@@ -54,8 +56,8 @@ to the view from the controller or the variable names from the class --%>
 <c:forEach items="${projectWithInterest}" var="project">
 	<li><a
 		onclick='modalInterestPopulator("${project.title}","${project.description}","${project.projectID}",
-  "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}",
-  "${project.student.username}","${project.student.userID}")'
+  "${project.visible}","${project.waitingToBeApproved}","${project.topics}","${project.compulsoryReading}",
+  "${project.user.username}","${project.user.email}","${project.student.username}","${project.student.userID}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#projectModal">Project title: ${project.title}</a></li>
 </c:forEach>
@@ -75,6 +77,14 @@ to the view from the controller or the variable names from the class --%>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">
+					<div class="row">
+						<b>Visible:</b>
+						<div class="col-md-12" id="modal-visible"></div>
+					</div>
+					<div class="row">
+						<b>Approved:</b>
+						<div class="col-md-12" id="modal-approved"></div>
+					</div>
 					<div class="row">
 						<b>Description:</b>
 						<div class="col-md-12" id="modal-description"></div>
@@ -100,17 +110,19 @@ to the view from the controller or the variable names from the class --%>
 				</div>
 			</div>
 			<div class="modal-footer" id="modal-footer-admin">
-				<form:form method="post" action="approveinterest" modelAttribute="user">
+				<form:form method="post" action="approveinterest"
+					modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-approveinterest-id"
 						name="projectID" class="btn btn-success" value=" ">Approve
 						request</button>
-						<form:hidden id = "userID" path="userID" value=""/>
+					<form:hidden id="userID" path="userID" value="" />
 				</form:form>
-				<form:form method="post" action="removeinterest" modelAttribute="user">
+				<form:form method="post" action="removeinterest"
+					modelAttribute="user">
 					<button onclick="getProjectID();"
 						id="modal-removeinterestProject-id" name="projectID"
 						class="btn btn-danger" value=" ">Remove Request</button>
-						<form:hidden id = "userIDRemove" path="userID" value=""/>
+					<form:hidden id="userIDRemove" path="userID" value="" />
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>

@@ -1,0 +1,11 @@
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:50 +0000] "GET /DissertationWeb/projectlecturerlistnotvisible HTTP/1.1" 200 3836 http-bio-8080-exec-1 1591
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:50 +0000] "GET /DissertationWeb/bootstrap/css/bootstrap.min.css HTTP/1.1" 200 124962 http-bio-8080-exec-2 44
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:50 +0000] "GET /DissertationWeb/bootstrap/js/bootstrap.min.js HTTP/1.1" 200 51143 http-bio-8080-exec-3 114
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:50 +0000] "GET /DissertationWeb/bootstrap/images/stirling.png HTTP/1.1" 200 32655 http-bio-8080-exec-4 37
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:50 +0000] "GET /DissertationWeb/bootstrap/images/copyright.png HTTP/1.1" 200 3650 http-bio-8080-exec-5 41
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:51 +0000] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-7 0
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:49:54 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 3356 http-bio-8080-exec-9 186
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:50:00 +0000] "GET /DissertationWeb/projectlist HTTP/1.1" 200 13743 http-bio-8080-exec-10 586
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:50:12 +0000] "POST /DissertationWeb/edit HTTP/1.1" 200 4953 http-bio-8080-exec-10 442
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:50:30 +0000] "POST /DissertationWeb/saveEdit HTTP/1.1" 200 4036 http-bio-8080-exec-10 220
+0:0:0:0:0:0:0:1 - - [30/Oct/2017:09:50:33 +0000] "GET /DissertationWeb/projectlist HTTP/1.1" 200 13640 http-bio-8080-exec-10 458
