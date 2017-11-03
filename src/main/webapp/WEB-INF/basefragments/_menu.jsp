@@ -43,9 +43,11 @@
  			<li><a href="${pageContext.request.contextPath}/projectlisttoapprove">Project List to approve</a></li> 
 	       	<li><a href="${pageContext.request.contextPath}/newchecklist">New Checklist</a></li>
 	       	<li><a href="${pageContext.request.contextPath}/studentlist">Student list</a></li>
+	       	<li><a href="${pageContext.request.contextPath}/previousyearprojects">Previous year projects</a></li>
         </ul>
       </li>
 	      	<li><a href="${pageContext.request.contextPath}/login">Login</a></li>
+	      	<li class="active"><a href="${pageContext.request.contextPath}/logout">Logout</a></li>
 	      	<%-- <li><a href="${pageContext.request.contextPath}/">Home</a></li>--%>
 	       	<li><a href="${pageContext.request.contextPath}/contactus">Contact Us</a></li>
 	       	<li><a href="${pageContext.request.contextPath}/newproject">New Project</a></li>

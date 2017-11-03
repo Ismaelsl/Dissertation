@@ -905,6 +905,26 @@ public class MyController {
 		model.addAttribute("finalProject", finalProject);
 		return new ModelAndView("allStudentProjectPage");
 	}
+	
+	@RequestMapping( value="/previousyearprojects",method = RequestMethod.GET)
+	public ModelAndView previousYear(Model model, HttpServletRequest request) throws SQLException { 
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		//TODO create and add the view to load previous year projects
+		model.addAttribute("message", "Functionality still not implemented");
+		return new ModelAndView("errorPage"); 
+	}
+	@RequestMapping( value="/logout",method = RequestMethod.GET)
+	public ModelAndView logout(Model model, HttpServletRequest request) throws SQLException { 
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		//if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		session.invalidate();
+		return login(request);
+	}
 
 	public int getLastProjectID() throws SQLException {
 		if(newConnection == null) startDBConnection();

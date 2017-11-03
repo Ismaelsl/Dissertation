@@ -27,6 +27,7 @@
     </div>
     <ul class="nav navbar-nav">
       <li class="active"><a href="#">Home</a></li>
+       <li class="active"><a href="${pageContext.request.contextPath}/logout">Logout</a></li>
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Lecturer lists
         <span class="caret"></span></a>
@@ -43,6 +44,7 @@
  			<li><a href="${pageContext.request.contextPath}/projectlisttoapprove">Project List to approve</a></li> 
 	       	<li><a href="${pageContext.request.contextPath}/newchecklist">New Checklist</a></li>
 	       	<li><a href="${pageContext.request.contextPath}/studentlist">Student list</a></li>
+	       	<li><a href="${pageContext.request.contextPath}/previousyearprojects">Previous year projects</a></li>
         </ul>
       </li>
 	      	<li><a href="${pageContext.request.contextPath}/login">Login</a></li>
