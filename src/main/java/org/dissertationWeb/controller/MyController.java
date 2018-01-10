@@ -83,7 +83,7 @@ public class MyController {
 			{
 				if(rs.getString("username").equals(user.getUsername()) 
 						&& rs.getString("password").equals(user.getPassword())) {
-					createSession(request,rs.getInt("userID"));
+					createSession(request,rs.getInt("userID"), rs.getInt("userType"));
 					return new ModelAndView("homePage");
 				}
 			}
@@ -103,10 +103,11 @@ public class MyController {
 	 * @param request
 	 * @param userID
 	 */
-	public void createSession(HttpServletRequest request, int userID) {
+	public void createSession(HttpServletRequest request, int userID, int userType) {
 		HttpSession session = request.getSession() ;
 		session.setAttribute("userID", userID);
-		session.setMaxInactiveInterval(60);
+		session.setAttribute("userType", userType);
+		session.setMaxInactiveInterval(600);
 	}
 	public HttpSession getSession(HttpServletRequest request) {
 		HttpSession session = request.getSession() ;
