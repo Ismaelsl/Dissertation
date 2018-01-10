@@ -4,7 +4,7 @@
 	<table>
 		<tr>    
           <td>Date : </td>   
-          <td><form:input type="date" path="date"  value='<fmt:formatDate value="" pattern="dd-MM-yyyy" />'/></td>  
+          <td><form:input type="date" path="date" value="" /></td>  
          </tr>  
          <tr>    
           <td>Event Name : </td>    

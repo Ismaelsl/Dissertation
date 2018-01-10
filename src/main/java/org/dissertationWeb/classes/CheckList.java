@@ -11,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 public class CheckList {
 	private int checkListID;
+	//special spring notation that is telling to the view (JSP) how to format the date from the DB on the view
 	@DateTimeFormat(pattern="dd.MM.yyyy")
 	private String date;
 	private String eventName;
@@ -94,7 +95,6 @@ public class CheckList {
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return checklist;

@@ -56,6 +56,16 @@ public class DBConnection {
 				e.printStackTrace();
 			}
 		}
+		try {
+			//Autocommit false, force to do a commit after each insert/delete/update
+			//The idea is that if the action false, I can do a rollback and not commit nothing
+			//connection.setAutoCommit(false);
+			//Complete transaction isolation within my application
+			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return connection;
 	}
 

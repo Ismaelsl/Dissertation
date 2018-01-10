@@ -14,17 +14,17 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     actualID = projectID;
-    var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
+  <%--  var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
     withInterestdiv.style.visibility  = 'visible';
     withoutInterestdiv.style.visibility  = 'hidden';
     var userIDToApprove = document.getElementById("userIDToMakeVisible");
       var userIDToRemove = document.getElementById("userIDToRemove");
      userIDToApprove.value = userID;
-     userIDToRemove.value = userID;
+     userIDToRemove.value = userID;--%>
 }
 
-function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
+function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail, user) {
     $(".modal-title").html( title );
     $("#modal-description").html(description );
     $("#modal-topics").html(topics );
@@ -32,14 +32,17 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     actualID = projectID;
-     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
+    userID = user;
+     var userIDToRemove = document.getElementById("userIDRemove");
+     userIDToRemove.value = userID;
+    <%-- var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
     withInterestdiv.style.visibility  = 'hidden';
     withoutInterestdiv.style.visibility  = 'visible';
         var userIDToApprove = document.getElementById("userIDToMakeVisible");
       var userIDToRemove = document.getElementById("userIDToRemove");
      userIDToApprove.value = userID;
-     userIDToRemove.value = userID;
+     userIDToRemove.value = userID;--%>
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getProjectID() { 
@@ -71,19 +74,20 @@ to the view from the controller or the variable names from the class --%>
 		<div id="secondList"></div>
 	</h2>
 
-<c:forEach items="${projectListNotVisible}" var="project">
+<%--<c:forEach items="${projectListNotVisible}" var="project">
 	<li><a
 		onclick='modalPopulatorNotVisible("${project.title}","${project.description}","${project.projectID}",
   "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Project title: ${project.title}</a></li>
-</c:forEach>
+</c:forEach>--%>
 	<h2>
 		<div id="finalProject"></div>
 	</h2>
 	<li><a
 		onclick='modalPopulatorNotVisible("${finalProject.title}","${finalProject.description}","${finalProject.projectID}",
-  "${finalProject.topics}","${finalProject.compulsoryReading}","${finalProject.user.username}","${finalProject.user.email}")'
+  "${finalProject.topics}","${finalProject.compulsoryReading}","${finalProject.user.username}","${finalProject.user.email}", 
+  "${finalProject.user.userID}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Project title: ${finalProject.title}</a></li>
 </body>
@@ -124,17 +128,16 @@ to the view from the controller or the variable names from the class --%>
 				</div>
 			</div>
 			<div class="modal-footer" id="modal-footer-removeInterest">
-				<form:form method="post" action="removeinterestStudent"
-					>
+				<form:form method="post" action="removeinterestStudent" modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>
+						<form:hidden id="userIDRemove" path="userID" value="" />
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
-					
 				</form:form>
 			</div>
-			<div class="modal-footer" id="modal-footer-registerInterest">
+		<%--	<div class="modal-footer" id="modal-footer-registerInterest">
 				<form:form method="post" action="makeInterestVisible"
 					>
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
@@ -142,7 +145,7 @@ to the view from the controller or the variable names from the class --%>
 						it visible</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
-				</form:form>
+				</form:form>--%>
 			</div>
 		</div>
 	</div>

@@ -140,10 +140,23 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_studentlist.jsp" />  
    </definition>  
    
-      <!-- All project of a student Page -->
+   <!-- All project of a student Page -->
    <definition name="allStudentProjectPage" extends="base.definition">  
        <put-attribute name="title" value="List of all the projects" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_allstudentprojects.jsp" />  
    </definition>  
+     
+   <!-- All year project Page -->
+   <definition name="yearListProjectPage" extends="base.definition">  
+       <put-attribute name="title" value="List of all year with projects" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofpreviousyearprojects.jsp" />  
+   </definition>  
+   
+   <!-- All projects by year Page -->
+   <definition name="previousyearprojectlist" extends="base.definition">  
+       <put-attribute name="title" value="List of all project for the year selected" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_previousyearprojectlist.jsp" />  
+   </definition>  
+
      
 </tiles-definitions>
