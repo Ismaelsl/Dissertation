@@ -19,6 +19,7 @@ public class Project {
 	private boolean waitingToBeApproved;
 	private CheckList checkList;
 	private User student;
+	private int lecturerID;
 
 	public Project() {
 
@@ -26,7 +27,7 @@ public class Project {
 	public Project(int projectID, int year, String title, String topics, 
 			String compulsoryReading,String description, User user, 
 			boolean visible, Document document, boolean waitingToBeApproved,
-			CheckList checkList) {
+			CheckList checkList, int lecturerID) {
 		super();
 		this.projectID = projectID;
 		this.year = year;
@@ -39,6 +40,7 @@ public class Project {
 		this.document = document;
 		this.waitingToBeApproved = waitingToBeApproved;
 		this.checkList = checkList;
+		this.lecturerID = lecturerID;
 	}
 	public Project(int projectID,int year, String title, String topics,
 			String compulsoryReading,String description){
@@ -89,7 +91,7 @@ public class Project {
 				Project project = new Project(rs.getInt("projectID"), rs.getInt("year"), rs.getString("title"), rs.getString("topic"),
 						rs.getString("compulsoryReading"), rs.getString("description"), user, 
 						rs.getBoolean("visible"),new Document(rs.getInt("documentID")), rs.getBoolean("waitingtobeapproved"), 
-						new CheckList());
+						new CheckList(),user.getUserID());
 				//System.out.println("test " + rs.getString("title"));
 				return project;
 			}
@@ -172,6 +174,9 @@ public class Project {
 	}
 	public void setStudent(User student) {
 		this.student = student;
+	}
+	public int getlecturerID() {
+		return lecturerID;
 	}
 
 }

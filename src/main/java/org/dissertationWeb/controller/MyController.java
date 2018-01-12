@@ -5,36 +5,27 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.dissertationWeb.classes.CheckList;
 import org.dissertationWeb.classes.DBConnection;
-import org.dissertationWeb.classes.Document;
-import org.dissertationWeb.classes.Lecturer;
+import org.dissertationWeb.classes.MailMail;
 import org.dissertationWeb.classes.Project;
 import org.dissertationWeb.classes.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.SessionScope;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -107,7 +98,7 @@ public class MyController {
 		HttpSession session = request.getSession() ;
 		session.setAttribute("userID", userID);
 		session.setAttribute("userType", userType);
-		session.setMaxInactiveInterval(600);
+		session.setMaxInactiveInterval(600);//right now is 600 seconds since I need to do some testing and need the session to last longer
 	}
 	public HttpSession getSession(HttpServletRequest request) {
 		HttpSession session = request.getSession() ;
@@ -217,6 +208,15 @@ public class MyController {
 				model.addAttribute("lecturerID",actualUser.getUserID());
 				model.addAttribute("lecturername", actualUser.getUsername());
 				model.addAttribute("lectureremail", actualUser.getEmail());
+				ApplicationContext context =
+						new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+				MailMail mm = (MailMail) context.getBean("mailMail");
+				String message = "Your project had been approved";
+				String lecturerEmail = actualUser.getEmail();
+				mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Approved project from " + actualUser.getUsername(),message);
+				//Final version will be sending an email to the lecturer letting him now that the project had been approved
+				//mm.sendMail("ismael.sanchez.leon@gmail.com",lecturerEmail,"Project approved " + actualUser.getUsername(),message);
 			}
 			rs.close();
 			st.close();
@@ -224,7 +224,7 @@ public class MyController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
 		return new ModelAndView("projectPage","project",model);//will display object data 
 	}
 
@@ -234,6 +234,37 @@ public class MyController {
 		HttpSession session = getSession(request);if(session.getAttribute("userID") == null) return login(request);
 		return new ModelAndView("newprojectPage","command",new Project());  
 	}
+
+	@RequestMapping( "/projectproposal")
+	public ModelAndView newprojectProposalPage(Model model, HttpServletRequest request) throws SQLException {  
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);if(session.getAttribute("userID") == null) return login(request);
+		return new ModelAndView("projectproposalpage","command",new Project());  
+	}
+
+	@RequestMapping(value="/sendProposal",method = RequestMethod.POST)  
+	public ModelAndView saveProposal(@ModelAttribute("project") Project project, 
+			Model model, HttpServletRequest request){  
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		//write code to save project object  
+		//here, we are displaying project object to prove project has data  
+		User user = getUser((Integer)session.getAttribute("userID"));
+		System.out.println(project.getTitle()+" "+project.getDescription()); 
+		//Automatic email system
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String message = mm.createMessageProjectProposal(user.getUsername(), project.getDescription(),
+				project.getCompulsoryReading(),project.getTitle(),project.getTopics());
+		String emailFrom = user.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project proposal from " + user.getUsername(),message);
+		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
+		return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}  
 
 	@RequestMapping( value="/edit",method = RequestMethod.POST)
 	public ModelAndView editprojectPage(@RequestParam(value="projectID") int projectID, 
@@ -266,6 +297,14 @@ public class MyController {
 		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
 		//update the constructor on project class
 		model.addAttribute("message", project.getTitle());
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String message = "The visibility of your project had been deactivated";
+		User user = getUser((Integer)session.getAttribute("userID"));
+		String lecturerEmail = user.getEmail();
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Project removed from " + user.getUsername(),message);
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -312,7 +351,14 @@ public class MyController {
 			e.printStackTrace();
 		}
 
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String message = "Your project had been modified";
+		User user = getUser((Integer)session.getAttribute("userID"));
+		String lecturerEmail = user.getEmail();
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Modified project from " + user.getUsername(),message);
 		return new ModelAndView("projectPage","project",model);//will display object data  
 	}
 
@@ -367,6 +413,15 @@ public class MyController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		//Automatic email system
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String message = mm.newOrApproveProjectMessage(actualUser.getUsername(),project.getTitle(), "created");
+		String emailFrom = actualUser.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project from " + actualUser.getUsername(),message);
+		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
 		return new ModelAndView("projectPage","project",model);//will display object data  
 	}  
 
@@ -383,11 +438,16 @@ public class MyController {
 	public ModelAndView search(@RequestParam String searchValue, @RequestParam(required = false)
 	String lecturer, @RequestParam(required = false) String technology, @RequestParam(required = false) String title,
 	Model model, HttpServletRequest request){ 
+		//required false indicate that it is not compulsory to have it, so if I do not have, for example, a title, java will not complaint
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		//System.out.println("test search value " + searchValue + " lecturer value " + lecturer + " technology value " + technology);
 		searchValue.toLowerCase();//better if I put everything on lower case
-		String query = "SELECT * FROM project";
+		//I am only interested to show projects that are visible and approved and has not been already choose by another student
+		//String query = "SELECT * FROM project WHERE visible = true AND waitingtobeapproved = true";
+		String query = "SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
+				+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID) "
+				+ "AND visible = true AND waitingtobeapproved = true";
 		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
 		try {
@@ -399,7 +459,7 @@ public class MyController {
 			{
 				//if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then added to the view
 				Project project = new Project();
-				if(technology!=null) {
+				if(technology != null) {
 					if(rs.getString("topic").contains(searchValue)) {
 						if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 							User actualUser = getUser(rs.getInt("lecturerID"));
@@ -417,20 +477,22 @@ public class MyController {
 
 					}						
 				}
-				if(rs.getString("title").contains(searchValue)) {
-					if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
-						User actualUser = getUser(rs.getInt("lecturerID"));
-						if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
-						project.setUser(actualUser);
-					}	
+				if(title != null) {
+					if(rs.getString("title").contains(searchValue)) {
+						if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
+							User actualUser = getUser(rs.getInt("lecturerID"));
+							if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
+							project.setUser(actualUser);
+						}	
 
-					project.setProjectID(rs.getInt("projectID"));
-					project.setTitle(rs.getString("title"));
-					project.setDescription(rs.getString("description"));
-					project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
-					project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
+						project.setProjectID(rs.getInt("projectID"));
+						project.setTitle(rs.getString("title"));
+						project.setDescription(rs.getString("description"));
+						project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
+						project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
 
-					projectList.add(project);
+						projectList.add(project);
+					}
 				}
 				if(lecturer != null) {
 					User user = getUserByName(searchValue);
@@ -510,6 +572,13 @@ public class MyController {
 			e.printStackTrace();
 		}		
 		//Need to change this redirect to a checklistPage to see the checklist that we just added
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String message = "A new element in the scheduled had been added";
+		User user = getUser((Integer)session.getAttribute("userID"));
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New element in the scheduled aded for " + user.getUsername(),message);
 		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
 	}
 
@@ -560,6 +629,15 @@ public class MyController {
 		System.out.println("test projectID " + checklistID);
 		updateChecklist(checklistID,false);
 		//I am using same page since the final message for project or checklist is the same
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		CheckList checkList = new CheckList();
+		checkList = checkList.getchecklist(checklistID);
+		String message = "The element in the scheduled " + checkList.getEventName() + " had been removed";
+		User user = getUser((Integer)session.getAttribute("userID"));
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been removed for " + user.getUsername(),message);
 		return new ModelAndView("projectRemovedPage");
 	}
 	@RequestMapping( value="/makeVisibleChecklist",method = RequestMethod.POST)
@@ -617,6 +695,13 @@ public class MyController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String message = "The element in the scheduled " + checklist.getEventName() + " had been modified";
+		User user = getUser((Integer)session.getAttribute("userID"));
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been modified for " + user.getUsername(),message);
 		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
 	}
 
@@ -682,7 +767,22 @@ public class MyController {
 		}
 		model.addAttribute("projectListNotVisible",projectListNotVisible);
 		model.addAttribute("notInterestListSize", projectListNotVisible.size());
-		return new ModelAndView("interestProjectListPage","projectList",projectList);
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		Project project = new Project();
+		project = project.getProject(projectID);
+		User user = getUser((Integer)session.getAttribute("userID"));
+		User lecturer = getUser(project.getlecturerID());
+
+		String messageLecturer = "Student " + user.getUsername() + " had show interest in your project " + project.getTitle();
+		String messageStudent = "Your interest in the project " + project.getTitle() + " had been send to the lecturer " + lecturer.getUsername();
+		//One message is for the lecturer
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+		//Another message it is send to the student
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+		return new ModelAndView("interestProjectListPage","projectList",projectList); 
 	}
 	/**
 	 * Need to have this method since I am having errors when the user have 5 projects already and 
@@ -719,6 +819,21 @@ public class MyController {
 				}
 				model.addAttribute("projectListNotVisible",projectListNotVisible);
 				model.addAttribute("notInterestListSize", projectListNotVisible.size());
+				ApplicationContext context =
+						new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+				MailMail mm = (MailMail) context.getBean("mailMail");
+				Project project = new Project();
+				project = project.getProject(projectID);
+				User user = getUser((Integer)session.getAttribute("userID"));
+				User lecturer = getUser(project.getlecturerID());
+
+				String messageLecturer = "Student " + user.getUsername() + " had show interest in your project " + project.getTitle();
+				String messageStudent = "Your interest in the project " + project.getTitle() + " had been send to the lecturer " + lecturer.getUsername();
+				//One message is for the lecturer
+				mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+				//Another message it is send to the student
+				mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 				return new ModelAndView("interestProjectListPage","projectList",projectList);
 			}
 		}
@@ -734,8 +849,24 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		System.out.println("user id is " + user.getUserID() + " and projectID is " + projectID);
-		updateInterestProject(projectID,user.getUserID(),false);
+		//updateInterestProject(projectID,user.getUserID(),false);
+		updateInterestFinalProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		Project project = new Project();
+		project = project.getProject(projectID);
+		//User user = getUser((Integer)session.getAttribute("userID"));
+		User lecturer = getUser(project.getlecturerID());
+
+		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
+		String messageLecturer = "You remove the interest in the project " + project.getTitle();
+		//One message is for the lecturer
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+		//Another message it is send to the student
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -749,7 +880,22 @@ public class MyController {
 		System.out.println("Coordinator is changing the interest of a final project2");
 		if(newConnection == null) startDBConnection();
 		System.out.println("Coordinator is changing the interest of a final project3");
-		updateInterestFinalProject(projectID,user.getUserID(),false);
+		//updateInterestFinalProject(projectID,user.getUserID(),false);
+		User student = getUser((Integer)session.getAttribute("userID"));
+		updateInterestProject(projectID,student.getUserID(),false);
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		Project project = new Project();
+		project = project.getProject(projectID);
+
+		String messageLecturer = "Student " + student.getUsername() + " had cancel the interest in your project " + project.getTitle();
+		String messageStudent = "You remove the interest in the project " + project.getTitle();
+		//One message is for the lecturer
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+		//Another message it is send to the student
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("projectRemovedPage");
 	}
@@ -854,6 +1000,13 @@ public class MyController {
 			model.addAttribute("message", "You do not have any project not visible");
 			return new ModelAndView("errorPage");
 		}	
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		String messageStudent = "You make visible the project " + project.getTitle();
+		//Another message it is send to the student
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		//extra message to show that the project had been made visible
 		model.addAttribute("message", "Project " + project.getTitle() + " is visible now to students");
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
@@ -875,10 +1028,12 @@ public class MyController {
 		project = project.getProject(projectID);
 		//getting user based on the userID, so I can have access to all his data
 		user = getUser(user.getUserID());
-		String queryInsert = " insert into approvedproject (userID, projectID) values (?, ?)";
+		String queryInsert = " insert into approvedproject (userID, projectID, visible) values (?, ?, ?)";
 		PreparedStatement preparedStmt = newConnection.prepareStatement(queryInsert);
 		preparedStmt.setInt (1, user.getUserID());
 		preparedStmt.setInt (2, projectID);
+		//TODO check why when approve interest the DB does not get updated
+		preparedStmt.setBoolean(3, true);
 		preparedStmt.execute();
 		preparedStmt.close();
 		updateListOfProjectAfterApproveInterest(user.getUserID());
@@ -891,6 +1046,25 @@ public class MyController {
 		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
 		model.addAttribute("message", "Student " + user.getUsername() + " had been registered with your project "
 				+ project.getTitle());
+		
+		User student = getUser((Integer)session.getAttribute("userID"));
+		ApplicationContext context =
+				new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+		MailMail mm = (MailMail) context.getBean("mailMail");
+		project = project.getProject(projectID);
+		
+		//This two lines will be use in the final version to send the email to the correct lecturer, for now I am sending to the same email
+		//For testing purposes
+		User lecturer = getUser(project.getlecturerID());
+		String lecturerEmail = lecturer.getEmail();
+
+		String messageStudent = "Congratulations " + student.getUsername() + " your request for the project " + project.getTitle() + " had been approved!";
+		String messageLecturer = "You approved the interest in the project " + project.getTitle() + "for student " + student.getUsername();
+		//One message is for the lecturer
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageLecturer);
+		//Another message it is send to the student
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageStudent);
 		return new ModelAndView("yourPersonalListPageWithInterest");
 	}
 
@@ -927,7 +1101,10 @@ public class MyController {
 		}*/	
 		//model.addAttribute("projectListNotVisible",projectListNotVisible);
 		//model.addAttribute("notInterestListSize", projectListNotVisible.size());
-		if(finalProject == null) model.addAttribute("noFinalProject", true);
+		if(finalProject == null) {
+			model.addAttribute("message", "Student has not final project");
+			return new ModelAndView("errorPage");
+		}
 		else model.addAttribute("noFinalProject", false);
 		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
 		model.addAttribute("finalProject", finalProject);
@@ -1130,9 +1307,11 @@ public class MyController {
 	}
 	public List<Project> getProjectListVisibleAnDApprove(boolean statusApproved, boolean statusVisible) {
 		//This query it is only showing projects that had not been already choose by another student, in other words
-		//get projects which projectID are not in the interestproject table
+		//get projects which projectID are not in the interestproject table and that are visible
+		//I am taking care of the visibility since I need to worry if a student remove the interest of a project then that project
+		//should be back to the list
 		String query = "SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
-				+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID)";
+				+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = true)";
 		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
 		try {
@@ -1322,7 +1501,7 @@ public class MyController {
 	}
 
 	public Project getFinalProjectStudent(int userID) {
-		String query ="SELECT * FROM approvedproject WHERE userID =  '" + userID + "';";
+		String query ="SELECT * FROM approvedproject WHERE userID =  '" + userID + "' AND visible = true;";
 		Statement st;
 		try {
 			st = newConnection.createStatement();

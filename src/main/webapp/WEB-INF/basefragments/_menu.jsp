@@ -85,6 +85,7 @@
 			<li><a
 				href="${pageContext.request.contextPath}/projectinterestedlist">Your
 					project list(Student)</a></li>
+			<li><a href="${pageContext.request.contextPath}/projectproposal">Propose a project</a></li>
 			<%
 				}
 				//general menu
