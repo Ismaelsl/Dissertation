@@ -10,19 +10,19 @@ import java.util.List;
 
 public class SQLController {
 	private Connection newConnection;
-	
+
 	public SQLController() {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
 	}
-	
+
 	/**
 	 * Method to check within the DB the login information
 	 * @param user
-	 * @return the userID to probe that the login was succesfull, if userID is 0 means that login fails
+	 * @return the userID to probe that the login was successful, if userID is 0 means that login fails
 	 */
 	public int loginCheck(User user) {
-		
+
 		String query = "SELECT * FROM user";
 		Statement st;
 		int userID = 0;
@@ -44,80 +44,82 @@ public class SQLController {
 		return userID;
 	}
 	public int contacPage() {
-		String query = "SELECT * FROM user WHERE userType = 3";
-		Statement st;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			PreparedStatement ps = newConnection.prepareStatement(
+					"SELECT * FROM user WHERE userType = ?");
+			ps.setInt(1,3);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				return rs.getInt("userID");
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
 			return 0;
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Method to control the SQL when the DC approve a project that a lecturer send before
 	 * @param projectID
 	 * @return
 	 */
 	public int approveProject(int projectID) {
-		String query ="SELECT * FROM project WHERE projectID = '" + projectID + "' FOR UPDATE;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project WHERE projectID = ? FOR UPDATE");
+			ps.setInt(1,projectID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE project SET waitingtobeapproved = ? WHERE projectID = ?");
-				ps.setBoolean(1,true);
-				ps.setInt(2,rs.getInt("projectID"));
-				ps.executeUpdate();
+				ps2.setBoolean(1,true);
+				ps2.setInt(2,rs.getInt("projectID"));
+				ps2.executeUpdate();
+				int projectIDToReturn = rs.getInt("projectID");//I am keeping the value in a variable since I want to close ps before the return
 				ps.close();
-				return rs.getInt("projectID");
-				
+				ps2.close();
+				return projectIDToReturn;
 			}
-			rs.close();
-			st.close();
-			//newConnection.commit();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return 0;
 		}
 		return 0;
 	}
-	
+
 	public boolean saveEdit(Project project) {
 		//Using the "For update" method I am locking the project till I close the statement
-				String query ="SELECT * FROM project WHERE projectID = '" + project.getProjectID() + "' FOR UPDATE;";
-				Statement st;
-				try {
-					st = newConnection.createStatement();
-					ResultSet rs = st.executeQuery(query);
-					while(rs.next()) {
-						PreparedStatement ps = newConnection.prepareStatement(
-								"UPDATE project SET year = ?, title = ?, topic = ?, description = ?, compulsoryreading = ? WHERE projectID = ?");
-						ps.setInt(1,project.getYear());
-						ps.setString(2,project.getTitle());
-						ps.setString(3,project.getTopics());
-						ps.setString(4,project.getDescription());
-						ps.setString(5,project.getCompulsoryReading());
-						ps.setInt(6,rs.getInt("projectID"));
-						ps.executeUpdate();
-						ps.close();
-						//newConnection.commit();
-					}
-					rs.close();
-					st.close();
-					return true;
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-		return false;
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project WHERE projectID = ? FOR UPDATE");
+			ps.setInt(1,project.getProjectID());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				PreparedStatement ps2 = newConnection.prepareStatement(
+						"UPDATE project SET year = ?, title = ?, topic = ?, description = ?, compulsoryreading = ? WHERE projectID = ?");
+				ps2.setInt(1,project.getYear());
+				ps2.setString(2,project.getTitle());
+				ps2.setString(3,project.getTopics());
+				ps2.setString(4,project.getDescription());
+				ps2.setString(5,project.getCompulsoryReading());
+				ps2.setInt(6,rs.getInt("projectID"));
+				ps2.executeUpdate();
+				ps2.close();
+				//newConnection.commit();
+			}
+			rs.close();
+			ps.close();
+			return true;
+		} catch (SQLException e) {
+			return false;
+		}
 	}
 	public boolean save(Project project, int userID) {
 		String query = " insert into project (year, title, topic, compulsoryreading, description, lecturerID,"
@@ -144,24 +146,27 @@ public class SQLController {
 		}
 		return false;
 	}
-	
+
 	public List<Project> search(String lecturer, String technology, String title, String searchValue) {
-		String query = "SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
-				+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID) "
-				+ "AND visible = true AND waitingtobeapproved = true";
-		Statement st;
+		PreparedStatement ps;
 		List<Project> projectList = new ArrayList<Project>();
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
+			ps = newConnection.prepareStatement(
+					"SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
+							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID) "
+							+ "AND visible = ? AND waitingtobeapproved = ?");
+			ps.setBoolean(1,true);
+			ps.setBoolean(2,true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			searchValue = searchValue.toLowerCase();
 			//TODO need to refactor the code for adding project, is repeating too much
 			while (rs.next())
 			{
 				//if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then added to the view
 				Project project = new Project();
 				if(technology != null) {
-					if(rs.getString("topic").contains(searchValue)) {
+					if(rs.getString("topic").toLowerCase().contains(searchValue)) {
 						if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 							User actualUser = getUser(rs.getInt("lecturerID"));
 							if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
@@ -179,7 +184,7 @@ public class SQLController {
 					}						
 				}
 				if(title != null) {
-					if(rs.getString("title").contains(searchValue)) {
+					if(rs.getString("title").toLowerCase().contains(searchValue)) {
 						if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
 							User actualUser = getUser(rs.getInt("lecturerID"));
 							if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
@@ -218,16 +223,17 @@ public class SQLController {
 				}
 			}
 			rs.close();
-			st.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return null;
 		}
+
+
 		return projectList;
 	}
-	
+
 	public boolean saveCheckList(CheckList checklist) {
-		String query = " insert into checklist (date, eventname, place, description, visible)"
-				+ " values (?, ?, ?, ?, ?)";
+		String query = " INSERT INTO checklist (date, eventname, place, description, visible)"
+				+ " VALUES (?, ?, ?, ?, ?)";
 		try {
 			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
 			preparedStmt.setString (1, checklist.getDate());
@@ -243,43 +249,48 @@ public class SQLController {
 		}		
 		return false;
 	}
-	
+
 	public boolean saveEditCheckList(CheckList checklist) {
-		String query ="SELECT * FROM checklist WHERE checklistID = '" + checklist.getCheckListID() + "' FOR UPDATE;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM checklist WHERE checklistID = ? FOR UPDATE");
+			ps.setInt(1,checklist.getCheckListID());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE checklist SET date = ?, eventname = ?, place = ?, description = ?, visible = ? "
 								+ "WHERE checklistID = ?");
-				ps.setString (1, checklist.getDate());
-				ps.setString (2, checklist.getEventName());
-				ps.setString (3, checklist.getPlace());
-				ps.setString (4, checklist.getDescription());
-				ps.setBoolean (5, true);
-				ps.setInt(6,rs.getInt("checklistID"));
-				ps.executeUpdate();
+				ps2.setString (1, checklist.getDate());
+				ps2.setString (2, checklist.getEventName());
+				ps2.setString (3, checklist.getPlace());
+				ps2.setString (4, checklist.getDescription());
+				ps2.setBoolean (5, true);
+				ps2.setInt(6,rs.getInt("checklistID"));
+				ps2.executeUpdate();
+				ps2.close();
 				ps.close();
+				rs.close();
+				return true;
 				//newConnection.commit();
 			}
-			rs.close();
-			st.close();
-			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return false;
 		}
 		return false;
+
 	}
-	
+
 	public int registerInterest(int userID, int projectID) {
-		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userID + "' "
-				+ "AND visible = true; ";
-		Statement stCount;
+		PreparedStatement ps;
 		try {
-			stCount = newConnection.createStatement();
-			ResultSet rs = stCount.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT COUNT(*) AS total FROM interestproject WHERE userID = ? AND visible = ?");
+			ps.setInt(1,userID);
+			ps.setBoolean(2, true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			if(rs.next()) {
 				if(rs.getInt("total") == 5) {
 					return 5;
@@ -299,7 +310,7 @@ public class SQLController {
 					stProject.close();
 					//If the project is not already on the table and the student has not more than 5 projects already then we will add
 					//the new project to the table
-					String queryInsert = " insert into interestproject (userID, projectID, visible) values (?, ?, ?)";
+					String queryInsert = " INSERT INTO interestproject (userID, projectID, visible) VALUES (?, ?, ?)";
 					PreparedStatement preparedStmt = newConnection.prepareStatement(queryInsert);
 					preparedStmt.setInt (1, userID);
 					preparedStmt.setInt (2, projectID);
@@ -308,37 +319,41 @@ public class SQLController {
 					preparedStmt.close();
 				}	
 				rs.close();
+				ps.close();
 				return 1;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return 0;
 		}
+		return 0;
+	}
 
-		return 0;
-	}
-	
 	public int getTotalInterestProject(int userID) {
-		String query ="SELECT COUNT(*) as total FROM interestproject WHERE userID = '"+   userID + "' "
-				+ "AND visible = true; ";
-		Statement stCount;
 		try {
-			stCount = newConnection.createStatement();
-			ResultSet rs = stCount.executeQuery(query);
+			PreparedStatement ps = newConnection.prepareStatement(
+					"SELECT COUNT(*) AS total FROM interestproject WHERE userID = ? AND visible = ?");
+			ps.setInt(1,userID);
+			ps.setBoolean(2, true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			if(rs.next()) {
-				return rs.getInt("total");
+				int total = rs.getInt("total");
+				rs.close();
+				ps.close();
+				return total;
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (SQLException e1) {
+			return 0;
 		}
 		return 0;
 	}
-	
+
 	public boolean approveInteret(int projectID, User user) {
 		Project project = new Project();
 		project = project.getProject(projectID);
 		//getting user based on the userID, so I can have access to all his data
 		user = getUser(user.getUserID());
-		String queryInsert = " insert into approvedproject (userID, projectID, visible) values (?, ?, ?)";
+		String queryInsert = " INSERT INTO approvedproject (userID, projectID, visible) VALUES (?, ?, ?)";
 		PreparedStatement preparedStmt;
 		try {
 			preparedStmt = newConnection.prepareStatement(queryInsert);
@@ -381,49 +396,51 @@ public class SQLController {
 		return 0;
 	}
 	public User getUser(int userID) {
-		String query = "SELECT * FROM user WHERE userID = " + "'"+ userID + "';";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM user WHERE userID = ?");
+			ps.setInt(1,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			User user = new User();
-			while (rs.next())
-			{
+			if(rs.next()) {
 				user.setUserID(rs.getInt("userID"));
 				user.setEmail(rs.getString("email"));
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
 				user.setUserType(rs.getInt("userType"));
+				rs.close();
+				ps.close();
 				return user;
 			}
-			rs.close();
-			st.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			return null;
+		}		
 		return null;
 	}
 	public User getUserByName(String username) {
-		String query = "SELECT * FROM user WHERE username = " + "'" + username + "';";
-		Statement st;
-		User user = new User();
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
-			while (rs.next())
-			{
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM user WHERE username = ?");
+			ps.setString(1,username);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			User user = new User();
+			if(rs.next()) {
 				user.setUserID(rs.getInt("userID"));
 				user.setEmail(rs.getString("email"));
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
+				user.setUserType(rs.getInt("userType"));
+				rs.close();
+				ps.close();
 				return user;
 			}
-			rs.close();
-			st.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			return null;
+		}		
 		return null;
 	}
 
@@ -506,19 +523,24 @@ public class SQLController {
 		return projectList;
 
 	}
+
 	public List<Project> getProjectListVisibleAnDApprove(boolean statusApproved, boolean statusVisible) {
 		//This query it is only showing projects that had not been already choose by another student, in other words
 		//get projects which projectID are not in the interestproject table and that are visible
 		//I am taking care of the visibility since I need to worry if a student remove the interest of a project then that project
 		//should be back to the list
-		String query = "SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
-				+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = true)";
-		Statement st;
+		PreparedStatement ps;
 		List<Project> projectList = new ArrayList<Project>();
-		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
 
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
+							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = ?)"
+							+ "AND NOT EXISTS (SELECT * FROM approvedproject WHERE project.projectID = approvedproject.projectID AND visible = ?)");
+			ps.setBoolean(1,true);
+			ps.setBoolean(2,true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				//if the project is not approved, then you wont show the project
@@ -529,7 +551,6 @@ public class SQLController {
 						if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
 						project.setUser(actualUser);
 					}	
-
 					project.setProjectID(rs.getInt("projectID"));
 					project.setTitle(rs.getString("title"));
 					project.setDescription(rs.getString("description"));
@@ -542,9 +563,9 @@ public class SQLController {
 				}			
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return projectList;
 		}
 		return projectList;
 
@@ -578,13 +599,14 @@ public class SQLController {
 	}
 
 	public List<Project> getProjectInterestedListByStudent(boolean status, int userLoginID) {
-		String query = "SELECT * FROM interestproject WHERE userID = '" + userLoginID + "';";
-		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM interestproject WHERE userID = ?");
+			ps.setInt(1,userLoginID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				if(rs.getBoolean("visible") == status) {
@@ -597,10 +619,11 @@ public class SQLController {
 				}			
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return projectList;
 		}
+
 		return projectList;
 	}
 	public List<Project> getProjectInterestedList() {
@@ -629,13 +652,14 @@ public class SQLController {
 	}
 
 	public List<Project> getAllProjectByLecturer(int userLoginID) {
-		String query = "SELECT * FROM project WHERE lecturerID = '" + userLoginID + "';";
-		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project WHERE lecturerID =  ?");
+			ps.setInt(1,userLoginID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				Project project = new Project();
@@ -643,10 +667,10 @@ public class SQLController {
 				projectList.add(project);
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			return projectList;
+		}		
 		return projectList;
 	}
 
@@ -672,18 +696,25 @@ public class SQLController {
 		return userList;
 	}
 
+	/**
+	 * Method that return the list of project that students show interest 
+	 * @param userLoginID
+	 * @return projectList
+	 */
 	public List<Project> getLecturerProjectList(int userLoginID) {
 		//Since I am only accepting project that their visibility is true, I am controlling that if another lecturer approve
 		//a student all the student list will stop show the interest of that student
 		//The student interest will still be keep on the DB but hidden
-		String query = "SELECT * from project,interestproject WHERE interestproject.projectID = project.projectID "
-				+ " AND lecturerID = '" + userLoginID + "' AND interestproject.visible = true;";
-		Statement st;
 		List<Project> projectList = new ArrayList<Project>();
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
+			ps = newConnection.prepareStatement(
+					"SELECT * from project,interestproject WHERE interestproject.projectID = project.projectID "
+							+ " AND lecturerID = ? AND interestproject.visible = ?;");
+			ps.setInt(1,userLoginID);
+			ps.setBoolean(2, true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				Project project = new Project();
@@ -693,20 +724,22 @@ public class SQLController {
 				project.setStudent(student);
 				projectList.add(project);
 			}
-			rs.close();
-			st.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return projectList;
 		}
+
 		return projectList;
 	}
 
 	public Project getFinalProjectStudent(int userID) {
-		String query ="SELECT * FROM approvedproject WHERE userID =  '" + userID + "' AND visible = true;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM approvedproject WHERE userID = ? AND visible = ?");
+			ps.setInt(1,userID);
+			ps.setBoolean(2, true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				Project project = new Project();
 				project = project.getProject(rs.getInt("projectID"));
@@ -716,180 +749,178 @@ public class SQLController {
 				return project;
 			}
 			rs.close();
-			st.close();
-			//newConnection.commit();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			return null;
+		}			
 		return null;
 	}
 
 	public List<User> getAllStudentList() {
-		String query = "SELECT * from user WHERE user.userType = 2;";
-		Statement st;
 		List<User> userList = new ArrayList<User>();
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
+			ps = newConnection.prepareStatement(
+					"SELECT * from user WHERE user.userType = ?");
+			ps.setInt(1,2);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				User student = getUser(rs.getInt("userID"));
 				userList.add(student);
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			return userList;
+		}		
 		return userList;
 	}
 
-	/**
-	 * This method is taking care that when a lecturer enter to his personal list you will have in the top 
-	 * all the lecturer projects without interest and on the bottom the lecturer project which have interest
-	 * @param projectList
-	 * @param projectWithInterest
-	 * @return
-	 */
-	public List<Project> listComparer(List<Project>projectList, List<Project>projectWithInterest) {
-		List<Project> finalList = new ArrayList<Project>();
-		for (Project projectLect : projectList) {
-			boolean found=false;
-			for (Project projectInte : projectWithInterest) {
-				if (projectLect.getProjectID() == projectInte.getProjectID()) {
-					found=true;
-					break;
-				}
-			}
-			if(!found){
-				finalList .add(projectLect);
-			}
-		}
-		return finalList;
-	}
+
 	public void updateChecklist(int checklistID, boolean status) {
-		String query ="SELECT * FROM checklist WHERE checklistID = '" + checklistID + "' FOR UPDATE;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM checklist WHERE checklistID =  ? FOR UPDATE");
+			ps.setInt(1,checklistID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE checklist SET visible = ? WHERE checklistID = ?");
-				ps.setBoolean(1, status);
-				ps.setInt(2, checklistID);
-				ps.execute();
-				ps.close();
+				ps2.setBoolean(1, status);
+				ps2.setInt(2, checklistID);
+				ps2.execute();
+				ps2.close();
 				//newConnection.commit();
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 		}
+
 	}
 	public void updateProject(int projectID, boolean status) {
-		String query ="SELECT * FROM project WHERE projectID = '" + projectID + "' FOR UPDATE;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project WHERE projectID =  ? FOR UPDATE");
+			ps.setInt(1,projectID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				//synchronized (rs) {
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE project SET visible = ? WHERE projectID = ?");
-				ps.setBoolean(1, status);
-				ps.setInt(2, projectID);
+				ps2.setBoolean(1, status);
+				ps2.setInt(2, projectID);
+				ps2.execute();
+				ps2.close();
 				//newConnection.commit();
-				ps.execute();
-				ps.close();
-
-				//}		
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 	}
 	public void updateInterestProject(int projectID, int userID, boolean status) {
-		String query ="SELECT * FROM interestproject WHERE projectID = '" + projectID + 
-				"' AND userID =  '" + userID + "'FOR UPDATE;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM interestproject WHERE projectID =  ? AND userID = ? FOR UPDATE");
+			ps.setInt(1,projectID);
+			ps.setInt(2,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE interestproject SET visible = ? WHERE projectID = ? AND userID = ?");
-				ps.setBoolean(1, status);
-				ps.setInt(2, projectID);
-				ps.setInt(3, userID);
-				ps.execute();
-				ps.close();
+				ps2.setBoolean(1, status);
+				ps2.setInt(2, projectID);
+				ps2.setInt(3, userID);
+				ps2.execute();
+				ps2.close();
 				//newConnection.commit();
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-
 	}
 
 	public void updateInterestFinalProject(int projectID, int userID, boolean status) {
-		String query ="SELECT * FROM approvedproject WHERE projectID = '" + projectID + 
-				"' AND userID =  '" + userID + "'FOR UPDATE;";
-
-		System.out.println("MEH! and project ID is " + projectID  + " and userID is " + userID);
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			System.out.println("MEH2!");
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM approvedproject WHERE projectID =  ? AND userID = ? FOR UPDATE");
+			ps.setInt(1,projectID);
+			ps.setInt(2,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE approvedproject SET visible = ? WHERE projectID = ? AND userID = ?");
-				ps.setBoolean(1, status);
-				ps.setInt(2, projectID);
-				ps.setInt(3, userID);
-				ps.execute();
-				System.out.println("PS had been executed");
-				ps.close();
+				ps2.setBoolean(1, status);
+				ps2.setInt(2, projectID);
+				ps2.setInt(3, userID);
+				ps2.execute();
+				ps2.close();
 				//newConnection.commit();
 			}
-			System.out.println("MEH3!");
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-
 	}
 
 	public void updateListOfProjectAfterApproveInterest(int userID) {
-		String query ="SELECT * FROM interestproject WHERE userID =  '" + userID + "'FOR UPDATE;";
-		Statement st;
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM interestproject WHERE userID = ? FOR UPDATE");
+			ps.setInt(1,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				//if(rs.getInt("projectID") == projectID)continue;//if is our project, then keep it visible
-				PreparedStatement ps = newConnection.prepareStatement(
+				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE interestproject SET visible = ? WHERE userID = ?");
-				ps.setBoolean(1, false);
-				ps.setInt(2, userID);
-				ps.execute();
-				ps.close();
+				ps2.setBoolean(1, false);
+				ps2.setInt(2, userID);
+				ps2.execute();
+				ps2.close();
 				//newConnection.commit();
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 	}
+
+	public List<Project> getProjectsByYear(int year) {
+		List<Project> projectList = new ArrayList<Project>();
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project WHERE year = ?");
+			ps.setInt(1,year);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				Project project = new Project();
+				project = project.getProject(rs.getInt("projectID"));
+				project.setVisible(rs.getBoolean("visible"));//setting visible 
+				projectList.add(project);
+			}
+			rs.close();
+			ps.close();
+			return projectList;
+		} catch (SQLException e) {
+			return projectList;
+		}
+	}
+
 	public List<Integer> getAllYearOfProjects() {
 		String query ="SELECT Distinct year FROM project";
 		Statement st;
@@ -907,30 +938,4 @@ public class SQLController {
 		}
 		return yearList;
 	}
-
-	public List<Project> getProjectsByYear(int year) {
-		String query ="SELECT * FROM project WHERE year =  '" + year + "';";
-		Statement st;
-		List<Project> projectList = new ArrayList<Project>();
-		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			while(rs.next()) {
-				Project project = new Project();
-				project = project.getProject(rs.getInt("projectID"));
-				project.setVisible(rs.getBoolean("visible"));//setting visible 
-				projectList.add(project);
-
-			}
-			rs.close();
-			st.close();
-			return projectList;
-			//newConnection.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-
 }

@@ -752,7 +752,7 @@ public class MyController {
 				List<Project> projectList = new ArrayList<Project>();
 				projectList.add(project);
 				return new ModelAndView("finalProjectPage","projectList",projectList);
-			}
+			} 
 		}
 		//HttpSession session = getSession(request);
 		List<Project> projectList = sqlController.getProjectInterestedListByStudent(true, (Integer)session.getAttribute("userID"));
@@ -973,4 +973,27 @@ public class MyController {
 		session.invalidate();
 		return login(request);
 	}
+	/**
+	 * This method is taking care that when a lecturer enter to his personal list you will have in the top 
+	 * all the lecturer projects without interest and on the bottom the lecturer project which have interest
+	 * @param projectList
+	 * @param projectWithInterest
+	 * @return
+	 */
+	/*public List<Project> listComparer(List<Project>projectList, List<Project>projectWithInterest) {
+		List<Project> finalList = new ArrayList<Project>();
+		for (Project projectLect : projectList) {
+			boolean found=false;
+			for (Project projectInte : projectWithInterest) {
+				if (projectLect.getProjectID() == projectInte.getProjectID()) {
+					found=true;
+					break;
+				}
+			}
+			if(!found){
+				finalList .add(projectLect);
+			}
+		}
+		return finalList;
+	}*/
 }
