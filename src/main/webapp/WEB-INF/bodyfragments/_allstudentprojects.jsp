@@ -128,7 +128,7 @@ to the view from the controller or the variable names from the class --%>
 				</div>
 			</div>
 			<div class="modal-footer" id="modal-footer-removeInterest">
-				<form:form method="post" action="removeinterest" modelAttribute="user">
+				<form:form method="post" action="removeinterestfinal" modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>

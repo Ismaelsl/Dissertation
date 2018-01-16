@@ -9,6 +9,11 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+/**
+ * Class use to create events for the schedule
+ * @author ismael
+ *
+ */
 public class CheckList {
 	private int checkListID;
 	//special spring notation that is telling to the view (JSP) how to format the date from the DB on the view
@@ -22,6 +27,7 @@ public class CheckList {
 	public CheckList() {
 
 	}
+	
 	public CheckList(String date, String eventName, String place) {
 		this.date = date;
 		this.eventName = eventName;

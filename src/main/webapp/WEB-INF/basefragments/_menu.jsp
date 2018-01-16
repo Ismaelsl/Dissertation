@@ -27,7 +27,7 @@
 						href="${pageContext.request.contextPath}/projectlisttoapprove">Project
 							List to approve</a></li>
 					<li><a href="${pageContext.request.contextPath}/newchecklist">New
-							Checklist</a></li>
+							enter to the schedule</a></li>
 					<li><a href="${pageContext.request.contextPath}/studentlist">Student
 							list</a></li>
 					<li><a

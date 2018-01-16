@@ -1,5 +1,10 @@
 package org.dissertationWeb.classes;
 
+/**
+ * Class used to control all the user of the system (dissertation coordinator(DC), lecturer or student)
+ * @author ismael
+ *
+ */
 public class User {
 	private int userID;
 	private String username;

@@ -1,5 +1,8 @@
 package org.dissertationWeb.classes;
 
+/**
+ * Class that I am using to control the projects within the application
+ */
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,58 +54,6 @@ public class Project {
 		this.compulsoryReading = compulsoryReading;
 		this.description = description;
 	}
-	public Project getProject(int id) {
-		DBConnection connect = new DBConnection();
-		Connection newConnection = connect.connect();
-		String query = "SELECT * FROM project WHERE projectID = " + id + ";";
-		Statement st;
-		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-			while (rs.next())
-			{
-				/*
-				 * instead of creating new Lecturer, Document and CheckList I should make a call based on the project ID
-				 * and get the reference to the DB to those items and create new objects populated with the data from the DB in this way
-				 * should work better
-				 */
-				String queryUser = "SELECT * FROM user WHERE userID = " + rs.getInt("lecturerID") + ";";
-				Statement stUser;
-				User user = new User();
-				try {
-					stUser = newConnection.createStatement();
-					ResultSet rsUser = stUser.executeQuery(queryUser);
-					
-					while (rsUser.next())
-					{
-						user.setUserID(rsUser.getInt("userID"));
-						user.setEmail(rsUser.getString("email"));
-						user.setUsername(rsUser.getString("username"));
-						user.setPassword(rsUser.getString("password"));
-						user.setUserType(rsUser.getInt("userType"));
-					}
-					rsUser.close();
-					stUser.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				System.out.println("Get project user test " + user.getEmail());
-				
-				Project project = new Project(rs.getInt("projectID"), rs.getInt("year"), rs.getString("title"), rs.getString("topic"),
-						rs.getString("compulsoryReading"), rs.getString("description"), user, 
-						rs.getBoolean("visible"),new Document(rs.getInt("documentID")), rs.getBoolean("waitingtobeapproved"), 
-						new CheckList(),user.getUserID());
-				//System.out.println("test " + rs.getString("title"));
-				return project;
-			}
-			rs.close();
-			st.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 	public int getProjectID() {
 		return projectID;
 	}

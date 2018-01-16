@@ -9,6 +9,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Class used to create and manage the connection with the DB
+ * @author ismael
+ *
+ */
 public class DBConnection {
 	private static final String DATABASE_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DATABASE_URL = "jdbc:mysql://mysql0.cs.stir.ac.uk/isa";
