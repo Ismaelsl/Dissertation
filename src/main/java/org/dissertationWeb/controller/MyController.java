@@ -92,6 +92,18 @@ public class MyController {
 	@RequestMapping(value="/logincheck",method = RequestMethod.POST)  
 	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
 		//redirect to home page if you are login and try to login again
+		if(user.getPassword().isEmpty() && user.getUsername().isEmpty()) {
+			model.addAttribute("message", "Please fill the formulary");
+			return new ModelAndView("errorPage");
+		}
+		if(user.getPassword().isEmpty()) {
+			model.addAttribute("message", "Please enter a password");
+			return new ModelAndView("errorPage");
+		}
+		if(user.getUsername().isEmpty()) {
+			model.addAttribute("message", "Please enter a username");
+			return new ModelAndView("errorPage");
+		}
 		if(getSession(request) == null) return homePage(request);
 		if(newConnection == null) startDBConnection();
 		//user it is send to the loginCheck method in SQLController to confirm if the data entered is right, it is returning the userID if success
@@ -104,6 +116,23 @@ public class MyController {
 			model.addAttribute("message", "You are not logged in, please go to login page and enter your credentials");
 			return new ModelAndView("errorPage");
 		}
+	}
+	/**
+	 * I have a second logincheck since I can have two possible visits to logincheck one is with POST and that is the one when you
+	 * post the data for the formulary to the DB and the other is the GET, this second one happens when user refresh logincheck page or
+	 * try to access to logincheck page writing the address in the browser.
+	 * With this method I am avoiding an error that stop the running of the application and is only redirecting you to the login
+	 * if you still did not login or to homepage if you are already login in the application.
+	 * @param user
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/logincheck",method = RequestMethod.GET)  
+	public ModelAndView checkLoginGET(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		return new ModelAndView("homePage");
 	}
 
 	/**
@@ -174,13 +203,8 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(true,true);
-
-		System.out.println("testing sessions " + session.getAttribute("userID"));
-		System.out.println("testing HttpServletRequest sessions " + request.getAttribute("userID"));
-		System.out.println("List size " + projectList.size());
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));//getting userID from the session
 		model.addAttribute("userType", user.getUserType());
-		System.out.println("user type " + user.getUserType());
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You project list is empty");//I am passing a message to the error page
 			return new ModelAndView("errorPage");
@@ -281,6 +305,9 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
+		//So year will be predefined and readonly.
+		model.addAttribute("year",sqlController.getActualYear());
 		return new ModelAndView("newprojectPage","command",new Project());  
 	}
 
@@ -298,6 +325,9 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
+		//So year will be predefined and readonly.
+		model.addAttribute("year",sqlController.getActualYear());
 		return new ModelAndView("projectproposalpage","command",new Project());  
 	}
 
@@ -318,7 +348,6 @@ public class MyController {
 		if(newConnection == null) startDBConnection();
 		//here, we are displaying project object to prove project has data  
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-		System.out.println(project.getTitle()+" "+project.getDescription()); 
 		//Automatic email system
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
@@ -371,7 +400,6 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		System.out.println("test projectID " + projectID);
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		sqlController.updateProject(projectID, false);
@@ -403,7 +431,6 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		System.out.println(project.getProjectID() +" inside edit project page!!");
 		if(newConnection == null) startDBConnection();
 		model.addAttribute("year",project.getYear());
 		model.addAttribute("title",project.getTitle());
@@ -444,12 +471,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
-		//write code to save project object  
-		//here, we are displaying project object to prove project has data  
-		System.out.println(project.getTitle()+" "+project.getDescription()); 
-		//Lecturer lecturer = new Lecturer("John", "CS", "test@test.com", 0);
-
+		if(newConnection == null) startDBConnection();   
 		//I need to use model to populate the projectPage, using the project object itself, does not works
 		model.addAttribute("year",project.getYear());
 		model.addAttribute("title",project.getTitle());
@@ -538,7 +560,6 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		System.out.println("Checklist date: " + checklist.getDate() + " Checklist name: " + checklist.getEventName());
 		if(sqlController.saveCheckList(checklist)) {
 			model.addAttribute("date", checklist.getDate());
 			model.addAttribute("eventname", checklist.getEventName());
@@ -553,15 +574,12 @@ public class MyController {
 					return new ModelAndView("errorPage");
 				}
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}else {
 			model.addAttribute("message", "Error saving the new enter for the schedule, please try again later");
 			return new ModelAndView("errorPage");
 		}
-
 		//Need to change this redirect to a checklistPage to see the checklist that we just added
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
@@ -590,9 +608,6 @@ public class MyController {
 		//This second list will not be see by students, but in order to save space I am using the same view, but based on the userType
 		//you will be able to see or not this list
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
-
-		//Keep this since I need to check if user is admin or not for now
-		//HttpSession session = getSession(request);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("userType", user.getUserType());
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
@@ -646,7 +661,6 @@ public class MyController {
 		sqlController.updateChecklist(checklistID,false);
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
-
 		MailMail mm = (MailMail) context.getBean("mailMail");
 		CheckList checkList = new CheckList();
 		checkList = checkList.getchecklist(checklistID);
@@ -731,8 +745,6 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		//HttpSession session = getSession(request);
-
 		/**
 		 * I have different returns based on the output of the method, 
 		 * 0 general error saving. 
@@ -798,9 +810,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		//HttpSession session = getSession(request);
 		int count = sqlController.getTotalInterestProject((Integer)session.getAttribute("userID"), true);
 		//I am using this second counter since I can have the situation of not having any project with interest that are visible
+		//And only using one counter it will show me the you had not register interest message when I actually have projects
+		//but they are not visible
 		int countNotVisible = sqlController.getTotalInterestProject((Integer)session.getAttribute("userID"), false);
 		if(count == 5) {
 			model.addAttribute("message", "You already have 5 projects registered on your name, "
@@ -837,7 +850,6 @@ public class MyController {
 			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 			return new ModelAndView("interestProjectListPage","projectList",projectList);
 		}
-
 	}
 
 	/**
@@ -859,17 +871,13 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		sqlController.updateInterestProject(projectID,user.getUserID(),false);
-		//sqlController.updateInterestFinalProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
-
 		MailMail mm = (MailMail) context.getBean("mailMail");
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
-		//User user = getUser((Integer)session.getAttribute("userID"));
 		User lecturer = sqlController.getUser(project.getlecturerID());
-
 		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
 		String messageLecturer = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
@@ -878,11 +886,9 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		return new ModelAndView("projectRemovedPage");
 	}
+	
 	/**
-	 * Method that it is call when a lecturer remove interest from a project
-	 * In this case since I do not want to remove anything from the DB I am changing the visibility of that selection
-	 * to false, so a lecturer will not be able to see that interest anymore, but student could still update the interest
-	 * without needing to re apply to the project
+	 * Method that it is call when the dissertation coordinator remove interest from a final project
 	 * @param projectID
 	 * @param user
 	 * @param request
@@ -896,7 +902,6 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		//updateInterestProject(projectID,user.getUserID(),false);
 		sqlController.updateInterestFinalProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		ApplicationContext context =
@@ -916,6 +921,7 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		return new ModelAndView("projectRemovedPage");
 	}
+	
 	/**
 	 * Method that it is call when a student remove interest from a project
 	 * In this case since I do not want to remove anything from the DB I am changing the visibility of that selection
@@ -934,7 +940,6 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		//updateInterestFinalProject(projectID,user.getUserID(),false);
 		User student = sqlController.getUser((Integer)session.getAttribute("userID"));
 		sqlController.updateInterestProject(projectID,student.getUserID(),false);
 		ApplicationContext context =
@@ -978,7 +983,6 @@ public class MyController {
 				return new ModelAndView("finalProjectPage","projectList",projectList);
 			} 
 		}
-		//HttpSession session = getSession(request);
 		List<Project> projectList = sqlController.getProjectInterestedListByStudent(true, (Integer)session.getAttribute("userID"));
 		List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 		//If project is empty then I will redirect to error page with a message explaining what to do
@@ -1030,10 +1034,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		//HttpSession session = getSession(request);
-
 		List<Project> projectWithInterest = sqlController.getLecturerProjectList((Integer)session.getAttribute("userID"));	
-
 		model.addAttribute("projectWithInterest", projectWithInterest);
 		//I been forced to send the size separately to the front end because javaScript length function
 		//does not work when the list is with objects
@@ -1056,14 +1057,12 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-
 		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false);
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
 			return new ModelAndView("errorPage");
 		}	
-
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		return new ModelAndView("notVisibleProjectPage");
 	}
@@ -1096,7 +1095,6 @@ public class MyController {
 		}	
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
-
 		MailMail mm = (MailMail) context.getBean("mailMail");
 		String messageStudent = "You make visible the project " + project.getTitle();
 		//Another message it is send to the student
@@ -1133,7 +1131,6 @@ public class MyController {
 			user = sqlController.getUser(user.getUserID());
 			sqlController.updateListOfProjectAfterApproveInterest(user.getUserID());
 			List<Project> projectWithInterest = sqlController.getLecturerProjectList((Integer)session.getAttribute("userID"));	
-
 			model.addAttribute("projectWithInterest", projectWithInterest);
 			//I been forced to send the size separately to the front end because javaScript length function
 			//does not work when the list is with objects
@@ -1141,7 +1138,6 @@ public class MyController {
 			model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend 
 			model.addAttribute("message", "Student " + user.getUsername() + " had been registered with your project "
 					+ project.getTitle());
-
 			User student = sqlController.getUser((Integer)session.getAttribute("userID"));
 			ApplicationContext context =
 					new ClassPathXmlApplicationContext("Spring-Mail.xml");
@@ -1187,7 +1183,7 @@ public class MyController {
 	/**
 	 * This method it is returning the final project (if any) that the student have, the idea of this is allow to the
 	 * module coordinator to change the interest of a project after been approved by a lecturer 
-	 * @param studentID
+	 * @param studentID I am using studentID since userID in this case is different, since userID is the ID of the lecturer or admin
 	 * @param model
 	 * @param request
 	 * @return
@@ -1196,7 +1192,6 @@ public class MyController {
 	@RequestMapping( value="/getstudentprojects",method = RequestMethod.POST)
 	public ModelAndView getAllProjectStudentList(@RequestParam(value="studentID") int studentID, 
 			Model model, HttpServletRequest request) throws SQLException { 
-		System.out.println("student ID is :" + studentID);
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -1251,7 +1246,6 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		System.out.println("The year that you choose is: " + year);
 		if(newConnection == null) startDBConnection();
 		List<Project> projectList = sqlController.getProjectsByYear(year);
 		if(projectList.isEmpty()) {
@@ -1274,7 +1268,6 @@ public class MyController {
 	public ModelAndView logout(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
-		//if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		session.invalidate();
 		return login(request);

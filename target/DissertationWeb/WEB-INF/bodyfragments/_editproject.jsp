@@ -4,23 +4,23 @@
 	<table>
 		<tr>
 			<td>Year :</td>
-			<td><form:input path="year" /></td>
+			<td><form:input path="year" value="${year}" readonly="true"/></td>
 		</tr>
 		<tr>
 			<td>Title :</td>
-			<td><form:input path="title" /></td>
+			<td><form:input path="title" required='true'/></td>
 		</tr>
 		<tr>
 			<td>Topic :</td>
-			<td><form:input path="topics" /></td>
+			<td><form:input path="topics" required='true'/></td>
 		</tr>
 		<tr>
 			<td>Compulsory Readings :</td>
-			<td><form:input path="compulsoryReading" /></td>
+			<td><form:input path="compulsoryReading" required='true'/></td>
 		</tr>
 		<tr>
 			<td>Description :</td>
-			<td><form:input path="description" /></td>
+			<td><form:input path="description" required='true'/></td>
 		</tr>
 		<%-- Hidden this since I need to pass the projectID to the frontEnd and back to the backEnd --%>
 		<form:hidden path="projectID" />

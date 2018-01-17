@@ -21,6 +21,10 @@ public class SQLController {
 	private Connection newConnection;
 	private int actualYear = 2017;
 
+	public int getActualYear() {
+		return actualYear;
+	}
+
 	public SQLController() {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
@@ -121,6 +125,8 @@ public class SQLController {
 				ps2.close();
 				return projectIDToReturn;
 			}
+			rs.close();
+			ps.close();
 		} catch (SQLException e) {
 			return 0;
 		}
@@ -216,7 +222,6 @@ public class SQLController {
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			searchValue = searchValue.toLowerCase();
-			//TODO need to refactor the code for adding project, is repeating too much
 			while (rs.next())
 			{
 				//if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then added to the view
@@ -404,6 +409,7 @@ public class SQLController {
 	/**
 	 * SQL method to count the number of projects that a student had registered interest
 	 * @param userID
+	 * @param status it is use to show if you want to get projects visible or invisible
 	 * @return
 	 */
 	public int getTotalInterestProject(int userID, boolean status) {
@@ -1124,19 +1130,22 @@ public class SQLController {
 	 * @return
 	 */
 	public List<Integer> getAllYearOfProjects() {
-		String query ="SELECT Distinct year FROM project";
-		Statement st;
 		List<Integer> yearList = new ArrayList<Integer>();
+
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
+			ps = newConnection.prepareStatement(
+					"SELECT Distinct year FROM project WHERE year < ?");
+			ps.setInt(1,actualYear);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				yearList.add(rs.getInt("year"));
 			}
 			rs.close();
-			st.close();
+			ps.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			return yearList;
 		}
 		return yearList;
 	}
