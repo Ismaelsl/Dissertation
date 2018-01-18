@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Class that I create to keep together all the SQL, this class it is call by MyController when any interaction with the DB 
- * @author ismael
+ * @author Ismael
  *
  */
 public class SQLController {
@@ -605,13 +605,14 @@ public class SQLController {
 	 * @param status
 	 * @return
 	 */
-	public List<Project> getProjectListVisible(boolean status) {
+	public List<Project> getProjectListVisible(boolean status, int lecturerID) {
 		List<Project> projectList = new ArrayList<Project>();
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
-					"SELECT * FROM project WHERE year = ?");
+					"SELECT * FROM project WHERE year = ? AND lecturerID = ?");
 			ps.setInt(1,actualYear);
+			ps.setInt(2, lecturerID);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			while (rs.next())
@@ -656,6 +657,7 @@ public class SQLController {
 		List<Project> projectList = new ArrayList<Project>();
 
 		try {
+			//I am using distinct since does not make sense to have the same project twice
 			ps = newConnection.prepareStatement(
 					"SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
 							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = ?)"
@@ -865,7 +867,7 @@ public class SQLController {
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
-					"SELECT * from project,interestproject WHERE interestproject.projectID = project.projectID "
+					"SELECT * FROM project,interestproject WHERE interestproject.projectID = project.projectID "
 							+ " AND lecturerID = ? AND interestproject.visible = ? AND interestproject.year = ?;");
 			ps.setInt(1,userLoginID);
 			ps.setBoolean(2, true);
@@ -1135,7 +1137,7 @@ public class SQLController {
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
-					"SELECT Distinct year FROM project WHERE year < ?");
+					"SELECT DISTINCT year FROM project WHERE year < ?");
 			ps.setInt(1,actualYear);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
@@ -1186,8 +1188,6 @@ public class SQLController {
 				}
 				rsUser.close();
 				ps2.close();
-				System.out.println("Get project user test " + user.getEmail());
-
 				Project project = new Project(rs.getInt("projectID"), rs.getInt("year"), rs.getString("title"), rs.getString("topic"),
 						rs.getString("compulsoryReading"), rs.getString("description"), user, 
 						rs.getBoolean("visible"),new Document(rs.getInt("documentID")), rs.getBoolean("waitingtobeapproved"), 
@@ -1201,5 +1201,45 @@ public class SQLController {
 		}
 
 		return null;
+	}
+	
+	/**
+	 * SQL method to check if a project is already choose for another student or approved by a lecturer, before another student make his choice visible
+	 * In other words, if I have a project that is not visible and try to make it visible I am checking if someone already choose that project
+	 * or a lecturer already approve that project to someone else
+	 * @param projectID
+	 * @return
+	 */
+	public boolean checkIfProjectIsAlreadyChoose(int projectID) {
+		System.out.println("In the method!");
+		PreparedStatement ps, ps2;
+		try {
+			ps = newConnection.prepareStatement("SELECT COUNT(*) AS total FROM interestproject WHERE projectID = ? AND visible = ? AND year = ?");
+			ps2 = newConnection.prepareStatement("SELECT COUNT(*) AS totalapproved FROM approvedproject WHERE projectID = ? AND visible = ? AND year = ?");
+			ps.setInt(1,projectID);
+			ps.setBoolean(2, true);
+			ps.setInt(3, actualYear);
+			ps2.setInt(1,projectID);
+			ps2.setBoolean(2, true);
+			ps2.setInt(3, actualYear);
+			ps.getResultSet();
+			ps2.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			ResultSet rs2 = ps2.executeQuery();
+			//I need to check in this way since if I do not do rs.next I am not moving the pointer and I was always getting null instead of real value
+			//The idea behind of this is that count is more than 0 means that someone already have that project choose and visible
+			if(rs.next()) {
+				if(rs.getInt("total") != 0) {
+					return true;
+				}
+			}
+			if(rs2.next()) {
+				if(rs2.getInt("totalapproved") != 0) {
+					return true;
+				}
+			}
+		} catch (SQLException e) {
+		}
+		return false;
 	}
 }

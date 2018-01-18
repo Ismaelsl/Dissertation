@@ -70,7 +70,7 @@ to the view from the controller or the variable names from the class --%>
 	<li>Year: ${year}</li>
 	<form:form method="post" action="seeprojectbyyear">
 		<button onclick="getProjectID();" id="modal-approveinterest-id"
-		name="year" class="btn btn-success" value= "${year}">See project year ${year}</button>
-
-				</form:form>
+			name="year" class="btn btn-success" value="${year}">See
+			project year ${year}</button>
+	</form:form>
 </c:forEach>

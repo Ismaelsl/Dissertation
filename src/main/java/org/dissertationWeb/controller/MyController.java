@@ -29,7 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 /**
  * Main controller class, here I only have method that contains the @RequestMapping or in other words a link between the browser and java
  * those methods are the one that are populating the front end with the data necessary.
- * @author ismael
+ * @author Ismael
  *
  */
 @Controller
@@ -227,6 +227,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		//I am getting projects that are not approved but are visible (false and true)
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(false,true);
 		//Here I am getting the user
@@ -253,10 +254,14 @@ public class MyController {
 	@RequestMapping( value="/approveproject",method = RequestMethod.POST)
 	public ModelAndView approveprojectPage(@RequestParam(value="projectID") int projectID, 
 			Model model,HttpServletRequest request) { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		if(sqlController.approveProject(projectID)!= 0) {
 			Project project = new Project();
 			project = sqlController.getProject(projectID);
@@ -291,6 +296,20 @@ public class MyController {
 			return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view
 		}
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/approveproject",method = RequestMethod.GET)  
+	public ModelAndView approveProjectGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * Method that it is use to load the view to create new projects, it is called when /newproject it is wrote in the browser
@@ -305,6 +324,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
 		model.addAttribute("year",sqlController.getActualYear());
@@ -325,6 +345,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
 		model.addAttribute("year",sqlController.getActualYear());
@@ -342,10 +363,15 @@ public class MyController {
 	@RequestMapping(value="/sendProposal",method = RequestMethod.POST)  
 	public ModelAndView saveProposal(@ModelAttribute("project") Project project, 
 			Model model, HttpServletRequest request){  
+		if(project == null) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
 		//here, we are displaying project object to prove project has data  
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		//Automatic email system
@@ -358,6 +384,20 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project proposal from " + user.getUsername(),message);
 		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
 		return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	} 
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/sendProposal",method = RequestMethod.GET)  
+	public ModelAndView saveProposalGet( Model model, HttpServletRequest request){  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}  
 
 	/**
@@ -370,7 +410,11 @@ public class MyController {
 	 */
 	@RequestMapping( value="/edit",method = RequestMethod.POST)
 	public ModelAndView editprojectPage(@RequestParam(value="projectID") int projectID, 
-			HttpServletRequest request) throws SQLException { 
+			Model model, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -382,6 +426,20 @@ public class MyController {
 		return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
 				project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));  
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/edit",method = RequestMethod.GET)  
+	public ModelAndView editGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}  
 
 	/**
 	 * This method it is getting a projectID and calling the updateProject from SQLController, this will update the visibility
@@ -396,6 +454,10 @@ public class MyController {
 	@RequestMapping( value="/remove",method = RequestMethod.POST)
 	public ModelAndView removeprojectPage(@RequestParam(value="projectID") int projectID,
 			Model model, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -416,6 +478,20 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Project removed from " + user.getUsername(),message);
 		return new ModelAndView("projectRemovedPage");
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/remove",method = RequestMethod.GET)  
+	public ModelAndView removeGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	} 
 
 	/**
 	 * This is the method called by edit, here I am populating a summary view with the information of the project and 
@@ -428,6 +504,10 @@ public class MyController {
 	@RequestMapping(value="/saveEdit",method = RequestMethod.POST)  
 	public ModelAndView saveEditProject(@ModelAttribute("project") Project project, 
 			Model model, HttpServletRequest request){ 
+		if(project == null) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -457,6 +537,20 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/saveEdit",method = RequestMethod.GET)  
+	public ModelAndView saveEditGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	} 
 
 	/**
 	 * This method it is called from the view of newproject, here I am saving the new project in the DB
@@ -468,6 +562,10 @@ public class MyController {
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView save(@ModelAttribute("project") Project project, 
 			Model model, HttpServletRequest request){  
+		if(project == null) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -507,6 +605,20 @@ public class MyController {
 		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
 		return new ModelAndView("projectPage","project",model);//will display object data  
 	}  
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/save",method = RequestMethod.GET)  
+	public ModelAndView saveGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	} 
 
 	/**
 	 * If any of the three String variables are not null, that means that that is the value that the user request to look for
@@ -546,20 +658,55 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/search",method = RequestMethod.GET)  
+	public ModelAndView searchGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
+	/**
+	 * Method to create a new entry for the schedule
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
 	@RequestMapping( "/newchecklist")
 	public ModelAndView newchecklistPage(Model model, HttpServletRequest request) throws SQLException {  
 		//redirect to login page if you are not login
-		HttpSession session = getSession(request);if(session.getAttribute("userID") == null) return login(request);
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		return new ModelAndView("checklistPage","command",new CheckList());  
 	}
 
+	/**
+	 * Method to save the new entry into the DB
+	 * @param checklist
+	 * @param model
+	 * @param request
+	 * @return
+	 */
 	@RequestMapping(value="/savechecklist",method = RequestMethod.POST)  
 	public ModelAndView saveChecklist(@ModelAttribute("checklist") CheckList checklist, 
 			Model model, HttpServletRequest request){  
+		if(checklist == null) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		if(sqlController.saveCheckList(checklist)) {
 			model.addAttribute("date", checklist.getDate());
 			model.addAttribute("eventname", checklist.getEventName());
@@ -590,6 +737,19 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New element in the scheduled aded for " + user.getUsername(),message);
 		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
 	}
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/savechecklist",method = RequestMethod.GET)  
+	public ModelAndView saveChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * This method it is loading all the events in the schedule list
@@ -609,7 +769,7 @@ public class MyController {
 		//you will be able to see or not this list
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-		model.addAttribute("userType", user.getUserType());
+		model.addAttribute("userType", (Integer)session.getAttribute("userType"));
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
 		//I want to pass the size since based on the size the view will be different (if size is 0 do not load the list for not approved)
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
@@ -628,9 +788,14 @@ public class MyController {
 	@RequestMapping( value="/editChecklist",method = RequestMethod.POST)
 	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, 
 			Model model, HttpServletRequest request) throws SQLException { 
+		if(checklistID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		CheckList checkList = new CheckList();
 		checkList = checkList.getchecklist(checklistID);
 		if(newConnection == null) startDBConnection();
@@ -639,6 +804,20 @@ public class MyController {
 		model.addAttribute("checklistID", checklistID); //passing checklistID to the frontend
 		return new ModelAndView("editchecklistPage","command",new CheckList(checkList.getCheckListID(), checkList.getDate(),
 				checkList.getEventName(), checkList.getPlace(), checkList.getDescription()));  
+	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/editChecklist",method = RequestMethod.GET)  
+	public ModelAndView editChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
 	/**
@@ -652,11 +831,16 @@ public class MyController {
 	 */
 	@RequestMapping( value="/removeChecklist",method = RequestMethod.POST)
 	public ModelAndView removeChecklistPage(@RequestParam(value="checklistID") int checklistID, 
-			HttpServletRequest request) throws SQLException { 
+			Model model, HttpServletRequest request) throws SQLException { 
+		if(checklistID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		//false here means "make whatever it is linked with this ID invisible"
 		sqlController.updateChecklist(checklistID,false);
 		ApplicationContext context =
@@ -669,6 +853,21 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been removed for " + user.getUsername(),message);
 		return new ModelAndView("projectRemovedPage");
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/removeChecklist",method = RequestMethod.GET)  
+	public ModelAndView removeChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
+	
 	/**
 	 * This method it is loading the whole list (visible or not) of checklist and showing them on the front end view checklistListPage
 	 * @param checklistID
@@ -681,10 +880,15 @@ public class MyController {
 	public ModelAndView makeVisibleChecklistPage(@RequestParam(value="checklistID") int checklistID, 
 			Model model, HttpServletRequest request) 
 					throws SQLException { 
+		if(checklistID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		//System.out.println("test projectID " + checklistID);
 		sqlController.updateChecklist(checklistID,true);
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
@@ -694,6 +898,20 @@ public class MyController {
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("checklistListPage");
+	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/makeVisibleChecklist",method = RequestMethod.GET)  
+	public ModelAndView makeVisibleChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
 	/**
@@ -708,10 +926,15 @@ public class MyController {
 	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.POST)  
 	public ModelAndView saveEditChecklist(@ModelAttribute("checklist") CheckList checklist, 
 			Model model, HttpServletRequest request){ 
+		if(checklist == null) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		model.addAttribute("date", checklist.getDate());
 		model.addAttribute("eventname", checklist.getEventName());
 		model.addAttribute("place", checklist.getPlace());
@@ -730,6 +953,20 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.GET)  
+	public ModelAndView saveEditChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * I am passing only the projectID since the userID is already save on the session
@@ -741,10 +978,15 @@ public class MyController {
 	@RequestMapping( value="/registerinterest",method = RequestMethod.POST)
 	public ModelAndView registerInterestPage(@RequestParam(value="projectID") int projectID, 
 			Model model, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
 		/**
 		 * I have different returns based on the output of the method, 
 		 * 0 general error saving. 
@@ -795,6 +1037,21 @@ public class MyController {
 		model.addAttribute("message", "Error happen while trying to register your interest, please try again later");
 		return new ModelAndView("errorPage");	
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/registerinterest",method = RequestMethod.GET)  
+	public ModelAndView registerinterest(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
+	
 	/**
 	 * Need to have this method since I am having errors when the user have 5 projects already and 
 	 * try to update the visibility of a project, since recognize a 6th project and stop you
@@ -806,10 +1063,21 @@ public class MyController {
 	@RequestMapping( value="/makeInterestVisible",method = RequestMethod.POST)
 	public ModelAndView makeVisibleInterestPage(@RequestParam(value="projectID") int projectID, 
 			Model model, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		//I am checking if the project that I am trying to make visible is already been choose or being approved by someone else
+		if(sqlController.checkIfProjectIsAlreadyChoose(projectID)) {
+			//if it is the case then return error and do not make it visible
+			model.addAttribute("message", "Sorry that project it been selected by someone else, try to speak with the module coordinator");
+			return new ModelAndView("errorPage");
+		}
 		int count = sqlController.getTotalInterestProject((Integer)session.getAttribute("userID"), true);
 		//I am using this second counter since I can have the situation of not having any project with interest that are visible
 		//And only using one counter it will show me the you had not register interest message when I actually have projects
@@ -851,6 +1119,20 @@ public class MyController {
 			return new ModelAndView("interestProjectListPage","projectList",projectList);
 		}
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/makeInterestVisible",method = RequestMethod.GET)  
+	public ModelAndView makeInterestVisibleGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * Method that it is call when a lecturer remove interest from a project
@@ -865,7 +1147,11 @@ public class MyController {
 	 */
 	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
 	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID, 
-			User user, HttpServletRequest request) throws SQLException { 
+			Model model, User user, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -888,6 +1174,20 @@ public class MyController {
 	}
 	
 	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/removeinterest",method = RequestMethod.GET)  
+	public ModelAndView removeInterestGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
+	
+	/**
 	 * Method that it is call when the dissertation coordinator remove interest from a final project
 	 * @param projectID
 	 * @param user
@@ -897,11 +1197,16 @@ public class MyController {
 	 */
 	@RequestMapping( value="/removeinterestfinal",method = RequestMethod.POST)
 	public ModelAndView removeInterestFinal(@RequestParam(value="projectID") int projectID, 
-			User user, HttpServletRequest request) throws SQLException { 
+			Model model, User user, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		sqlController.updateInterestFinalProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		ApplicationContext context =
@@ -923,6 +1228,20 @@ public class MyController {
 	}
 	
 	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/removeinterestfinal",method = RequestMethod.GET)  
+	public ModelAndView removeInterestFinalGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
+	
+	/**
 	 * Method that it is call when a student remove interest from a project
 	 * In this case since I do not want to remove anything from the DB I am changing the visibility of that selection
 	 * to false, so a lecturer will not be able to see that interest anymore, but student could still update the interest
@@ -935,11 +1254,16 @@ public class MyController {
 	 */
 	@RequestMapping( value="/removeinterestStudent",method = RequestMethod.POST)
 	public ModelAndView removeInterestStudent(@RequestParam(value="projectID") int projectID, 
-			HttpServletRequest request, User user) throws SQLException { 
+			Model model, HttpServletRequest request, User user) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
 		User student = sqlController.getUser((Integer)session.getAttribute("userID"));
 		sqlController.updateInterestProject(projectID,student.getUserID(),false);
 		ApplicationContext context =
@@ -958,6 +1282,20 @@ public class MyController {
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("projectRemovedPage");
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/removeinterestStudent",method = RequestMethod.GET)  
+	public ModelAndView removeInterestStudentGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * This method it is taking care of showing the project that a student show interest visible or invisible ones
@@ -973,6 +1311,8 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		//only student can access this menu
+		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
 		//If the student already have a final project approved, then we will only show that project to him
 		Project project = sqlController.getFinalProjectStudent((Integer)session.getAttribute("userID"));
 		if(project != null) {
@@ -1008,8 +1348,8 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-
-		List<Project> projectList = sqlController.getProjectListVisible(true);	
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		List<Project> projectList = sqlController.getProjectListVisible(true, (Integer)session.getAttribute("userID"));	
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project register yet, go to project list and choose one!");
@@ -1034,6 +1374,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
 		List<Project> projectWithInterest = sqlController.getLecturerProjectList((Integer)session.getAttribute("userID"));	
 		model.addAttribute("projectWithInterest", projectWithInterest);
 		//I been forced to send the size separately to the front end because javaScript length function
@@ -1057,7 +1398,8 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false);
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, (Integer)session.getAttribute("userID"));
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
@@ -1078,16 +1420,21 @@ public class MyController {
 	@RequestMapping( value="/makeItVisible",method = RequestMethod.POST)
 	public ModelAndView makeAProjectVisible(@RequestParam(value="projectID") int projectID, 
 			Model model, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
 		sqlController.updateProject(projectID, true);//update the project to visible
 		//getting the project to obtain the title
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		//getting all the project not visible to populate the view again
-		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false);
+		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, (Integer)session.getAttribute("userID"));
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
@@ -1104,6 +1451,20 @@ public class MyController {
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		return new ModelAndView("notVisibleProjectPage");
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/makeItVisible",method = RequestMethod.GET)  
+	public ModelAndView makeItVisibleGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * This user is the one passed from the previous method (projectwithinterestlist)
@@ -1119,10 +1480,15 @@ public class MyController {
 	@RequestMapping( value="/approveinterest",method = RequestMethod.POST)
 	public ModelAndView approveInterestPage(@RequestParam(value="projectID") int projectID, 
 			User user, Model model, HttpServletRequest request) throws SQLException { 
+		if(projectID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
 		//HttpSession session = getSession(request);
 		if(sqlController.approveInteret(projectID, user)) {
 			Project project = new Project();
@@ -1162,6 +1528,20 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/approveinterest",method = RequestMethod.GET)  
+	public ModelAndView approveInterestGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
 
 	/**
 	 * This method it is creating a list of all the students within the system
@@ -1176,6 +1556,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		List<User> studentList = sqlController.getAllStudentList();
 		return new ModelAndView("studentListPage","studentList",studentList);  
 	}
@@ -1192,10 +1573,15 @@ public class MyController {
 	@RequestMapping( value="/getstudentprojects",method = RequestMethod.POST)
 	public ModelAndView getAllProjectStudentList(@RequestParam(value="studentID") int studentID, 
 			Model model, HttpServletRequest request) throws SQLException { 
+		if(studentID == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		//If the student already have a final project approved, then we will only show that project to him
 		Project finalProject = sqlController.getFinalProjectStudent(studentID);
 		if(finalProject == null) {
@@ -1206,6 +1592,20 @@ public class MyController {
 		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
 		model.addAttribute("finalProject", finalProject);
 		return new ModelAndView("allStudentProjectPage");
+	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/getstudentprojects",method = RequestMethod.GET)  
+	public ModelAndView getStudentProjectsGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
 	/**
@@ -1222,6 +1622,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		List<Integer> yearList = sqlController.getAllYearOfProjects();
 		if(yearList.isEmpty()) {
 			model.addAttribute("message", "Year list it is empty");
@@ -1243,10 +1644,15 @@ public class MyController {
 	 */
 	@RequestMapping( value="/seeprojectbyyear",method = RequestMethod.POST)
 	public ModelAndView seeProviousYearProject(Model model, HttpServletRequest request, int year) throws SQLException { 
+		if(year == 0) {
+			model.addAttribute("message", "Error loading the page");
+			return new ModelAndView("errorPage");
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		List<Project> projectList = sqlController.getProjectsByYear(year);
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "We could not found any project for the year " + year + " please contact the system administrator");
@@ -1255,6 +1661,20 @@ public class MyController {
 		model.addAttribute("projectList", projectList);
 		model.addAttribute("year", year);
 		return new ModelAndView("previousyearprojectlist");
+	}
+	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/seeprojectbyyear",method = RequestMethod.GET)  
+	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException {  
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
 	/**

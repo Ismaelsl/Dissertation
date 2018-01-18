@@ -69,12 +69,14 @@ function chooseMessage(listSize, finalProject){
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
-<body onload='chooseMessage("${notInterestListSize}","${noFinalProject}")'>
+<body
+	onload='chooseMessage("${notInterestListSize}","${noFinalProject}")'>
 	<h2>
 		<div id="secondList"></div>
 	</h2>
 
-<%--<c:forEach items="${projectListNotVisible}" var="project">
+
+	<%--<c:forEach items="${projectListNotVisible}" var="project">
 	<li><a
 		onclick='modalPopulatorNotVisible("${project.title}","${project.description}","${project.projectID}",
   "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
@@ -128,16 +130,17 @@ to the view from the controller or the variable names from the class --%>
 				</div>
 			</div>
 			<div class="modal-footer" id="modal-footer-removeInterest">
-				<form:form method="post" action="removeinterestfinal" modelAttribute="user">
+				<form:form method="post" action="removeinterestfinal"
+					modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>
-						<form:hidden id="userIDRemove" path="userID" value="" />
+					<form:hidden id="userIDRemove" path="userID" value="" />
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>
 			</div>
-		<%--	<div class="modal-footer" id="modal-footer-registerInterest">
+			<%--	<div class="modal-footer" id="modal-footer-registerInterest">
 				<form:form method="post" action="makeInterestVisible"
 					>
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
@@ -146,7 +149,9 @@ to the view from the controller or the variable names from the class --%>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>--%>
-			</div>
 		</div>
 	</div>
 </div>
+<form:form method="get" action="studentlist">
+	<button class="btn btn-success" value=" ">Go back</button>
+</form:form>

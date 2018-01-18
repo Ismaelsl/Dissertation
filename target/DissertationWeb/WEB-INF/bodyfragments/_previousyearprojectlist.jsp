@@ -100,10 +100,14 @@ to the view from the controller or the variable names from the class --%>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" id="modal-footer-admin">		
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Close</button>
+			<div class="modal-footer" id="modal-footer-admin">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 			</div>
+
 		</div>
 	</div>
 </div>
+<br>
+<form:form method="get" action="previousyearprojects">
+	<button class="btn btn-success" value=" ">Go back</button>
+</form:form>

@@ -65,3 +65,6 @@ to the view from the controller or the variable names from the class --%>
 		</div>
 	</div>
 </div>
+<form:form method="get" action="home">
+	<button class="btn btn-success" value=" ">Go back Home</button>
+</form:form>

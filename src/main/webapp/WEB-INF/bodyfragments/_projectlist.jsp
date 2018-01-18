@@ -33,7 +33,7 @@ function getSearchValue() {
     search.value = searchValue;
 }
 
- function checkone(d){
+function checkone(d){
  if (!d.checked) return; //if it's unchecked, then do nothing
  var os=document.getElementsByTagName('input');
  for (var i=0;i<os.length;i++){
@@ -45,20 +45,23 @@ window.onload = function() {
 	var user = document.getElementById("userType").value;
    	var userdiv = document.getElementById("modal-footer-user");
    	var admindiv = document.getElementById("modal-footer-admin");
-    if(user == 1){
+   	var dcdiv = document.getElementById("modal-footer-dc");
+   	
+    if(user == 1){<%--Lecturer--%>
     	admindiv.style.display = 'visible';
         userdiv.style.display = 'none';
+        dcdiv.style.display = 'none';
     }
-    if(user == 2){
+    if(user == 2){<%--Student--%>
+        dcdiv.style.display = 'none';
         admindiv.style.display = 'none';
         userdiv.style.display = 'visible';
     }
-   <%-- DC code, is comment out because I am still not implementing his functionality
-   if(user == 3){
+    if(user == 3){<%--Dissetation coordinator--%>
         admindiv.style.display = 'none';
         userdiv.style.display = 'none';
         dcdiv.style.display = 'visible';
-    } --%>
+    }
    
 }
  </script>
@@ -128,31 +131,35 @@ to the view from the controller or the variable names from the class --%>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" id = "modal-footer-admin">
+			<%--In this list lecturer cannot do nothing, if they want to edit projects they need to go to their personal project list
+			in the lecturer menu--%>
+			<div class="modal-footer" id="modal-footer-admin">
+				<form:form method="post" action="remove">
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">Close</button>
+				</form:form>
+			</div>
+			<%--User can only register interest--%>
+			<div class="modal-footer" id="modal-footer-user">
+				<form:form method="post" action="registerinterest">
+					<button onclick="getProjectID();" id="modal-registerinterest-id"
+						name="projectID" class="btn btn-success" value=" ">Register
+						Interest</button>
+				</form:form>
+			</div>
+			<%--Module coordinator can edit or remove any project--%>
+			<div class="modal-footer" id="modal-footer-dc">
 				<form:form method="post" action="edit">
 					<button onclick="getProjectID();" id="modal-edit-id"
 						name="projectID" class="btn btn-success" value=" ">Edit</button>
 				</form:form>
 				<form:form method="post" action="remove">
 					<button onclick="getProjectID();" id="modal-remove-id"
-						name="projectID" class="btn btn-danger" value=" ">Remove</button>
+						name="projectID" class="btn btn-danger" value=" ">Remove
+						Project</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>
-			</div>
-			<div class="modal-footer" id = "modal-footer-user">
-				<form:form method="post" action="registerinterest">
-					<button onclick="getProjectID();" id="modal-registerinterest-id"
-						name="projectID" class="btn btn-success" value=" ">Register Interest</button>
-				</form:form>
-			<%--I comment this out since I think that user should only see the registration button and the remove
-			button should be only on the list of project that he or she is already registered interest
-			<form:form method="post" action="removeinterest">
-					<button onclick="getProjectID();" id="modal-removeinterest-id"
-						name="projectID" class="btn btn-danger" value=" ">Remove Interest</button>
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Close</button>
-				</form:form>--%>
 			</div>
 		</div>
 	</div>

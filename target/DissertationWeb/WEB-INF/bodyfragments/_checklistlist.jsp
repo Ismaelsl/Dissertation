@@ -41,13 +41,36 @@ function getChecklistID() {
 }
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
+	menu();<%-- I am calling menu here since I have already one onload function and the first thing that I want to 
+	happens is the menu load --%>
 	if(listSize == 0){
 		$("#secondList").html("You do not have hide events");
 	}else{
 		$("#secondList").html("Here is the list of events that you hide");
 	}
 }
+ <%-- Method that show options based on which kind of user you are --%>
+function menu() {
+	var user = document.getElementById("userType").value;
+   	var userdiv = document.getElementById("modal-footer-user");
+   	var dcdiv = document.getElementById("modal-footer-dc");
+   	var notvisiblelist = document.getElementById("secondListProjects");
+   	var secondList = document.getElementById("secondList");
+   	
+    if(user == 1 || user == 2){<%--Lecturer or Student--%>
+        userdiv.style.display = 'visible';
+        dcdiv.style.display = 'none';
+        notvisiblelist.style.display = 'none';
+        secondList.style.display = 'none';
+    }
+    if(user == 3){<%--Dissetation coordinator--%>
+        userdiv.style.display = 'none';
+        dcdiv.style.display = 'visible';
+    }
+   
+}
  </script>
+
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -62,12 +85,14 @@ to the view from the controller or the variable names from the class --%>
 		<div id="secondList"></div>
 	</h2>
 </body>
+<div id="secondListProjects">
 <c:forEach items="${checklistListNotApproved}" var="checklist">
 	<li><a
 		onclick='modalPopulatorNoVisible("${checklist.date}","${checklist.eventName}","${checklist.place}","${checklist.checkListID}", "${checklist.description}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Checklist title: ${checklist.eventName}</a></li>
 </c:forEach>
+</div>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
 	aria-labelledby="profileModal" aria-hidden="true">
@@ -98,7 +123,7 @@ to the view from the controller or the variable names from the class --%>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" id="modal-footer-user">
+			<div class="modal-footer" id="modal-footer-dc">
 				<div id="visible">
 					<form:form method="post" action="editChecklist">
 						<button onclick="getChecklistID();" id="modal-edit-id"
@@ -124,7 +149,12 @@ to the view from the controller or the variable names from the class --%>
 							data-dismiss="modal">Close</button>
 					</form:form>
 				</div>
-
+			</div>
+			<div class="modal-footer" id="modal-footer-user">
+				<form:form method="post" action="removeChecklist">
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">Close</button>
+				</form:form>
 			</div>
 		</div>
 	</div>
