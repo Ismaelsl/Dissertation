@@ -29,7 +29,7 @@ Compulsory Readings: ${compulsoryReading}
 <br>
 
 <br>
-<form:form method="get" action="home">
+<form:form method="get" action="projectlist">
 	<button id="gobackhome" class="btn btn-success" value=" ">Go
-		back home</button>
+		back</button>
 </form:form>

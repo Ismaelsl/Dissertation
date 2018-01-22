@@ -1,5 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <h1>List of Students</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
@@ -23,8 +24,9 @@ function getStudentID() {
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${studentList}" var="student">
+<c:set var = "username" value="${fn:replace(student.username, '\"', '\\'')}" />
 	<li><a
-		onclick='modalPopulator("${student.username}","${student.userID}","${student.email}")'
+		onclick='modalPopulator("${fn:escapeXml(username)}","${student.userID}","${fn:escapeXml(student.email)}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Student name: ${student.username}</a></li>
 </c:forEach>

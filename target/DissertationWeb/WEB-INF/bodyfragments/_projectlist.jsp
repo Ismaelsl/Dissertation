@@ -1,5 +1,9 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="org.dissertationWeb.classes.Project;" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <h1>List of projects</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
@@ -7,12 +11,13 @@ in this way I always will have the actual ID of the project open in the modal --
 var actualID;
 
 function modalPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
-    $(".modal-title").html( title );
-    $("#modal-description").html(description );
-    $("#modal-topics").html(topics );
-    $("#modal-compulsoryReading").html(compulsoryReading );
-    $("#modal-lecturerName").html(lecturerName );
-    $("#modal-lecturerEmail").html(lecturerEmail );
+
+    $(".modal-title").html(title);
+    $("#modal-description").html(description);
+    $("#modal-topics").html(topics);
+    $("#modal-compulsoryReading").html(compulsoryReading);
+    $("#modal-lecturerName").html(lecturerName);
+    $("#modal-lecturerEmail").html(lecturerEmail);
     actualID = projectID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
@@ -64,6 +69,19 @@ window.onload = function() {
     }
    
 }
+
+function removeXml(unsafe) {
+alert(unsafe);
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
+}
  </script>
 <form:form method="post" action="search">
 	<table>
@@ -88,10 +106,16 @@ window.onload = function() {
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
+
 <c:forEach items="${projectList}" var="project">
+<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
+<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+
 	<li><a
-		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}",
-  "${project.topics}","${project.compulsoryReading}","${project.user.username}","${project.user.email}")'
+		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
+  "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Project title: ${project.title}</a></li>
 </c:forEach>

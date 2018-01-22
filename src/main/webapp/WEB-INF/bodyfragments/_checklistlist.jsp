@@ -1,5 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <h1>List of Checklist</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
@@ -75,11 +76,17 @@ function menu() {
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${checklistList}" var="checklist">
+<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
+<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
+<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
+
 	<li><a
-		onclick='modalPopulator("${checklist.date}","${checklist.eventName}","${checklist.place}","${checklist.checkListID}", "${checklist.description}")'
+		onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
+		"${checklist.checkListID}", "${fn:escapeXml(description)}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Checklist title: ${checklist.eventName}</a></li>
 </c:forEach>
+
 <body onload='chooseMessage("${notapprovedsize}")'>
 	<h2>
 		<div id="secondList"></div>
@@ -87,8 +94,13 @@ to the view from the controller or the variable names from the class --%>
 </body>
 <div id="secondListProjects">
 <c:forEach items="${checklistListNotApproved}" var="checklist">
+<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
+<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
+<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
+
 	<li><a
-		onclick='modalPopulatorNoVisible("${checklist.date}","${checklist.eventName}","${checklist.place}","${checklist.checkListID}", "${checklist.description}")'
+		onclick='modalPopulatorNoVisible("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
+		"${checklist.checkListID}", "${fn:escapeXml(description)}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Checklist title: ${checklist.eventName}</a></li>
 </c:forEach>

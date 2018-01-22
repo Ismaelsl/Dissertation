@@ -54,7 +54,6 @@ public class DBConnection {
 		if (connection == null) {
 			try {
 				Class.forName(DATABASE_DRIVER);
-				System.out.println("breakpoint line");
 				connection = DriverManager.getConnection(DATABASE_URL, getProperties());
 			} catch (ClassNotFoundException | SQLException e) {
 				// Java 7+
@@ -68,7 +67,6 @@ public class DBConnection {
 			//Complete transaction isolation within my application
 			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return connection;

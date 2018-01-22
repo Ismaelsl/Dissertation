@@ -1,5 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <h1>List of projects that you are interested</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
@@ -86,9 +87,13 @@ to the view from the controller or the variable names from the class --%>
 	<h2>
 		<div id="finalProject"></div>
 	</h2>
+	<c:set var = "title" value="${fn:replace(finalProject.title, '\"', '\\'')}" />
+<c:set var = "description" value="${fn:replace(finalProject.description, '\"', '\\'')}" />
+<c:set var = "topics" value="${fn:replace(finalProject.topics, '\"', '\\'')}" />
+<c:set var = "readings" value="${fn:replace(finalProject.compulsoryReading, '\"', '\\'')}" />
 	<li><a
-		onclick='modalPopulatorNotVisible("${finalProject.title}","${finalProject.description}","${finalProject.projectID}",
-  "${finalProject.topics}","${finalProject.compulsoryReading}","${finalProject.user.username}","${finalProject.user.email}", 
+		onclick='modalPopulatorNotVisible("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${finalProject.projectID}",
+  "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${finalProject.user.username}","${finalProject.user.email}", 
   "${finalProject.user.userID}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal">Project title: ${finalProject.title}</a></li>

@@ -1211,9 +1211,9 @@ public class SQLController {
 	 * @return
 	 */
 	public boolean checkIfProjectIsAlreadyChoose(int projectID) {
-		System.out.println("In the method!");
 		PreparedStatement ps, ps2;
 		try {
+			//I tried to mix box queries but I was getting error, if I have more time I will try to improve this query
 			ps = newConnection.prepareStatement("SELECT COUNT(*) AS total FROM interestproject WHERE projectID = ? AND visible = ? AND year = ?");
 			ps2 = newConnection.prepareStatement("SELECT COUNT(*) AS totalapproved FROM approvedproject WHERE projectID = ? AND visible = ? AND year = ?");
 			ps.setInt(1,projectID);

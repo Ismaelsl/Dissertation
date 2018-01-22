@@ -1,5 +1,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="org.dissertationWeb.classes.Project;" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <h1>Your personal list of projects</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
@@ -44,13 +46,18 @@ function chooseMessage(listSize){
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
-	<li><a
-		onclick='modalPopulator("${project.title}","${project.description}","${project.projectID}", "${project.visible}",
-		"${project.waitingToBeApproved}", "${project.topics}","${project.compulsoryReading}",
+	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
+<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+<li><a
+		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}", "${project.visible}",
+		"${project.waitingToBeApproved}", "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#projectModal">Project title: ${project.title}</a></li>
 </c:forEach>
+
 
 <!-- project Modal -->
 <div class="modal fade" id="projectModal" tabindex="-1" role="dialog"
