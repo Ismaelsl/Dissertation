@@ -163,5 +163,11 @@
        <put-attribute name="title" value="New project proposal" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectproposal.jsp" />  
    </definition> 
+   
+      <!-- Project list actual year -->
+   <definition name="projectListByYearPage" extends="base.definition">  
+       <put-attribute name="title" value="New project proposal" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectlisttobyyear.jsp" />  
+   </definition> 
      
 </tiles-definitions>

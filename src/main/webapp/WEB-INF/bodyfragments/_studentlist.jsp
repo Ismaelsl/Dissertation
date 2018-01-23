@@ -18,8 +18,39 @@ function getStudentID() {
     studentID.value = actualID;
 }
 
- </script>
+<%-- Method that pass as value the search criteria to the back end --%>
+function getSearchValue() {
+    var search = document.getElementById("search-id");
+    var searchValue = document.getElementById("search-value-id").value;
+    search.value = searchValue;
+}
 
+function checkone(d){
+ if (!d.checked) return; //if it's unchecked, then do nothing
+ var os=document.getElementsByTagName('input');
+ for (var i=0;i<os.length;i++){
+    if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  } 
+}
+
+ </script>
+<form:form method="post" action="searchStudent">
+	<table>
+		<tr>
+			<td>Search:</td>
+			<td><textarea id="search-value-id" rows="1" cols="50">Introduce search criteria...</textarea></td>
+		</tr>
+		<tr>
+			<td colspan="2"><input onclick="checkone(this);" type="checkbox"
+				name="name" value="name" id="name" checked>
+				Name <input onclick="checkone(this);" type="checkbox"
+				name="email" value="email" id="email">Email
+				<button onclick="getSearchValue();" id="search-id"
+					name="searchValue" class="btn btn-success" value=" ">Search</button>
+			</td>
+		</tr>
+	</table>
+</form:form>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">

@@ -16,7 +16,11 @@ import org.dissertationWeb.classes.SQLController;
 import org.dissertationWeb.classes.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -33,6 +37,7 @@ import org.springframework.web.servlet.ModelAndView;
  *
  */
 @Controller
+@EnableScheduling
 public class MyController {
 	@Autowired 
 	private HttpSession httpSession;
@@ -43,6 +48,42 @@ public class MyController {
 	//private int userLoginID;
 
 	/**
+	 * Automatic method that checks every 24 hours if we have new events in the schedule coming within one week
+	 * If we have any an email will be send to all the students if not, nothing will happens
+	 */
+	@Scheduled(fixedRate = 86400000 )//check every 24 hours
+	//@Scheduled(fixedRate = 5000)
+	public void checkSchedule() {
+		startDBConnection();
+		System.out.println("inside automatic method for schedule");
+		//I am getting all the events coming within a week
+		List<CheckList> checklistList = sqlController.checkScheduleTime();
+		if(!checklistList.isEmpty()) {
+			@SuppressWarnings("resource")
+			ApplicationContext context =
+			new ClassPathXmlApplicationContext("Spring-Mail.xml");
+			MailMail mm = (MailMail) context.getBean("mailMail");
+			String title = "";
+			String info = "";
+			String place = "";
+			String divider = "";
+			String finalTable = "";
+
+			for (CheckList c : checklistList) {
+				if(c != null) {
+					title = " Event title:" + title + c.getEventName() + " \n";
+					info = " Event description: " + info + c.getDescription() + " \n";
+					place = " Event place:" + place + c.getPlace() + " \n";
+					divider = divider + "*******************************************";
+					finalTable = finalTable + title + info + place + divider + " \n";
+				}
+			}
+			mm.sendAutomaticEmailSchedule("Those are the events coming this week \n" + finalTable, "ismael.sanchez.leon@gmail.com",
+					"tatowoke@gmail.com", "New events coming this week");	
+		}
+	}
+
+	/**
 	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
 	 */
 	private void startDBConnection() {
@@ -50,6 +91,7 @@ public class MyController {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
 		sqlController = new SQLController();//object to control all the SQL activities
+		//checkSchedule();
 	}
 
 	/**
@@ -146,7 +188,7 @@ public class MyController {
 		session.setAttribute("userType", userType);
 		session.setMaxInactiveInterval(600);//right now is 600 seconds since I need to do some testing and need the session to last longer
 	}
-	
+
 	/**
 	 * Method to get the session
 	 * @param request
@@ -184,7 +226,7 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
-	
+
 	/**
 	 * This method it is call when someone write /projectlist in the browser
 	 * the function of the method it is to load all the project that are visible, not choose by anyone else, are from the actual year
@@ -282,21 +324,26 @@ public class MyController {
 			model.addAttribute("lecturername", actualUser.getUsername());
 			model.addAttribute("lectureremail", actualUser.getEmail());
 			//End of area of populating mode view
+			@SuppressWarnings("resource")
 			ApplicationContext context =
-					new ClassPathXmlApplicationContext("Spring-Mail.xml");
+			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 			MailMail mm = (MailMail) context.getBean("mailMail");
-			String message = "Your project had been approved";
-			String lecturerEmail = actualUser.getEmail();
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Approved project from " + actualUser.getUsername(),message);
-			//Final version will be sending an email to the lecturer letting him now that the project had been approved
-			//mm.sendMail("ismael.sanchez.leon@gmail.com",lecturerEmail,"Project approved " + actualUser.getUsername(),message);
-			return new ModelAndView("projectPage","project",model);//will display object data 
+			if(mm.sendAutomaticEmail(actualUser, "Your project has been approved", "ismael.sanchez.leon@gmail.com",
+					"tatowoke@gmail.com", "Approved project from ")){
+				//Final version will be sending an email to the lecturer letting him now that the project had been approved
+				//(mm.sendAutomaticEmail(actualUser, "Your project has been approved", actualUser.getEmail(),
+				//"tatowoke@gmail.com", "You approved the project " + project.getTitle())
+				return new ModelAndView("projectPage","project",model);//will display object data 
+			}else {
+				model.addAttribute("message", "An error happens while trying to send the automatic email");
+				return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view
+			}			
 		}else {
 			model.addAttribute("message", "An error happens while trying to approve your project");
 			return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view
 		}
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -385,7 +432,7 @@ public class MyController {
 		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
 		return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -426,7 +473,7 @@ public class MyController {
 		return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
 				project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));  
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -478,7 +525,7 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Project removed from " + user.getUsername(),message);
 		return new ModelAndView("projectRemovedPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -522,9 +569,10 @@ public class MyController {
 		model.addAttribute("lecturerID",actualUser.getUserID());
 		model.addAttribute("lecturername", actualUser.getUsername());
 		model.addAttribute("lectureremail", actualUser.getEmail());
-		if(sqlController.saveEdit(project)) {
+		switch(sqlController.saveEdit(project)) {
+		case 0 :
 			ApplicationContext context =
-					new ClassPathXmlApplicationContext("Spring-Mail.xml");
+			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "Your project had been modified";
@@ -532,12 +580,18 @@ public class MyController {
 			String lecturerEmail = user.getEmail();
 			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Modified project from " + user.getUsername(),message);
 			return new ModelAndView("projectPage","project",model);//will display object data  
-		}else {
+		case 1 : 
+			model.addAttribute("message", "That project already exist in the DB");
+			return new ModelAndView("errorPage");
+
+		case 2 : 
 			model.addAttribute("message", "Error happens while updating the project, if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
+		model.addAttribute("message", "An error happened saving your project, please try again later");
+		return new ModelAndView("errorPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -586,7 +640,22 @@ public class MyController {
 		model.addAttribute("lecturername", actualUser.getUsername());
 		model.addAttribute("lectureremail", actualUser.getEmail());
 		//model.addAttribute("projectID",project.getTitle());
-		if(sqlController.save(project, (Integer)session.getAttribute("userID"))) {
+		switch(sqlController.save(project, (Integer)session.getAttribute("userID"))) {
+		case 0 :
+			ApplicationContext context =
+			new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+			MailMail mm = (MailMail) context.getBean("mailMail");
+			String message = mm.newOrApproveProjectMessage(actualUser.getUsername(),project.getTitle(), "created");
+			String emailFrom = actualUser.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
+			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project from " + actualUser.getUsername(),message);
+			model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
+			return new ModelAndView("projectPage","project",model);//will display object data  
+		case 1 : 
+			model.addAttribute("message", "That project already exist in the DB");
+			return new ModelAndView("errorPage");
+
+		case 2 : 
 			try {
 				if(sqlController.getLastProjectID() == 0) return new ModelAndView("errorPage","project",null);
 				model.addAttribute("projectID",sqlController.getLastProjectID());
@@ -594,18 +663,10 @@ public class MyController {
 				e.printStackTrace();
 			}
 		}
-		//Automatic email system
-		ApplicationContext context =
-				new ClassPathXmlApplicationContext("Spring-Mail.xml");
-
-		MailMail mm = (MailMail) context.getBean("mailMail");
-		String message = mm.newOrApproveProjectMessage(actualUser.getUsername(),project.getTitle(), "created");
-		String emailFrom = actualUser.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project from " + actualUser.getUsername(),message);
-		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
-		return new ModelAndView("projectPage","project",model);//will display object data  
+		model.addAttribute("message", "An error happened saving your project, please try again later");
+		return new ModelAndView("errorPage");
 	}  
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -658,7 +719,59 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
-	
+
+	/**
+	 * Method to search student based on their name or email (both of them are unique) so this query will always
+	 * return a single student
+	 * @RequestParam(required = false) it is saying that the parameter is not compulsory so if it is not passed
+	 * the method will not complaint
+	 * @param searchValue
+	 * @param name
+	 * @param email
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/searchStudent",method = RequestMethod.POST)  
+	public ModelAndView searchStudent(@RequestParam String searchValue, @RequestParam(required = false)
+	String name, @RequestParam(required = false) String email,Model model, HttpServletRequest request){ 
+		//required false indicate that it is not compulsory to have it, so if I do not have, for example, a title, java will not complaint
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		//If user does not enter any search criteria
+		if(searchValue == null) {
+			model.addAttribute("message", "Please write your search criteria in the search box");
+			return new ModelAndView("errorPage");
+		}
+		searchValue.toLowerCase();//better if I put everything on lower case
+		//If any of the checkboxes had been marked
+		if(name == null && email == null) {
+			model.addAttribute("message", "Please choose any of the three search criteria, lecturer, technology or topic");
+			return new ModelAndView("errorPage");
+		}
+
+		User student = new User();
+		//I am using a list since I am reusing a view and this view need a list, the idea is the same
+		//the list have a for loop that will only iterate once
+		List<User> studentList = new ArrayList<User>();
+		//If name is not null, search by name
+		if(name != null) {
+			student = sqlController.getUserByName(searchValue);
+			if(student != null) studentList.add(student);
+		}
+		//If email is not empty search by email
+		if(email != null) {
+			student = sqlController.getUserByEmail(searchValue);
+			if(student != null) studentList.add(student);
+		}
+		if(!studentList.isEmpty()) {
+			return new ModelAndView("studentListPage","studentList",studentList);
+		}else {
+			model.addAttribute("message", "Your search criteria does not return any result");
+			return new ModelAndView("errorPage");
+		}
+	}
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -707,7 +820,8 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
-		if(sqlController.saveCheckList(checklist)) {
+		switch(sqlController.saveCheckList(checklist)) {
+		case 0 :
 			model.addAttribute("date", checklist.getDate());
 			model.addAttribute("eventname", checklist.getEventName());
 			model.addAttribute("place", checklist.getPlace());
@@ -723,19 +837,24 @@ public class MyController {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		}else {
-			model.addAttribute("message", "Error saving the new enter for the schedule, please try again later");
+			ApplicationContext context =
+					new ClassPathXmlApplicationContext("Spring-Mail.xml");
+
+			MailMail mm = (MailMail) context.getBean("mailMail");
+			String message = "A new element in the scheduled had been added";
+			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
+			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New element in the scheduled added for " + user.getUsername(),message);
+			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
+		case 1 : 
+			model.addAttribute("message", "That event already exist in the DB");
+			return new ModelAndView("errorPage");
+
+		case 2 : 
+			model.addAttribute("message", "Error happens while saving the event, if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
-		//Need to change this redirect to a checklistPage to see the checklist that we just added
-		ApplicationContext context =
-				new ClassPathXmlApplicationContext("Spring-Mail.xml");
-
-		MailMail mm = (MailMail) context.getBean("mailMail");
-		String message = "A new element in the scheduled had been added";
-		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New element in the scheduled aded for " + user.getUsername(),message);
-		return new ModelAndView("checklistViewPage","checklist",model);//will display object data  
+		model.addAttribute("message", "An error happened saving your event, please try again later");
+		return new ModelAndView("errorPage");
 	}
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
@@ -767,6 +886,7 @@ public class MyController {
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
 		//This second list will not be see by students, but in order to save space I am using the same view, but based on the userType
 		//you will be able to see or not this list
+
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("userType", (Integer)session.getAttribute("userType"));
@@ -805,7 +925,7 @@ public class MyController {
 		return new ModelAndView("editchecklistPage","command",new CheckList(checkList.getCheckListID(), checkList.getDate(),
 				checkList.getEventName(), checkList.getPlace(), checkList.getDescription()));  
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -853,7 +973,7 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been removed for " + user.getUsername(),message);
 		return new ModelAndView("projectRemovedPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -867,7 +987,7 @@ public class MyController {
 	public ModelAndView removeChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
-	
+
 	/**
 	 * This method it is loading the whole list (visible or not) of checklist and showing them on the front end view checklistListPage
 	 * @param checklistID
@@ -899,7 +1019,7 @@ public class MyController {
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("checklistListPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -939,21 +1059,28 @@ public class MyController {
 		model.addAttribute("eventname", checklist.getEventName());
 		model.addAttribute("place", checklist.getPlace());
 		model.addAttribute("description", checklist.getDescription());
-		if(sqlController.saveEditCheckList(checklist)) {
+		switch(sqlController.saveEditCheckList(checklist)) {
+		case 0 :
 			ApplicationContext context =
-					new ClassPathXmlApplicationContext("Spring-Mail.xml");
+			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "The element in the scheduled " + checklist.getEventName() + " had been modified";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been modified for " + user.getUsername(),message);
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
-		}else {
-			model.addAttribute("message", "Error saving the updated enter for the schedule, please try again later");
+		case 1 : 
+			model.addAttribute("message", "That event already exist in the DB");
+			return new ModelAndView("errorPage");
+
+		case 2 : 
+			model.addAttribute("message", "Error happens while saving your edit of the event, if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
+		model.addAttribute("message", "An error happened saving your edit of the event, please try again later");
+		return new ModelAndView("errorPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1037,7 +1164,7 @@ public class MyController {
 		model.addAttribute("message", "Error happen while trying to register your interest, please try again later");
 		return new ModelAndView("errorPage");	
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1051,7 +1178,7 @@ public class MyController {
 	public ModelAndView registerinterest(Model model, HttpServletRequest request) throws SQLException {  
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
-	
+
 	/**
 	 * Need to have this method since I am having errors when the user have 5 projects already and 
 	 * try to update the visibility of a project, since recognize a 6th project and stop you
@@ -1119,7 +1246,7 @@ public class MyController {
 			return new ModelAndView("interestProjectListPage","projectList",projectList);
 		}
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1172,7 +1299,7 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		return new ModelAndView("projectRemovedPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1186,7 +1313,7 @@ public class MyController {
 	public ModelAndView removeInterestGet(Model model, HttpServletRequest request) throws SQLException {  
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
-	
+
 	/**
 	 * Method that it is call when the dissertation coordinator remove interest from a final project
 	 * @param projectID
@@ -1226,7 +1353,7 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		return new ModelAndView("projectRemovedPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1240,7 +1367,7 @@ public class MyController {
 	public ModelAndView removeInterestFinalGet(Model model, HttpServletRequest request) throws SQLException {  
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
-	
+
 	/**
 	 * Method that it is call when a student remove interest from a project
 	 * In this case since I do not want to remove anything from the DB I am changing the visibility of that selection
@@ -1282,7 +1409,7 @@ public class MyController {
 		//I am using same page since the final message for project or checklist is the same
 		return new ModelAndView("projectRemovedPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1359,7 +1486,7 @@ public class MyController {
 		model.addAttribute("projectList", projectList);
 		return new ModelAndView("yourPersonalListPage");
 	}
-	
+
 	/**
 	 * This method it is showing the list of projects that a student show interest based on the lecturer, or in other words this method
 	 * it is creating a list of projects per lecturer that have interest show by students
@@ -1451,7 +1578,7 @@ public class MyController {
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		return new ModelAndView("notVisibleProjectPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1528,7 +1655,7 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1593,7 +1720,7 @@ public class MyController {
 		model.addAttribute("finalProject", finalProject);
 		return new ModelAndView("allStudentProjectPage");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1662,7 +1789,7 @@ public class MyController {
 		model.addAttribute("year", year);
 		return new ModelAndView("previousyearprojectlist");
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -1675,6 +1802,27 @@ public class MyController {
 	@RequestMapping(value="/seeprojectbyyear",method = RequestMethod.GET)  
 	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException {  
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
+	
+	/**
+	 * Method that is showing a list with all the projects of the actual year
+	 * As admin you have the option to edit a project but never remove
+	 * I am not letting to remove since I do not want admin to remove projects that already
+	 * have students
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/allprojectsactualyear",method = RequestMethod.GET)
+	public ModelAndView seeAllProjectsActualYear(Model model, HttpServletRequest request) throws SQLException { 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		List<Project> projectList = sqlController.getAllProjectActualYear();
+		model.addAttribute("projectList", projectList);
+		return new ModelAndView("projectListByYearPage");
 	}
 
 	/**
@@ -1692,28 +1840,4 @@ public class MyController {
 		session.invalidate();
 		return login(request);
 	}
-	
-	/**
-	 * This method is taking care that when a lecturer enter to his personal list you will have in the top 
-	 * all the lecturer projects without interest and on the bottom the lecturer project which have interest
-	 * @param projectList
-	 * @param projectWithInterest
-	 * @return
-	 */
-	/*public List<Project> listComparer(List<Project>projectList, List<Project>projectWithInterest) {
-		List<Project> finalList = new ArrayList<Project>();
-		for (Project projectLect : projectList) {
-			boolean found=false;
-			for (Project projectInte : projectWithInterest) {
-				if (projectLect.getProjectID() == projectInte.getProjectID()) {
-					found=true;
-					break;
-				}
-			}
-			if(!found){
-				finalList .add(projectLect);
-			}
-		}
-		return finalList;
-	}*/
 }

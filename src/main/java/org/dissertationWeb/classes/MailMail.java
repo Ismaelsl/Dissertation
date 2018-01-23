@@ -1,5 +1,7 @@
 package org.dissertationWeb.classes;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
@@ -25,6 +27,25 @@ public class MailMail
 		message.setSubject(subject);
 		message.setText(msg);
 		mailSender.send(message);
+	}
+	
+	public boolean sendAutomaticEmail(User user, String message, String from, String to, String title) {
+		//String lecturerEmail = user.getEmail();
+		try{
+			sendMail(from,to,title + user.getUsername(),message);
+		}catch(Exception e) {
+			return false;
+		}
+		return true;
+	}
+	public boolean sendAutomaticEmailSchedule(String message, String from, String to, String title) {
+		//String lecturerEmail = user.getEmail();
+		try{
+			sendMail(from,to,title,message);
+		}catch(Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

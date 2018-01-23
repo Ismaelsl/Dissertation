@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,6 +49,49 @@ public class SQLController {
 			}
 		} catch (ParseException e) {
 		}
+	}
+
+	/**
+	 * SQL Method that get all the checklist and check if them are one week away from the actual date
+	 * If they are I am returning a list with the checklists
+	 * @return
+	 */
+	public List<CheckList> checkScheduleTime() {
+		List<CheckList> checklistList = new ArrayList<CheckList>();
+		Date today = new Date();
+		String query = "SELECT * FROM checklist";
+		Statement st;
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+			while (rs.next())
+			{
+				String DATE_FORMAT_NOW = "yyyy-MM-dd";
+				SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+				String stringDate = sdf.format(today );
+				String stringToDate = sdf.format(rs.getDate("date") );
+
+				LocalDate from = LocalDate.parse(stringDate);
+				LocalDate to = LocalDate.parse(stringToDate);
+
+				long days = ChronoUnit.DAYS.between(from, to);// method to check the distance in long between the dates
+				if(days <= 6 && days > 0){//If is between 6 to 0 that means that is within a week
+					CheckList checklist = new CheckList();
+					if(rs.getBoolean("visible") == true) {//only if the checklist is visible will be show
+						checklist.setCheckListID(rs.getInt("checklistID"));
+						checklist.setDate(rs.getString("date"));
+						checklist.setEventName(rs.getString("eventname"));
+						checklist.setPlace(rs.getString("place"));
+						checklist.setDescription(rs.getString("description"));
+						checklistList.add(checklist);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			return checklistList;
+		}
+
+		return checklistList;
 	}
 
 	/**
@@ -138,7 +183,8 @@ public class SQLController {
 	 * @param project
 	 * @return
 	 */
-	public boolean saveEdit(Project project) {
+	public int saveEdit(Project project) {
+		if(checkIfProjectExistInDBSaveEdit(project)) return 1;
 		//Using the "For update" method I am locking the project till I close the statement
 		PreparedStatement ps;
 		try {
@@ -162,9 +208,9 @@ public class SQLController {
 			}
 			rs.close();
 			ps.close();
-			return true;
+			return 0;
 		} catch (SQLException e) {
-			return false;
+			return 2;
 		}
 	}
 
@@ -174,7 +220,8 @@ public class SQLController {
 	 * @param userID
 	 * @return
 	 */
-	public boolean save(Project project, int userID) {
+	public int save(Project project, int userID) {
+		if(checkIfProjectExistInDBSave(project)) return 1;
 		String query = " INSERT INTO project (year, title, topic, compulsoryreading, description, lecturerID,"
 				+ "visible, documentID, waitingtobeapproved, checklistID, visitcounter)"
 				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -193,7 +240,60 @@ public class SQLController {
 			preparedStmt.setInt (11, 0);
 			preparedStmt.execute();
 			preparedStmt.close();
-			return true;
+			return 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 2;
+	}
+
+	/**
+	 * SQL Method that check if a project it is already in the DB, 
+	 * this method it is only use when a new project is created
+	 * @param project
+	 * @return
+	 */
+	public boolean checkIfProjectExistInDBSave(Project project) {
+		String query = " SELECT * FROM project WHERE year = ? AND title = ?";
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			ps.setInt (1, project.getYear());
+			ps.setString (2, project.getTitle());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return true;
+			}else {
+				return false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	/**
+	 * SQL Method that check if a project it is already in the DB, 
+	 * this method is only used when I am editing a project
+	 * @param project
+	 * @return
+	 */
+	public boolean checkIfProjectExistInDBSaveEdit(Project project) {
+		String query = " SELECT * FROM project WHERE year = ? AND title = ? "
+				+ "AND topic = ? AND compulsoryreading = ? AND description = ?";
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			ps.setInt (1, project.getYear());
+			ps.setString (2, project.getTitle());
+			ps.setString (3, project.getTopics());
+			ps.setString (4, project.getCompulsoryReading());
+			ps.setString (5, project.getDescription());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return true;
+			}else {
+				return false;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -289,13 +389,14 @@ public class SQLController {
 		}
 		return projectList;
 	}
-
+	
 	/**
 	 * SQL method to insert into the DB a new checklist for the schedule
 	 * @param checklist
 	 * @return
 	 */
-	public boolean saveCheckList(CheckList checklist) {
+	public int saveCheckList(CheckList checklist) {
+		if(checkIfChecklistExistInDB(checklist)) return 1;
 		String query = " INSERT INTO checklist (date, eventname, place, description, visible)"
 				+ " VALUES (?, ?, ?, ?, ?)";
 		try {
@@ -307,10 +408,36 @@ public class SQLController {
 			preparedStmt.setBoolean (5, true);
 			preparedStmt.execute();
 			preparedStmt.close();
-			return true;
+			return 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}		
+		return 2;
+	}
+	/**
+	 * SQL Method to check if a checklist already exist in the DB
+	 * @param checklist
+	 * @return
+	 */
+	public boolean checkIfChecklistExistInDB(CheckList checklist) {
+		//String query = " SELECT * FROM checklist WHERE date = ? AND eventname = ?";
+		String query = " SELECT * FROM checklist WHERE eventname = ?";
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			//I am parsing to SQLDate since Date and SQLDate are different and does not work with prepared statements
+			//java.sql.Date sqlDate = java.sql.Date.valueOf( checklist.getDate() );
+			//ps.setDate(1, sqlDate);
+			ps.setString (1, checklist.getEventName());		
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return true; 
+			}else {
+				return false;
+			}
+		} catch (SQLException e) {
+		}
+
 		return false;
 	}
 
@@ -319,7 +446,8 @@ public class SQLController {
 	 * @param checklist
 	 * @return
 	 */
-	public boolean saveEditCheckList(CheckList checklist) {
+	public int saveEditCheckList(CheckList checklist) {
+		if(checkIfChecklistExistInDB(checklist)) return 1;
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
@@ -341,13 +469,13 @@ public class SQLController {
 				ps2.close();
 				ps.close();
 				rs.close();
-				return true;
+				return 0;
 				//newConnection.commit();
 			}
 		} catch (SQLException e) {
-			return false;
+			return 2;
 		}
-		return false;
+		return 2;
 
 	}
 
@@ -540,6 +668,36 @@ public class SQLController {
 			ps = newConnection.prepareStatement(
 					"SELECT * FROM user WHERE username = ?");
 			ps.setString(1,username);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			User user = new User();
+			if(rs.next()) {
+				user.setUserID(rs.getInt("userID"));
+				user.setEmail(rs.getString("email"));
+				user.setUsername(rs.getString("username"));
+				user.setPassword(rs.getString("password"));
+				user.setUserType(rs.getInt("userType"));
+				rs.close();
+				ps.close();
+				return user;
+			}
+		} catch (SQLException e) {
+			return null;
+		}		
+		return null;
+	}
+	
+	/**
+	 * SQL method to obtain an user object based on the email
+	 * @param username
+	 * @return
+	 */
+	public User getUserByEmail(String email) {
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM user WHERE email = ?");
+			ps.setString(1,email);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			User user = new User();
@@ -1202,7 +1360,7 @@ public class SQLController {
 
 		return null;
 	}
-	
+
 	/**
 	 * SQL method to check if a project is already choose for another student or approved by a lecturer, before another student make his choice visible
 	 * In other words, if I have a project that is not visible and try to make it visible I am checking if someone already choose that project
@@ -1241,5 +1399,13 @@ public class SQLController {
 		} catch (SQLException e) {
 		}
 		return false;
+	}
+
+	/**
+	 * SQL Method that is calling to another SQL method to obtain a list of the projects of the actual year only
+	 * @return
+	 */
+	public List<Project> getAllProjectActualYear() {
+		return getProjectsByYear(actualYear);
 	}
 }

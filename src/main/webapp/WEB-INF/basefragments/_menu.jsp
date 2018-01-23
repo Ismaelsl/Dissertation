@@ -33,6 +33,9 @@
 					<li><a
 						href="${pageContext.request.contextPath}/previousyearprojects">Previous
 							year projects</a></li>
+					<li><a
+						href="${pageContext.request.contextPath}/allprojectsactualyear">See all projects
+							current year</a></li>
 				</ul></li>
 			<li class="dropdown"><a class="dropdown-toggle"
 				data-toggle="dropdown" href="#">Lecturer lists <span
