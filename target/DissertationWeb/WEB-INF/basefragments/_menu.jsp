@@ -36,6 +36,9 @@
 					<li><a
 						href="${pageContext.request.contextPath}/allprojectsactualyear">See all projects
 							current year</a></li>
+					<li><a
+						href="${pageContext.request.contextPath}/nextyearprojects">See all projects
+							next year</a></li>
 				</ul></li>
 			<li class="dropdown"><a class="dropdown-toggle"
 				data-toggle="dropdown" href="#">Lecturer lists <span
@@ -52,6 +55,8 @@
 							not visible project list</a></li>
 					<li><a href="${pageContext.request.contextPath}/newproject">New
 							Project</a></li>
+					<li><a href="${pageContext.request.contextPath}/newprojectnextyear">New
+							Project next year</a></li> 
 				</ul></li>
 			<li><a href="${pageContext.request.contextPath}/projectlist">General project
 					List</a></li>
@@ -75,6 +80,8 @@
 							not visible project list</a></li>
 					<li><a href="${pageContext.request.contextPath}/newproject">New
 							Project</a></li>
+					<li><a href="${pageContext.request.contextPath}/newprojectnextyear">New
+							Project next year</a></li> 
 				</ul></li>
 			<li><a href="${pageContext.request.contextPath}/projectlist">General project
 					List</a></li>

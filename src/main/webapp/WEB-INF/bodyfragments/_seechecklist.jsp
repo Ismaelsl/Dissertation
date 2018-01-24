@@ -8,6 +8,6 @@ Place: ${place}
 <br>
 Description: ${description}
 <br>
-<form:form method="get" action="home">
-	<button class="btn btn-success" value=" ">Go back</button>
+<form:form method="get" action="${previousPage}">
+	<button class="btn btn-success" value=" ">Go back Schedule</button>
 </form:form>

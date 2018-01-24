@@ -1,9 +1,5 @@
-<script type="text/javascript">
-<%-- Here I should have an if statement, so based on the user type will show more or less menu--%>
-}
- </script>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<div class="navbar-header">
 			<a class="navbar-brand">Main menu</a>
@@ -36,6 +32,9 @@
 					<li><a
 						href="${pageContext.request.contextPath}/allprojectsactualyear">See all projects
 							current year</a></li>
+					<li><a
+						href="${pageContext.request.contextPath}/nextyearprojects">See all projects
+							next year</a></li>
 				</ul></li>
 			<li class="dropdown"><a class="dropdown-toggle"
 				data-toggle="dropdown" href="#">Lecturer lists <span
@@ -52,6 +51,8 @@
 							not visible project list</a></li>
 					<li><a href="${pageContext.request.contextPath}/newproject">New
 							Project</a></li>
+					<li><a href="${pageContext.request.contextPath}/newprojectnextyear">New
+							Project next year</a></li> 
 				</ul></li>
 			<li><a href="${pageContext.request.contextPath}/projectlist">General project
 					List</a></li>
@@ -75,6 +76,8 @@
 							not visible project list</a></li>
 					<li><a href="${pageContext.request.contextPath}/newproject">New
 							Project</a></li>
+					<li><a href="${pageContext.request.contextPath}/newprojectnextyear">New
+							Project next year</a></li> 
 				</ul></li>
 			<li><a href="${pageContext.request.contextPath}/projectlist">General project
 					List</a></li>

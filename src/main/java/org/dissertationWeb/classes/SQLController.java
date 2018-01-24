@@ -39,7 +39,7 @@ public class SQLController {
 	public void updateYear() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
-			Date changeDate = sdf.parse(Calendar.getInstance().get(Calendar.YEAR) + "-06-01 00:00:00");
+			Date changeDate = sdf.parse(Calendar.getInstance().get(Calendar.YEAR) + "-03-01 00:00:00");
 			Date today = new Date();
 			//I am checking both just in case some delay happens and I compare dates a little bit late in this case if today is after changeDate will
 			//trigger the change as well
@@ -389,7 +389,7 @@ public class SQLController {
 		}
 		return projectList;
 	}
-	
+
 	/**
 	 * SQL method to insert into the DB a new checklist for the schedule
 	 * @param checklist
@@ -686,7 +686,7 @@ public class SQLController {
 		}		
 		return null;
 	}
-	
+
 	/**
 	 * SQL method to obtain an user object based on the email
 	 * @param username
@@ -792,6 +792,49 @@ public class SQLController {
 					project.setWaitingToBeApproved(rs.getBoolean("waitingtobeapproved"));
 					projectList.add(project);
 				}			
+			}
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			return projectList;
+		}		
+		return projectList;
+	}
+
+	/**
+	 * SQL method to get all the projects for the next year by lecturer
+	 * @param status
+	 * @return
+	 */
+	public List<Project> getProjectListNextYear(int lecturerID, boolean status) {
+		List<Project> projectList = new ArrayList<Project>();
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project WHERE year = ? AND lecturerID = ?");
+			ps.setInt(1,actualYear + 1);
+			ps.setInt(2, lecturerID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while (rs.next())
+			{
+				//if the project is not approved, then you wont show the project
+				if(rs.getBoolean("visible") == status) {
+					Project project = new Project();
+					if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it
+						User actualUser = getUser(rs.getInt("lecturerID"));
+						if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
+						project.setUser(actualUser);
+					}	
+					project.setProjectID(rs.getInt("projectID"));
+					project.setTitle(rs.getString("title"));
+					project.setDescription(rs.getString("description"));
+					project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
+					project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
+					project.setVisible(rs.getBoolean("visible"));
+					project.setWaitingToBeApproved(rs.getBoolean("waitingtobeapproved"));
+					projectList.add(project);
+				}
 			}
 			rs.close();
 			ps.close();
@@ -1407,5 +1450,12 @@ public class SQLController {
 	 */
 	public List<Project> getAllProjectActualYear() {
 		return getProjectsByYear(actualYear);
+	}
+	/**
+	 * SQL Method that is calling to another SQL method to obtain a list of the projects of the next year only
+	 * @return
+	 */
+	public List<Project> getAllProjectNextYear() {
+		return getProjectsByYear(actualYear+1);
 	}
 }

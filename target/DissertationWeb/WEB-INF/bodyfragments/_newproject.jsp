@@ -27,3 +27,11 @@
          </tr>    
         </table>    
        </form:form>    
+       <table>
+	<tr>
+		<td colspan="2"><form:form method="get" action="${previousPage}">
+				<button id="modal-edit-id" class="btn btn-danger"
+					value=" ">Cancel</button>
+			</form:form></td>
+	</tr>
+</table>

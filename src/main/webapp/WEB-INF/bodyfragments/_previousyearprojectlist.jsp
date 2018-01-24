@@ -114,6 +114,6 @@ to the view from the controller or the variable names from the class --%>
 	</div>
 </div>
 <br>
-<form:form method="get" action="previousyearprojects">
+<form:form method="get" action="${previousPage}">
 	<button class="btn btn-success" value=" ">Go back</button>
 </form:form>

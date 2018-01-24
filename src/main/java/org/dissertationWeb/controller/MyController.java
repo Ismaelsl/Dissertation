@@ -247,6 +247,7 @@ public class MyController {
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(true,true);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));//getting userID from the session
 		model.addAttribute("userType", user.getUserType());
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You project list is empty");//I am passing a message to the error page
 			return new ModelAndView("errorPage");
@@ -274,6 +275,7 @@ public class MyController {
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(false,true);
 		//Here I am getting the user
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		//And passing the userType to the view, in this way I can decide which part of the view I want to show to the user
 		model.addAttribute("userType", user.getUserType());
 		if(projectList.isEmpty()) {//if no projects, then do not bother to load the view
@@ -333,6 +335,7 @@ public class MyController {
 				//Final version will be sending an email to the lecturer letting him now that the project had been approved
 				//(mm.sendAutomaticEmail(actualUser, "Your project has been approved", actualUser.getEmail(),
 				//"tatowoke@gmail.com", "You approved the project " + project.getTitle())
+				model.addAttribute("previousPage", session.getAttribute("previousURL"));
 				return new ModelAndView("projectPage","project",model);//will display object data 
 			}else {
 				model.addAttribute("message", "An error happens while trying to send the automatic email");
@@ -375,6 +378,31 @@ public class MyController {
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
 		model.addAttribute("year",sqlController.getActualYear());
+		//I am redirecting to homePage since I do not have a proper previous page to redirect if cancel happens
+		model.addAttribute("previousPage", "home");
+		return new ModelAndView("newprojectPage","command",new Project());  
+	}
+	
+	/**
+	 * Method that it is use to load the view to create new projects for the next year, 
+	 * it is called when /newprojectnextyear it is wrote in the browser
+	 * It is loading the newprojectPage view which contains a formulary to enter the data for a new project
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( "/newprojectnextyear")
+	public ModelAndView newprojectNextYearPage(Model model, HttpServletRequest request) throws SQLException {  
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
+		//So year will be predefined and readonly.
+		model.addAttribute("year",sqlController.getActualYear() + 1);//I am increasing to next year
+		//I am redirecting to homePage since I do not have a proper previous page to redirect if cancel happens
+		model.addAttribute("previousPage", "home");
 		return new ModelAndView("newprojectPage","command",new Project());  
 	}
 
@@ -462,12 +490,15 @@ public class MyController {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
 		}
+	
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
+		System.out.println("testing URL " + session.getAttribute("previousURL"));
 		if(session.getAttribute("userID") == null) return login(request);
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		if(newConnection == null) startDBConnection();
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
 		//update the constructor on project class
 		return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
@@ -515,6 +546,7 @@ public class MyController {
 		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
 		//update the constructor on project class
 		model.addAttribute("message", project.getTitle());
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
@@ -571,6 +603,7 @@ public class MyController {
 		model.addAttribute("lectureremail", actualUser.getEmail());
 		switch(sqlController.saveEdit(project)) {
 		case 0 :
+			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			ApplicationContext context =
 			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
@@ -799,6 +832,8 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		return new ModelAndView("checklistPage","command",new CheckList());  
 	}
 
@@ -826,6 +861,7 @@ public class MyController {
 			model.addAttribute("eventname", checklist.getEventName());
 			model.addAttribute("place", checklist.getPlace());
 			model.addAttribute("description", checklist.getDescription());
+			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			try {
 				int checkListID = sqlController.getLastChecklistID();
 				if(checkListID != 0)
@@ -889,6 +925,7 @@ public class MyController {
 
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("userType", (Integer)session.getAttribute("userType"));
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
 		//I want to pass the size since based on the size the view will be different (if size is 0 do not load the list for not approved)
@@ -922,6 +959,7 @@ public class MyController {
 		//I am populating here the view so the user can modify the checklist, if I need to add more data to the form I should
 		//update the constructor on checklist class
 		model.addAttribute("checklistID", checklistID); //passing checklistID to the frontend
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		return new ModelAndView("editchecklistPage","command",new CheckList(checkList.getCheckListID(), checkList.getDate(),
 				checkList.getEventName(), checkList.getPlace(), checkList.getDescription()));  
 	}
@@ -970,7 +1008,9 @@ public class MyController {
 		checkList = checkList.getchecklist(checklistID);
 		String message = "The element in the scheduled " + checkList.getEventName() + " had been removed";
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been removed for " + user.getUsername(),message);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
+				"An element in the scheduled had been removed for " + user.getUsername(),message);
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1067,7 +1107,9 @@ public class MyController {
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "The element in the scheduled " + checklist.getEventName() + " had been modified";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","An element in the scheduled had been modified for " + user.getUsername(),message);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
+					"An element in the scheduled had been modified for " + user.getUsername(),message);
+			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
 		case 1 : 
 			model.addAttribute("message", "That event already exist in the DB");
@@ -1348,9 +1390,10 @@ public class MyController {
 		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
 		String messageLecturer = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Your remoed final interest of a project",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Your final interest in project had been removed",messageStudent);
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1477,13 +1520,19 @@ public class MyController {
 		if(newConnection == null) startDBConnection();
 		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
 		List<Project> projectList = sqlController.getProjectListVisible(true, (Integer)session.getAttribute("userID"));	
+		List<Project> projectListNextYear = sqlController.getProjectListNextYear(
+				(Integer)session.getAttribute("userID"), true);
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You do not have any project register yet, go to project list and choose one!");
 			return new ModelAndView("errorPage");
 		}	
-
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
+		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
 		model.addAttribute("projectList", projectList);
+		model.addAttribute("projectListNextYear", projectListNextYear);
+		model.addAttribute("actualYear", sqlController.getActualYear());
+		model.addAttribute("nextYear", sqlController.getActualYear() + 1);
 		return new ModelAndView("yourPersonalListPage");
 	}
 
@@ -1502,7 +1551,9 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
-		List<Project> projectWithInterest = sqlController.getLecturerProjectList((Integer)session.getAttribute("userID"));	
+		List<Project> projectWithInterest = sqlController.getLecturerProjectList(
+				(Integer)session.getAttribute("userID"));	
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectWithInterest", projectWithInterest);
 		//I been forced to send the size separately to the front end because javaScript length function
 		//does not work when the list is with objects
@@ -1526,13 +1577,21 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
-		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, (Integer)session.getAttribute("userID"));
+		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, 
+				(Integer)session.getAttribute("userID"));
+		List<Project> projectListNextYear = sqlController.getProjectListNextYear(
+				(Integer)session.getAttribute("userID"), false);
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
 			return new ModelAndView("errorPage");
 		}	
+		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
+		model.addAttribute("projectListNextYear", projectListNextYear);
+		model.addAttribute("actualYear", sqlController.getActualYear());
+		model.addAttribute("nextYear", sqlController.getActualYear() + 1);
 		return new ModelAndView("notVisibleProjectPage");
 	}
 
@@ -1561,12 +1620,16 @@ public class MyController {
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		//getting all the project not visible to populate the view again
-		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, (Integer)session.getAttribute("userID"));
+		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, 
+				(Integer)session.getAttribute("userID"));
+		List<Project> projectListNextYear = sqlController.getProjectListNextYear(
+				(Integer)session.getAttribute("userID"), false);
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
 			return new ModelAndView("errorPage");
 		}	
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
 		MailMail mm = (MailMail) context.getBean("mailMail");
@@ -1575,7 +1638,11 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
 		//extra message to show that the project had been made visible
 		model.addAttribute("message", "Project " + project.getTitle() + " is visible now to students");
+		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
+		model.addAttribute("projectListNextYear", projectListNextYear);
+		model.addAttribute("actualYear", sqlController.getActualYear());
+		model.addAttribute("nextYear", sqlController.getActualYear() + 1);
 		return new ModelAndView("notVisibleProjectPage");
 	}
 
@@ -1685,6 +1752,7 @@ public class MyController {
 		if(newConnection == null) startDBConnection();
 		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		List<User> studentList = sqlController.getAllStudentList();
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		return new ModelAndView("studentListPage","studentList",studentList);  
 	}
 
@@ -1711,11 +1779,13 @@ public class MyController {
 		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		//If the student already have a final project approved, then we will only show that project to him
 		Project finalProject = sqlController.getFinalProjectStudent(studentID);
+		//If I do not have a final project then I set the view variable noFinalProject to false it not will be true
 		if(finalProject == null) {
-			model.addAttribute("message", "Student has not final project");
-			return new ModelAndView("errorPage");
+			model.addAttribute("noFinalProject", false);
+		}else {
+			model.addAttribute("noFinalProject", true);
 		}
-		else model.addAttribute("noFinalProject", false);
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
 		model.addAttribute("finalProject", finalProject);
 		return new ModelAndView("allStudentProjectPage");
@@ -1751,6 +1821,7 @@ public class MyController {
 		if(newConnection == null) startDBConnection();
 		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		List<Integer> yearList = sqlController.getAllYearOfProjects();
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(yearList.isEmpty()) {
 			model.addAttribute("message", "Year list it is empty");
 			return new ModelAndView("errorPage"); 
@@ -1785,6 +1856,7 @@ public class MyController {
 			model.addAttribute("message", "We could not found any project for the year " + year + " please contact the system administrator");
 			return new ModelAndView("errorPage"); 
 		}
+		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		model.addAttribute("projectList", projectList);
 		model.addAttribute("year", year);
 		return new ModelAndView("previousyearprojectlist");
@@ -1821,6 +1893,26 @@ public class MyController {
 		if(newConnection == null) startDBConnection();
 		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
 		List<Project> projectList = sqlController.getAllProjectActualYear();
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
+		model.addAttribute("projectList", projectList);
+		return new ModelAndView("projectListByYearPage");
+	}
+	
+	/**
+	 * Method to show projects for the next year
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/nextyearprojects",method = RequestMethod.GET)
+	public ModelAndView seeAllNextYearProjects(Model model, HttpServletRequest request) throws SQLException { 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		if(newConnection == null) startDBConnection();
+		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		List<Project> projectList = sqlController.getAllProjectNextYear();
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
 		return new ModelAndView("projectListByYearPage");
 	}

@@ -18,6 +18,21 @@ function getStudentID() {
     studentID.value = actualID;
 }
 
+<%-- Method that pass as value the search criteria to the back end --%>
+function getSearchValue() {
+    var search = document.getElementById("search-id");
+    var searchValue = document.getElementById("search-value-id").value;
+    search.value = searchValue;
+}
+
+function checkone(d){
+ if (!d.checked) return; //if it's unchecked, then do nothing
+ var os=document.getElementsByTagName('input');
+ for (var i=0;i<os.length;i++){
+    if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  } 
+}
+
  </script>
 <form:form method="post" action="searchStudent">
 	<table>

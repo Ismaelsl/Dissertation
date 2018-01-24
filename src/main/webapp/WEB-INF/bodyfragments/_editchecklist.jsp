@@ -26,11 +26,6 @@
 		</tr>
 	</table>
 </form:form>
-<table>
-	<tr>
-		<td colspan="2"><form:form method="get" action="home">
-				<button id="modal-edit-id" name="projectID" class="btn btn-danger"
-					value=" ">Cancel</button>
-			</form:form></td>
-	</tr>
-</table>
+<form:form method="get" action="${previousPage}">
+	<button class="btn btn-danger" value=" ">Cancel</button>
+</form:form>
