@@ -11,6 +11,3 @@ Description: ${description}
 <form:form method="get" action="${previousPage}">
 	<button class="btn btn-success" value=" ">Go back Schedule</button>
 </form:form>
-<form:form method="get" action="home">
-	<button class="btn btn-success" value=" ">Home</button>
-</form:form>

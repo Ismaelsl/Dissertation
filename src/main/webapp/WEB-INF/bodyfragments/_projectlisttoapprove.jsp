@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>List of projects</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -41,28 +40,27 @@ function getSearchValue() {
     if (os[i].checked&&os[i]!=d) os[i].checked=false;
   } 
  }
-
+<%--Function to remove the text from the textarea when you click over--%>
+function clearContents(element) {
+  element.value = '';
+}
  </script>
-<form:form method="post" action="search">
-	<table>
-		<tr>
-			<td>Search:</td>
-			<td><textarea id="search-value-id" rows="1" cols="50">Introduce search criteria...</textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><input onclick="checkone(this);" type="checkbox"
+<form:form method="post" action="search">	
+			<div><b>Filter by (checkbox)</b><br />
+			<input onclick="checkone(this);" type="checkbox"
 				name="lecturer" value="lecturer" id="lecturer" checked>
 				Lecturer <input onclick="checkone(this);" type="checkbox"
 				name="technology" value="technology" id="technology">
 				Technology <input onclick="checkone(this);" type="checkbox"
-				name="title" value="title" id="title"> Title
-				<button onclick="getSearchValue();" id="search-id"
-					name="searchValue" class="btn btn-success" value=" ">Search</button>
-			</td>
-		</tr>
-	</table>
+				name="title" value="title" id="title"> Title 
+			</div>
+			<b>Filter term:</b>
+			<div><textarea class ="textareaSearch" id="search-value-id" 
+			rows="1" cols="50" onfocus="clearContents(this);">Type here...</textarea>
+			<button onclick="getSearchValue();" id="search-id"
+					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
 </form:form>
-
+<h1>Projects list pending approval</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -71,12 +69,13 @@ to the view from the controller or the variable names from the class --%>
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
 <c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<li><a
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}","${project.visible}",
 		"${project.waitingToBeApproved}","${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> <br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		 <br />Lecturer: ${project.user.username}</div></a></b></div></div>
 </c:forEach>
 
 <!-- User login Modal -->

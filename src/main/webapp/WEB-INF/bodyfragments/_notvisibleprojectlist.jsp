@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>List of projects that are not visible for ${actualYear}</h1>
 <h2>${message}</h2>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
@@ -45,56 +44,42 @@ function getSearchValue() {
   } 
  }
  </script>
-<form:form method="post" action="search">
-	<table>
-		<tr>
-			<td>Search:</td>
-			<td><textarea id="search-value-id" rows="1" cols="50">Introduce search criteria...</textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><input onclick="checkone(this);" type="checkbox"
-				name="lecturer" value="lecturer" id="lecturer" checked>
-				Lecturer <input onclick="checkone(this);" type="checkbox"
-				name="technology" value="technology" id="technology">
-				Technology <input onclick="checkone(this);" type="checkbox"
-				name="title" value="title" id="title"> Title
-				<button onclick="getSearchValue();" id="search-id"
-					name="searchValue" class="btn btn-success" value=" ">Search</button>
-			</td>
-		</tr>
-	</table>
-</form:form>
-
+<h1>Project list that are not visible (by students) for ${actualYear}</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
-<c:forEach items="${projectNotVisibles}" var="project">
+<c:forEach items="${projectNotVisibles}" var="project"> 
 
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
 <c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<li><a
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
-  "${project.visible}","${project.waitingToBeApproved}","${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
-  "${project.user.username}","${project.user.email}")'
+  		"${project.visible}","${project.waitingToBeApproved}","${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
+  		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
-
-<h2>Projects that you have for ${nextYear}</h2>
-
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%></div>
+<h1>Your personal list of projects that are not visible (by students) for ${nextYear}</h1>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
-<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-<li><a
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}", "${project.visible}",
 		"${project.waitingToBeApproved}", "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"

@@ -1,5 +1,5 @@
 <div
-  style="background: #E0E0E0; text-align: center; padding: 5px; margin-top: 10px;">
+  style="background: white; text-align: center; padding: 5px; margin-top: 10px;">
     
   <img src="bootstrap/images/copyright.png" alt="copyright" height="25" width="25">Copyright Ismael Sanchez Leon
     

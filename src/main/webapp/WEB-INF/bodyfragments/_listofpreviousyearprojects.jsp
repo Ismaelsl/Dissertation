@@ -1,6 +1,5 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<h1>List of projects</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -62,15 +61,14 @@ window.onload = function() {
    
 }
  </script>
-
+<h1>Project list by year</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${yearList}" var="year">
-	<li>Year: ${year}</li>
 	<form:form method="post" action="seeprojectbyyear">
 		<button onclick="getProjectID();" id="modal-approveinterest-id"
-			name="year" class="btn btn-success" value="${year}">See
-			project year ${year}</button>
+			name="year" class="buttonyear" value="${year}">
+			<div id="box1"><b>See project year ${year}</b></div></button>
 	</form:form>
 </c:forEach>

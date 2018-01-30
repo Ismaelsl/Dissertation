@@ -27,5 +27,5 @@
 	</table>
 </form:form>
 <form:form method="get" action="${previousPage}">
-	<button class="btn btn-success" value=" ">Go back</button>
+	<button class="btn btn-danger" value=" ">Cancel</button>
 </form:form>

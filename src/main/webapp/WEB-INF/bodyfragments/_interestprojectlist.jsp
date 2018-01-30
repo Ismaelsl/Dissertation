@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>List of projects that you are interested</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -20,9 +19,9 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     withInterestdiv.style.visibility  = 'visible';
     withoutInterestdiv.style.visibility  = 'hidden';
     var userIDToApprove = document.getElementById("userIDToMakeVisible");
-      var userIDToRemove = document.getElementById("userIDToRemove");
-     userIDToApprove.value = userID;
-     userIDToRemove.value = userID;
+    var userIDToRemove = document.getElementById("userIDToRemove");
+    userIDToApprove.value = userID;
+    userIDToRemove.value = userID;
 }
 
 function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
@@ -33,14 +32,14 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     actualID = projectID;
-     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
+    var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
     withInterestdiv.style.visibility  = 'hidden';
     withoutInterestdiv.style.visibility  = 'visible';
-        var userIDToApprove = document.getElementById("userIDToMakeVisible");
-      var userIDToRemove = document.getElementById("userIDToRemove");
-     userIDToApprove.value = userID;
-     userIDToRemove.value = userID;
+    var userIDToApprove = document.getElementById("userIDToMakeVisible");
+    var userIDToRemove = document.getElementById("userIDToRemove");
+    userIDToApprove.value = userID;
+    userIDToRemove.value = userID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getProjectID() { 
@@ -55,42 +54,49 @@ function chooseMessage(listSize){
 if(listSize == 0){
 $("#secondList").html("You do not have any not visible projects");
 }else{
-$("#secondList").html("Those are the project that you make not visible, click on them if you want to make them visibles");
+$("#secondList").html("Those are the project that you remove the interest, click on them if you want to make them visibles");
 }
 }
  </script>
+ <body onload='chooseMessage("${notInterestListSize}")'>
+
+<h1>Project list that you show interest</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
-<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
-<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
 
-	<li><a
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
-  "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
+  		"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
-<body onload='chooseMessage("${notInterestListSize}")'>
-	<h2>
-		<div id="secondList"></div>
-	</h2>
-</body>
+<div class="divjumper"><%--This div is here to force a new line between the first and second list--%></div>
+<h1 id="secondList"><%--Here is the title for the second list(the one with interest removed by student--%></h1>
 <c:forEach items="${projectListNotVisible}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
-<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<li><a
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<div class="projectList"><b><a
 		onclick='modalPopulatorNotVisible("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
-  "${project.visible}","${project.waitingToBeApproved}","${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
-  "${project.user.username}","${project.user.email}")'
+  		"${project.visible}","${project.waitingToBeApproved}","${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
+  		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
+</body>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
 	aria-labelledby="profileModal" aria-hidden="true">
@@ -128,19 +134,16 @@ to the view from the controller or the variable names from the class --%>
 				</div>
 			</div>
 			<div class="modal-footer" id="modal-footer-removeInterest">
-				<form:form method="post" action="removeinterestStudent"
-					>
+				<form:form method="post" action="removeinterestStudent">
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>
 					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Close</button>
-					
+						data-dismiss="modal">Close</button>		
 				</form:form>
 			</div>
 			<div class="modal-footer" id="modal-footer-registerInterest">
-				<form:form method="post" action="makeInterestVisible"
-					>
+				<form:form method="post" action="makeInterestVisible">
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
 						name="projectID" class="btn btn-success" value=" ">Make
 						it visible</button>

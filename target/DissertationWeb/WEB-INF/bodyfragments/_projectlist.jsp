@@ -4,7 +4,7 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<h1>List of projects</h1>
+<h1>Project list</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -69,7 +69,7 @@ window.onload = function() {
     }
    
 }
-
+<%--Function that is removing all the special characters from the modal--%>
 function removeXml(unsafe) {
 alert(unsafe);
     return unsafe.replace(/[<>&'"]/g, function (c) {
@@ -82,42 +82,50 @@ alert(unsafe);
         }
     });
 }
+<%--Function to remove the text from the textarea when you click over--%>
+function clearContents(element) {
+  element.value = '';
+}
  </script>
 <form:form method="post" action="search">
 	<table>
-		<tr>
-			<td>Search:</td>
-			<td><textarea id="search-value-id" rows="1" cols="50">Introduce search criteria...</textarea></td>
-		</tr>
-		<tr>
-			<td colspan="2"><input onclick="checkone(this);" type="checkbox"
+	<tr>
+		
+			<td colspan="2"><b>Please check one of the search criteria</b><br />
+			<input onclick="checkone(this);" type="checkbox"
 				name="lecturer" value="lecturer" id="lecturer" checked>
 				Lecturer <input onclick="checkone(this);" type="checkbox"
 				name="technology" value="technology" id="technology">
 				Technology <input onclick="checkone(this);" type="checkbox"
-				name="title" value="title" id="title"> Title
-				<button onclick="getSearchValue();" id="search-id"
-					name="searchValue" class="btn btn-success" value=" ">Search</button>
+				name="title" value="title" id="title"> Title 
 			</td>
 		</tr>
+		<tr>
+			<td>Search:</td>
+			<td><textarea class ="textareaSearch" id="search-value-id" 
+			rows="1" cols="50" onfocus="clearContents(this);">Introduce text here...</textarea></td>
+			<td><button onclick="getSearchValue();" id="search-id"
+					name="searchValue" class="btn btn-success" value=" ">Search</button></td>
+		</tr>	
 	</table>
 </form:form>
 
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
-
+<h3>Project title</h3>
 <c:forEach items="${projectList}" var="project">
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
 <c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
 
-	<li><a
+	<li class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
   "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal">${project.title}</a></b></li>
+		
 </c:forEach>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
@@ -125,13 +133,10 @@ to the view from the controller or the variable names from the class --%>
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLongTitle">
+				<h3 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
-				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				</h3>
+				
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">
@@ -175,7 +180,7 @@ to the view from the controller or the variable names from the class --%>
 			<div class="modal-footer" id="modal-footer-dc">
 				<form:form method="post" action="edit">
 					<button onclick="getProjectID();" id="modal-edit-id"
-						name="projectID" class="btn btn-success" value=" ">Edit</button>
+						name="projectID" class="btn btn-success" value=" ">Edit Project</button>
 				</form:form>
 				<form:form method="post" action="remove">
 					<button onclick="getProjectID();" id="modal-remove-id"
