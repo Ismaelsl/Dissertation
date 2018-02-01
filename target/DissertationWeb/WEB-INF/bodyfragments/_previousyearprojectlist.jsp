@@ -40,24 +40,45 @@ function chooseMessage(listSize){
 		$("#secondList").html("You have students who had interest on your projects!");
 	}
 }
+<%--Function to remove the text from the textarea when you click over--%>
+function clearContents(element) {
+  element.value = '';
+}
  </script>
+ <form:form method="post" action="search">	
+			<div><b>Filter by (checkbox)</b><br />
+			<input onclick="checkone(this);" type="checkbox"
+				name="lecturer" value="lecturer" id="lecturer" checked>
+				Lecturer <input onclick="checkone(this);" type="checkbox"
+				name="technology" value="technology" id="technology">
+				Technology <input onclick="checkone(this);" type="checkbox"
+				name="title" value="title" id="title"> Title 
+			</div>
+			<b>Filter term:</b>
+			<div><textarea class ="textareaSearch" id="search-value-id" 
+			rows="1" cols="50" onfocus="clearContents(this);">Type here...</textarea>
+			<button onclick="getSearchValue();" id="search-id"
+					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
+</form:form>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <h1>Project list for the year ${year}</h1>
 <c:forEach items="${projectList}" var="project">
-<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
-<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-<li><a
+	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}", "${project.visible}",
 		"${project.waitingToBeApproved}", "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#projectModal">Project title: ${project.title}</a></li>
+		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
-
-
+<div class="divjumperbuttons"><%--This div is here to force a new line between the first and second list--%></div>
 <!-- project Modal -->
 <div class="modal fade" id="projectModal" tabindex="-1" role="dialog"
 	aria-labelledby="projectModal" aria-hidden="true">
@@ -67,10 +88,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

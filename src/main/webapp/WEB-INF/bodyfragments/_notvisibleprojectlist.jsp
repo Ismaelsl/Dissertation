@@ -48,8 +48,8 @@ function getSearchValue() {
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
+<div class="divjumper2">
 <c:forEach items="${projectNotVisibles}" var="project"> 
-
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
@@ -64,7 +64,8 @@ to the view from the controller or the variable names from the class --%>
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
-<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%></div>
+</div>
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h1>Your personal list of projects that are not visible (by students) for ${nextYear}</h1>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
@@ -81,6 +82,7 @@ to the view from the controller or the variable names from the class --%>
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
+</div>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
 	aria-labelledby="profileModal" aria-hidden="true">
@@ -90,10 +92,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

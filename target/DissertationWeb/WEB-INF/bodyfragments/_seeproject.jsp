@@ -1,35 +1,37 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <%-- The item within the {} must be the same name that the string use on the modal on the controller method --%>
-Project title: ${title}
+<div class="form_css">	
+<h1>This is how the projects will looks</h1>
+<div class="w3-ul w3-card-4">
+<b>Project title:</b> ${title}
 <br>
-ID: ${projectID}
+<b>Year:</b> ${year}
 <br>
-Year: ${year}
+<b>Description:</b> ${description}
 <br>
-Description: ${description}
+<b>Lecturer</b>
 <br>
-Lecturer
+<b>Name:</b> ${lecturername}
 <br>
-Name: ${lecturername}
+<b>Email:</b> ${lectureremail}
 <br>
-Email: ${lectureremail}
+<b>Visible:</b> ${visible}
 <br>
-Visible: ${visible}
+<%--A small if statement to show a more clear message based on the boolean value --%>
+<c:if test="${not waitingapprove}"><b>Waiting to be approved:</b> Waiting approval</c:if>
+<c:if test="${waitingapprove}"><b>Waiting to be approved:</b> Approve!</c:if>
 <br>
-Document: ${documentID}
+<b>Topics:</b> ${topics}
 <br>
-Waiting to be approved: ${waitingToBeApproved}
-<br>
-CheckList: ${checklistID}
-<br>
-Topics: ${topics}
-<br>
-Compulsory Readings: ${compulsoryReading}
+<b>Compulsory Readings:</b> ${compulsoryReading}
 <br>
 <br>
-
+</div>
 <br>
 <form:form method="get" action="${previousPage}">
 	<button id="gobackhome" class="btn btn-success" value=" ">Go
 		back</button>
 </form:form>
+</div>

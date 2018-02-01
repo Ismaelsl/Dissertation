@@ -1,7 +1,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>Final Project</h1>
+
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -42,21 +42,24 @@ function getProjectID() {
 to the view from the controller or the variable names from the class --%>
 <%--I am using and if statement to check if the student have or not a final project, if student have one
 then this piece of code will be load--%>
+<h1>Final Project</h1>
 <c:if test="${noFinalProject}">
 	<h2>
-		<div>This is the final project</div>
+		This is the final project chosen by the student ${finalProject.student.username}
 	</h2>
 
 	<c:set var = "title" value="${fn:replace(finalProject.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(finalProject.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(finalProject.topics, '\"', '\\'')}" />
 	<c:set var = "readings" value="${fn:replace(finalProject.compulsoryReading, '\"', '\\'')}" />
-	<li><a
+	<div class="projectList"><b><a
 		onclick='modalPopulatorNotVisible("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${finalProject.projectID}",
   "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${finalProject.user.username}","${finalProject.user.email}", 
   "${finalProject.user.userID}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${finalProject.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${finalProject.title}<br /> 
+		<br /> Student:  ${finalProject.student.username}<br />
+		<br />Lecturer: ${finalProject.user.username}</div></a></b></div>
 <%--In here I am using the not in the test, which literally says if student has not final project then show this piece
 of code--%>
 </c:if>
@@ -74,10 +77,6 @@ of code--%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">
@@ -94,7 +93,7 @@ of code--%>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">
-						<b>Lecturer</b><br /> <b>Name:</b>
+						<b>Lecturer</b><br /> <b> Name:</b>
 						<div class="col-md-12" id="modal-lecturerName"></div>
 						<b>Email:</b>
 						<div class="col-md-12" id="modal-lecturerEmail"></div>
@@ -124,7 +123,7 @@ of code--%>
 		</div>
 	</div>
 </div>
-<br />
+<div class="divjumperbuttons"><%--This div is here to force a new line between the first and second list--%></div>
 <form:form method="get" action="${previousPage}">
 	<button class="btn btn-success" value=" ">Go back</button>
 </form:form>

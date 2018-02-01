@@ -45,9 +45,9 @@ function chooseMessage(listSize){
 	menu();<%-- I am calling menu here since I have already one onload function and the first thing that I want to 
 	happens is the menu load --%>
 	if(listSize == 0){
-		$("#secondList").html("You do not have hide events");
+		$("#secondList").html("You do not have any hiden events");
 	}else{
-		$("#secondList").html("Here is the list of events that you hide");
+		$("#secondList").html("Here is the list of events that you make invisible to students");
 	}
 }
  <%-- Method that show options based on which kind of user you are --%>
@@ -75,22 +75,25 @@ function menu() {
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
+<div class="divjumper2">
 <c:forEach items="${checklistList}" var="checklist">
 <c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
 <c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
+<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
 
-	<li><a
+	<div class="eventList"><b><a
 		onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
 		"${checklist.checkListID}", "${fn:escapeXml(description)}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Checklist title: ${checklist.eventName}</a></li>
+		data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
+		<br /> Date: ${checklist.date}<br />
+		<br />Place: ${fn:escapeXml(place)}</div></a></b></div>
 </c:forEach>
-
+</div>
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <body onload='chooseMessage("${notapprovedsize}")'>
-	<h2>
-		<div id="secondList"></div>
-	</h2>
+	<h2 id="secondList"></h2>
 </body>
 <div id="secondListProjects">
 <c:forEach items="${checklistListNotApproved}" var="checklist">
@@ -98,12 +101,15 @@ to the view from the controller or the variable names from the class --%>
 <c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
 <c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
 
-	<li><a
+	<div class="eventList"><b><a
 		onclick='modalPopulatorNoVisible("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
 		"${checklist.checkListID}", "${fn:escapeXml(description)}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Checklist title: ${checklist.eventName}</a></li>
+		data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
+		<br /> Date: ${checklist.date}<br />
+		<br />Place: ${fn:escapeXml(place)}</div></a></b></div>
 </c:forEach>
+</div>
 </div>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
@@ -114,10 +120,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-eventname" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

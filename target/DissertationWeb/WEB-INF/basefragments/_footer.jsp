@@ -1,6 +1,4 @@
-<div
-  style="background: white; text-align: center; padding: 5px; margin-top: 10px;">
-    
-  <img src="bootstrap/images/copyright.png" alt="copyright" height="25" width="25">Copyright Ismael Sanchez Leon
-    
+<div class="form_css">  
+  <img src="bootstrap/images/copyright.png" alt="copyrighticon" class="footerimage">
+  <b class="footertext">Copyright Ismael Sanchez Leon</b>
 </div>

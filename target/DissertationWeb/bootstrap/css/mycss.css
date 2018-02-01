@@ -45,6 +45,7 @@ ul li ul li a{
 	display: block;
     margin-left: auto;
     margin-right: auto;
+    margin-top:20px;
 }
 .logomenustyle{
 	height: 100px;
@@ -62,22 +63,34 @@ ul li ul li a{
 #menuContainer ul {
 	text-decoration: none; 
 }
-a:hover { 
-    background-color: white;
-    color:white;
-}
-#menuContainer a:hover { 
-    background-color: blue;
-    color:white;
+
+#menuContainer :hover { 
+    color:black;
 }
 
+#ulmenustyle{
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 210px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 15px 16px;
+    z-index: 1;
+	list-style-type: square;
+}
 /*End main menu CSS*/
 
+/*Header area*/
 .headerdiv{
 	background-color: white;
 	height: 55px; 
 	padding: 0px;
 }
+.headerh1{
+	color: #006938;
+}
+/*End header area*/
+
+/*Footer area*/
 .footer {
   position: relative;
   right: 0;
@@ -87,23 +100,139 @@ a:hover {
   background-color: white;
   text-align: center;
 }
+.footertext{
+	font-size: 12px;
+}
+.footerimage{
+	height: 18px; 
+	width: 18px;
+}
+/*End footer area*/
+
+/*Body area*/
 .bodydiv{
 	height: 80%;
 }
+/*End body area*/
+
+/*Project lists CSS*/
 .projectList{
 	list-style-type: none;
+	text-decoration: none;
+	display: block;
+	float: left;
+}
+.projectList b a{
+	text-decoration: none;
+}
+.buttonyear{
+	list-style-type: none;
+	text-decoration: none;
+	background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+.divjumper{
+	height:220px;
+}
+.divjumper2{
+	 position: relative;
+     min-height: 660px;
+     /*I am moving the invisible div to the back so it not bothering me when I try to click on screen elements*/
+     z-index: -999;
+}
+.divjumperbuttons{
+	 position: relative;
+     min-height: 220px;
+     /*I am moving the invisible div to the back so it not bothering me when I try to click on screen elements*/
+     z-index: -999;
+}
+#box1 {
+	width:220px;
+	height:200px;
+	margin:10px;
+	padding:10px;
+	background: #006938;
+	border-radius: 15px;
+	color: white;
+	float: left;
+	/*Box shadow*/
+	border: 1px solid;
+    padding: 10px;
+    box-shadow: 4px 4px #888888;
+    /*End of box shadow*/
 }
 
+#box1 p {
+	white-space:pre;
+	font-size:smaller;
+	font-family:monospace;
+}
+/*End of project lists CSS*/
+
+/*Search menu CSS*/
 .textareaSearch {
     resize: none;
 }
+#search-id{
+	margin-top : -27px;
+	margin-left: 27px;
+}
+/*End search menu CSS*/
 
-#lecturer {
-   background-image: url('bootstrap/images/envelope.png');
-   height: 70px;
-   width: 120px;
+/*Formularies*/
+.form_css {
+  min-width: 500px;
+  position: absolute;
+  text-align: center;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.inputtable { border: 0px solid #808080;
+}
+.tdtable {
+border:none;
+}
+table tr td{
+	
+}
+/*End of formularies*/
+
+/*Events CSS*/
+.eventList{
+	list-style-type: none;
+	text-decoration: none;
+	display: block;
+	float: left;
+}
+#boxevents {
+	width:220px;
+	height:200px;
+	margin:10px;
+	padding:10px;
+	background: #0000a0;
+	border-radius: 15px;
+	color: white;
+	float: left;
+	/*Box shadow*/
+	border: 1px solid;
+    padding: 10px;
+    box-shadow: 4px 4px #888888;
+    /*End of box shadow*/
 }
 
-#lecturer:hover {
-   background-image: url('bootstrap/images/envelopeblack.png');
+#boxevents p {
+	white-space:pre;
+	font-size:smaller;
+	font-family:monospace;
 }
+/*End events CSS*/
+/*Error CSS*/
+.errormessage{
+	color: red;
+}
+/*End error css*/

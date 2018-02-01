@@ -900,18 +900,29 @@ public class SQLController {
 	}
 
 	/**
-	 * SQL method to get a list of all the checklist for the schedule
+	 * SQL method to get a list of all the events for the schedule between actual year and next year
 	 * @param status
 	 * @return
 	 */
 	public List<CheckList> getCheckListList(boolean status) {
-		String query = "SELECT * FROM checklist";
-		Statement st;
 		List<CheckList> checklistList = new ArrayList<CheckList>();
+		PreparedStatement ps;
 		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
+			/**
+			 * I am converting here the actual year to string and concatenating a date string
+			 * because I need to say in my SQL query two dates between to choose the events
+			 * I am converting to SQL date since my DB is using this kind of date
+			 */
+			String actualYearDate = Integer.toString(actualYear) + "-09-01";
+			java.sql.Date sqlDateActualYear = java.sql.Date.valueOf( actualYearDate );
+			String nextYearDate = Integer.toString(actualYear + 1) + "-05-01";
+			java.sql.Date sqlDateNextYear = java.sql.Date.valueOf( nextYearDate );
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM checklist WHERE date BETWEEN ? AND ?");
+			ps.setDate(1,sqlDateActualYear);
+			ps.setDate(2,sqlDateNextYear);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			while (rs.next())
 			{
 				CheckList checklist = new CheckList();
@@ -925,9 +936,9 @@ public class SQLController {
 				}
 			}
 			rs.close();
-			st.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
+			ps.close();
+		}catch(SQLException e) {
+			return checklistList;
 		}
 		return checklistList;
 	}
@@ -1109,9 +1120,9 @@ public class SQLController {
 			while(rs.next()) {
 				Project project = new Project();
 				project = getProject(rs.getInt("projectID"));
-				User user = getUser(userID);
+				User student = getUser(userID);
 				project.setVisible(rs.getBoolean("visible"));//setting visible 
-				project.setUser(user);
+				project.setStudent(student);
 				return project;
 			}
 			rs.close();

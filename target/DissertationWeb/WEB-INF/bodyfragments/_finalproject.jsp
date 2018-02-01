@@ -51,11 +51,13 @@ to the view from the controller or the variable names from the class --%>
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
 <c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<li><a
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
   "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal">Project title: ${project.title}</a></li>
+		data-target="#userModal"><div id="box1">Title: ${fn:escapeXml(title)}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b></div>
 </c:forEach>
 
 <!-- User login Modal -->
@@ -67,10 +69,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

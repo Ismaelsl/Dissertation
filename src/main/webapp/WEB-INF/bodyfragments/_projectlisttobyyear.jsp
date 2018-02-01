@@ -60,7 +60,7 @@ function clearContents(element) {
 			<button onclick="getSearchValue();" id="search-id"
 					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
 </form:form>
-<h1>Project list of actual year</h1>
+<h1>Project list for the year ${actualYear}</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -87,10 +87,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

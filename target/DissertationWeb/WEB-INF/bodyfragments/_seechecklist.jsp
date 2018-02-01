@@ -1,13 +1,17 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <%-- The item within the {} must be the same name that the string use on the modal on the controller method --%>
-<h4>Event Name: ${eventname}</h4>
-Date: ${date}
+<div class="form_css">	
+<h1>Event: ${eventname}</h1>
+<div class="w3-ul w3-card-4">
+<b>Date:</b> ${date}
 <br>
-Place: ${place}
+<b>Place:</b> ${place}
 <br>
-Description: ${description}
+<b>Description:</b> ${description}</div>
 <br>
 <form:form method="get" action="${previousPage}">
 	<button class="btn btn-success" value=" ">Go back Schedule</button>
 </form:form>
+</div>

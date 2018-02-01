@@ -8,7 +8,7 @@
 <body>
 	<table class="table">
 		<tr>
-			<td width = "10%" class="menudiv" rowspan="4" align="center"><tiles:insertAttribute
+			<td width = "12%" class="menudiv" rowspan="4" align="center"><tiles:insertAttribute
 					name="menu" /></td>
 			<td colspan="2" class="headerdiv"><tiles:insertAttribute
 					name="header" /></td>

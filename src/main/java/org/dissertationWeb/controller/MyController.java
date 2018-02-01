@@ -2,7 +2,10 @@ package org.dissertationWeb.controller;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -91,7 +94,6 @@ public class MyController {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
 		sqlController = new SQLController();//object to control all the SQL activities
-		//checkSchedule();
 	}
 
 	/**
@@ -102,6 +104,7 @@ public class MyController {
 	 */
 	@RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
 	public ModelAndView homePage(HttpServletRequest request) {
+		if(newConnection == null) startDBConnection();
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -116,6 +119,7 @@ public class MyController {
 	 */
 	@RequestMapping(value = "/login" , method = RequestMethod.GET)
 	public ModelAndView login(HttpServletRequest request) {
+		if(newConnection == null) startDBConnection();
 		//redirect to home page if you are login and try to login again
 		if(getSession(request) == null) return homePage(request);
 		if(newConnection == null) startDBConnection();
@@ -133,6 +137,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/logincheck",method = RequestMethod.POST)  
 	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
+		if(newConnection == null) startDBConnection();
 		//redirect to home page if you are login and try to login again
 		if(user.getPassword().isEmpty() && user.getUsername().isEmpty()) {
 			model.addAttribute("message", "Please fill the formulary");
@@ -153,6 +158,7 @@ public class MyController {
 		if(userID != 0) {//return userID 0 if fails that is why I check if userID is not 0
 			User userLogged = sqlController.getUser(userID);
 			createSession(request,userLogged.getUserID(), userLogged.getUserType());//createSession method
+			model.addAttribute("welcomeMessage", "Welcome back " + userLogged.getUsername());
 			return new ModelAndView("homePage");
 		}else {
 			model.addAttribute("message", "You are not logged in, please go to login page and enter your credentials");
@@ -172,6 +178,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/logincheck",method = RequestMethod.GET)  
 	public ModelAndView checkLoginGET(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
+		if(newConnection == null) startDBConnection();
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		return new ModelAndView("homePage");
@@ -183,6 +190,7 @@ public class MyController {
 	 * @param userID
 	 */
 	public void createSession(HttpServletRequest request, int userID, int userType) {
+		if(newConnection == null) startDBConnection();
 		HttpSession session = request.getSession() ;
 		session.setAttribute("userID", userID);
 		session.setAttribute("userType", userType);
@@ -195,6 +203,7 @@ public class MyController {
 	 * @return
 	 */
 	public HttpSession getSession(HttpServletRequest request) {
+		if(newConnection == null) startDBConnection();
 		HttpSession session = request.getSession() ;
 		if(session!= null) {
 			return request.getSession();
@@ -270,7 +279,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//I am getting projects that are not approved but are visible (false and true)
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(false,true);
 		//Here I am getting the user
@@ -298,6 +310,7 @@ public class MyController {
 	@RequestMapping( value="/approveproject",method = RequestMethod.POST)
 	public ModelAndView approveprojectPage(@RequestParam(value="projectID") int projectID, 
 			Model model,HttpServletRequest request) { 
+		if(newConnection == null) startDBConnection();
 		if(projectID == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -305,7 +318,10 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		if(sqlController.approveProject(projectID)!= 0) {
 			Project project = new Project();
 			project = sqlController.getProject(projectID);
@@ -371,10 +387,14 @@ public class MyController {
 	 */
 	@RequestMapping( "/newproject")
 	public ModelAndView newprojectPage(Model model, HttpServletRequest request) throws SQLException {  
+		if(newConnection == null) startDBConnection();
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
 		model.addAttribute("year",sqlController.getActualYear());
@@ -382,7 +402,7 @@ public class MyController {
 		model.addAttribute("previousPage", "home");
 		return new ModelAndView("newprojectPage","command",new Project());  
 	}
-	
+
 	/**
 	 * Method that it is use to load the view to create new projects for the next year, 
 	 * it is called when /newprojectnextyear it is wrote in the browser
@@ -394,10 +414,14 @@ public class MyController {
 	 */
 	@RequestMapping( "/newprojectnextyear")
 	public ModelAndView newprojectNextYearPage(Model model, HttpServletRequest request) throws SQLException {  
+		if(newConnection == null) startDBConnection();
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
 		model.addAttribute("year",sqlController.getActualYear() + 1);//I am increasing to next year
@@ -416,11 +440,15 @@ public class MyController {
 	 * @throws SQLException
 	 */
 	@RequestMapping( "/projectproposal")
-	public ModelAndView newprojectProposalPage(Model model, HttpServletRequest request) throws SQLException {  
+	public ModelAndView newprojectProposalPage(Model model, HttpServletRequest request) throws SQLException { 
+		if(newConnection == null) startDBConnection();
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
 		model.addAttribute("year",sqlController.getActualYear());
@@ -446,7 +474,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//here, we are displaying project object to prove project has data  
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		//Automatic email system
@@ -490,7 +521,7 @@ public class MyController {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
 		}
-	
+
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		System.out.println("testing URL " + session.getAttribute("previousURL"));
@@ -591,11 +622,16 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
+		//I been having some issues with the booleans visible and waiting, so I rather prefer to check on the DB
+		//And get the actual values than show data that is not right
+		Project projectUpdated = sqlController.getProject(project.getProjectID());
 		model.addAttribute("year",project.getYear());
 		model.addAttribute("title",project.getTitle());
 		model.addAttribute("topics",project.getTopics());
 		model.addAttribute("compulsoryReading",project.getCompulsoryReading());
 		model.addAttribute("description",project.getDescription());
+		model.addAttribute("waitingapprove",projectUpdated.isWaitingToBeApproved());
+		model.addAttribute("visible",projectUpdated.isVisible());
 		//HttpSession session = getSession(request);
 		User actualUser = sqlController.getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("lecturerID",actualUser.getUserID());
@@ -605,7 +641,7 @@ public class MyController {
 		case 0 :
 			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			ApplicationContext context =
-			new ClassPathXmlApplicationContext("Spring-Mail.xml");
+					new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "Your project had been modified";
@@ -727,6 +763,7 @@ public class MyController {
 	public ModelAndView search(@RequestParam String searchValue, @RequestParam(required = false)
 	String lecturer, @RequestParam(required = false) String technology, @RequestParam(required = false) String title,
 	Model model, HttpServletRequest request){ 
+		if(newConnection == null) startDBConnection();
 		//required false indicate that it is not compulsory to have it, so if I do not have, for example, a title, java will not complaint
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -768,6 +805,7 @@ public class MyController {
 	@RequestMapping(value="/searchStudent",method = RequestMethod.POST)  
 	public ModelAndView searchStudent(@RequestParam String searchValue, @RequestParam(required = false)
 	String name, @RequestParam(required = false) String email,Model model, HttpServletRequest request){ 
+		if(newConnection == null) startDBConnection();
 		//required false indicate that it is not compulsory to have it, so if I do not have, for example, a title, java will not complaint
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -828,10 +866,14 @@ public class MyController {
 	 */
 	@RequestMapping( "/newchecklist")
 	public ModelAndView newchecklistPage(Model model, HttpServletRequest request) throws SQLException {  
+		if(newConnection == null) startDBConnection();
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		return new ModelAndView("checklistPage","command",new CheckList());  
@@ -847,6 +889,7 @@ public class MyController {
 	@RequestMapping(value="/savechecklist",method = RequestMethod.POST)  
 	public ModelAndView saveChecklist(@ModelAttribute("checklist") CheckList checklist, 
 			Model model, HttpServletRequest request){  
+		if(newConnection == null) startDBConnection();
 		if(checklist == null) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -854,7 +897,17 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();
+		//I am checking if the date entered is less than today, if it is, then I am redirecting back to the form with the data that the user entered before
+		if(checklist.getDate().compareTo(dateFormat.format(date)) < 0) {
+			model.addAttribute("message", "Date cannot be less than today");
+			return new ModelAndView("checklistPage","command",checklist);
+		}
 		switch(sqlController.saveCheckList(checklist)) {
 		case 0 :
 			model.addAttribute("date", checklist.getDate());
@@ -920,10 +973,21 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
-		//This second list will not be see by students, but in order to save space I am using the same view, but based on the userType
-		//you will be able to see or not this list
-
+		
+		/**
+		 * This second list will not be see by students or lecturers, 
+		 * but in order to save space I am using the same view, but based on the userType
+		 * you will be able to see or not this list
+		 */
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
+		//I am only checking the first list since is the one that should never being empty
+		if(checklistList.isEmpty()) {
+			model.addAttribute("message", "Error loading the events page, please try again later");
+			return new ModelAndView("errorPage");
+		}
+		//I am sorting both list to be show in a date order
+		bubblesrt(checklistList);
+		bubblesrt(checklistListNotApproved);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("userType", (Integer)session.getAttribute("userType"));
@@ -931,6 +995,30 @@ public class MyController {
 		//I want to pass the size since based on the size the view will be different (if size is 0 do not load the list for not approved)
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
 		return new ModelAndView("checklistListPage","checklistList",checklistList);  
+	}
+	
+	/**
+	 * Method to sort the event list before be displayed on the front end
+	 * This method it is used in /checklistlist
+	 * @param list
+	 */
+	public static void bubblesrt(List<CheckList> list)
+	{
+		CheckList temp;
+		if (list.size()>1) // check if the number of orders is larger than 1
+		{
+			for (int x=0; x<list.size(); x++) // bubble sort outer loop
+			{
+				for (int i=0; i < list.size()-x -1; i++) {
+					if (list.get(i).getDate().compareTo(list.get(i+1).getDate()) > 0)
+					{
+						temp = list.get(i);
+						list.set(i,list.get(i+1) );
+						list.set(i+1, temp);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -944,7 +1032,8 @@ public class MyController {
 	 */
 	@RequestMapping( value="/editChecklist",method = RequestMethod.POST)
 	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, 
-			Model model, HttpServletRequest request) throws SQLException { 
+			Model model, HttpServletRequest request) throws SQLException {
+		if(newConnection == null) startDBConnection();
 		if(checklistID == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -952,10 +1041,12 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		CheckList checkList = new CheckList();
 		checkList = checkList.getchecklist(checklistID);
-		if(newConnection == null) startDBConnection();
 		//I am populating here the view so the user can modify the checklist, if I need to add more data to the form I should
 		//update the constructor on checklist class
 		model.addAttribute("checklistID", checklistID); //passing checklistID to the frontend
@@ -998,7 +1089,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//false here means "make whatever it is linked with this ID invisible"
 		sqlController.updateChecklist(checklistID,false);
 		ApplicationContext context =
@@ -1048,7 +1142,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//System.out.println("test projectID " + checklistID);
 		sqlController.updateChecklist(checklistID,true);
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
@@ -1094,7 +1191,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		model.addAttribute("date", checklist.getDate());
 		model.addAttribute("eventname", checklist.getEventName());
 		model.addAttribute("place", checklist.getPlace());
@@ -1155,7 +1255,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		/**
 		 * I have different returns based on the output of the method, 
 		 * 0 general error saving. 
@@ -1240,7 +1343,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//I am checking if the project that I am trying to make visible is already been choose or being approved by someone else
 		if(sqlController.checkIfProjectIsAlreadyChoose(projectID)) {
 			//if it is the case then return error and do not make it visible
@@ -1317,6 +1423,7 @@ public class MyController {
 	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
 	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID, 
 			Model model, User user, HttpServletRequest request) throws SQLException { 
+		if(newConnection == null) startDBConnection();
 		if(projectID == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -1324,7 +1431,6 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
 		sqlController.updateInterestProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		ApplicationContext context =
@@ -1375,7 +1481,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		sqlController.updateInterestFinalProject(projectID,user.getUserID(),false);
 		//I am using same page since the final message for project or checklist is the same
 		ApplicationContext context =
@@ -1433,7 +1542,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		User student = sqlController.getUser((Integer)session.getAttribute("userID"));
 		sqlController.updateInterestProject(projectID,student.getUserID(),false);
 		ApplicationContext context =
@@ -1482,7 +1594,10 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
 		//only student can access this menu
-		if((Integer)session.getAttribute("userType") != 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//If the student already have a final project approved, then we will only show that project to him
 		Project project = sqlController.getFinalProjectStudent((Integer)session.getAttribute("userID"));
 		if(project != null) {
@@ -1518,7 +1633,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Project> projectList = sqlController.getProjectListVisible(true, (Integer)session.getAttribute("userID"));	
 		List<Project> projectListNextYear = sqlController.getProjectListNextYear(
 				(Integer)session.getAttribute("userID"), true);
@@ -1550,7 +1668,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Project> projectWithInterest = sqlController.getLecturerProjectList(
 				(Integer)session.getAttribute("userID"));	
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
@@ -1576,7 +1697,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, 
 				(Integer)session.getAttribute("userID"));
 		List<Project> projectListNextYear = sqlController.getProjectListNextYear(
@@ -1614,7 +1738,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		sqlController.updateProject(projectID, true);//update the project to visible
 		//getting the project to obtain the title
 		Project project = new Project();
@@ -1682,7 +1809,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") == 2) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") == 2) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//HttpSession session = getSession(request);
 		if(sqlController.approveInteret(projectID, user)) {
 			Project project = new Project();
@@ -1750,7 +1880,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<User> studentList = sqlController.getAllStudentList();
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		return new ModelAndView("studentListPage","studentList",studentList);  
@@ -1776,7 +1909,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3){
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		//If the student already have a final project approved, then we will only show that project to him
 		Project finalProject = sqlController.getFinalProjectStudent(studentID);
 		//If I do not have a final project then I set the view variable noFinalProject to false it not will be true
@@ -1819,7 +1955,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3){
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Integer> yearList = sqlController.getAllYearOfProjects();
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(yearList.isEmpty()) {
@@ -1850,7 +1989,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Project> projectList = sqlController.getProjectsByYear(year);
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "We could not found any project for the year " + year + " please contact the system administrator");
@@ -1875,7 +2017,7 @@ public class MyController {
 	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException {  
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
-	
+
 	/**
 	 * Method that is showing a list with all the projects of the actual year
 	 * As admin you have the option to edit a project but never remove
@@ -1891,13 +2033,18 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Project> projectList = sqlController.getAllProjectActualYear();
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
+		//I am passing the actual year to show it on the title of the page
+		model.addAttribute("actualYear", sqlController.getActualYear());
 		return new ModelAndView("projectListByYearPage");
 	}
-	
+
 	/**
 	 * Method to show projects for the next year
 	 * @param model
@@ -1910,10 +2057,15 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if(newConnection == null) startDBConnection();
-		if((Integer)session.getAttribute("userType") != 3) return new ModelAndView("homePage");
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
 		List<Project> projectList = sqlController.getAllProjectNextYear();
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
+		//I am passing the actual year + 1 to show it on the title of the page
+		model.addAttribute("actualYear", sqlController.getActualYear()+1);
 		return new ModelAndView("projectListByYearPage");
 	}
 
@@ -1929,6 +2081,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(newConnection == null) startDBConnection();
+		session.setAttribute("userID", null);//I am making myself sure that the session is destroyed and userID is null
 		session.invalidate();
 		return login(request);
 	}

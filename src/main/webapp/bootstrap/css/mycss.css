@@ -78,19 +78,19 @@ ul li ul li a{
 	list-style-type: square;
 }
 /*End main menu CSS*/
+
 /*Header area*/
 .headerdiv{
 	background-color: white;
-	height: 55px; 
-	padding: 0px;
 }
 .headerh1{
 	color: #006938;
 }
 /*End header area*/
+
 /*Footer area*/
 .footer {
-  position: relative;
+  position: fixed;
   right: 0;
   bottom: 0;
   left: 0;
@@ -106,9 +106,13 @@ ul li ul li a{
 	width: 18px;
 }
 /*End footer area*/
+
+/*Body area*/
 .bodydiv{
 	height: 80%;
 }
+/*End body area*/
+
 /*Project lists CSS*/
 .projectList{
 	list-style-type: none;
@@ -129,14 +133,8 @@ ul li ul li a{
     overflow: hidden;
     outline:none;
 }
-.divjumper{
-	height:220px;
-}
 .divjumper2{
-	 position: relative;
-     min-height: 660px;
-     /*I am moving the invisible div to the back so it not bothering me when I try to click on screen elements*/
-     z-index: -999;
+	float:left;
 }
 .divjumperbuttons{
 	 position: relative;
@@ -176,3 +174,57 @@ ul li ul li a{
 	margin-left: 27px;
 }
 /*End search menu CSS*/
+
+/*Formularies*/
+.form_css {
+  min-width: 500px;
+  position: absolute;
+  text-align: center;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.inputtable { border: 0px solid #808080;
+}
+.tdtable {
+border:none;
+}
+table tr td{
+	
+}
+/*End of formularies*/
+
+/*Events CSS*/
+.eventList{
+	list-style-type: none;
+	text-decoration: none;
+	display: block;
+	float: left;
+}
+#boxevents {
+	width:220px;
+	height:200px;
+	margin:10px;
+	padding:10px;
+	background: #0000a0;
+	border-radius: 15px;
+	color: white;
+	float: left;
+	/*Box shadow*/
+	border: 1px solid;
+    padding: 10px;
+    box-shadow: 4px 4px #888888;
+    /*End of box shadow*/
+}
+
+#boxevents p {
+	white-space:pre;
+	font-size:smaller;
+	font-family:monospace;
+}
+/*End events CSS*/
+/*Error CSS*/
+.errormessage{
+	color: red;
+}
+/*End error css*/

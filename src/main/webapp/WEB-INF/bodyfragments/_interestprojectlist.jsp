@@ -59,7 +59,7 @@ $("#secondList").html("Those are the project that you remove the interest, click
 }
  </script>
  <body onload='chooseMessage("${notInterestListSize}")'>
-
+<div class="divjumper2">
 <h1>Project list that you show interest</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
@@ -79,7 +79,8 @@ to the view from the controller or the variable names from the class --%>
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
-<div class="divjumper"><%--This div is here to force a new line between the first and second list--%></div>
+</div>
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h1 id="secondList"><%--Here is the title for the second list(the one with interest removed by student--%></h1>
 <c:forEach items="${projectListNotVisible}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
@@ -96,6 +97,7 @@ to the view from the controller or the variable names from the class --%>
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
+</div>
 </body>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
@@ -106,10 +108,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

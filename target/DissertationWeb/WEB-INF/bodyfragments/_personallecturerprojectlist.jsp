@@ -2,7 +2,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page import="org.dissertationWeb.classes.Project;" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>Your personal list of projects for ${actualYear}</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -42,35 +41,42 @@ function chooseMessage(listSize){
 	}
 }
  </script>
+<h1>Your personal list of projects for ${actualYear}</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
-<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-<li><a
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}", "${project.visible}",
 		"${project.waitingToBeApproved}", "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#projectModal">Project title: ${project.title}</a></br></li>
+		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
 
-<h2>Projects that you have for ${nextYear}</h2>
-
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%></div>
+<h1>Your personal list of projects for ${nextYear}</h1>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
-<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-<li><a
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}", "${project.visible}",
 		"${project.waitingToBeApproved}", "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#projectModal">Project title: ${project.title}</a></li>
+		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
+		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Lecturer: ${project.user.username}</div></a></b>
+	</div>
 </c:forEach>
 
 <!-- project Modal -->
@@ -82,10 +88,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

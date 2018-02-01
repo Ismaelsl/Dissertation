@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>Your personal list of projects</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -37,12 +36,13 @@ function getProjectID() {
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
 	if(listSize == 0){
-		$("#secondList").html("For now none students applied to your projects");
+		$("#secondList").html("For now none students show interest in your projects");
 	}else{
-		$("#secondList").html("You have students who had interest on your projects!");
+		$("#secondList").html("You have students who show interest on your projects!");
 	}
 }
  </script>
+ <h1>List of interest showed by students and projects</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <h2>${message}</h2>
@@ -50,21 +50,21 @@ to the view from the controller or the variable names from the class --%>
 
 <%-- Need to use body here since onload does not work with all the tags and this was the most appropiate based on the situation --%>
 <body onload='chooseMessage("${interestListSize}")'>
-	<h2>
-		<div id="secondList"></div>
-	</h2>
+	<h2 id="secondList"></h2>
 </body>
 <c:forEach items="${projectWithInterest}" var="project">
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
 <c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<li><a
+	<div class="projectList"><b><a
 		onclick='modalInterestPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
   "${project.visible}","${project.waitingToBeApproved}","${fn:escapeXml(topics)}","${fn:escapeXml(readings)}",
   "${project.user.username}","${project.user.email}","${project.student.username}","${project.student.userID}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#projectModal">Project title: ${project.title}</a></li>
+		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
+		<br />Student: ${project.student.username}<br />
+		<br />Student Email: ${project.student.email}</div></a></b></div>
 </c:forEach>
 <!-- project Modal -->
 <div class="modal fade" id="projectModal" tabindex="-1" role="dialog"
@@ -75,10 +75,6 @@ to the view from the controller or the variable names from the class --%>
 				<h5 class="modal-title" id="exampleModalLongTitle">
 					<span id="profileTitle"></span>
 				</h5>
-				<button type="button" class="close" data-dismiss="modal"
-					aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
 			</div>
 			<div class="modal-body">
 				<div class="container-fluid">

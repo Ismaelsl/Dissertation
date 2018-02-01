@@ -10,6 +10,7 @@
 		</div>	
 		<ul class="nav navbar-nav" id="menu">  
 			<%
+			//Area where I am getting the userType from the session
 				int user = 0;
 				try {
 					user = (Integer) session.getAttribute("userType");
@@ -20,7 +21,8 @@
 					//admin can see everything
 			%>
 			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">
-				<img class="imagestyle" src='bootstrap/images/dissertationcoordinator.png' 
+				<img class="imagestyle" alt="dissertationcoordinatoricon" 
+				src='bootstrap/images/dissertationcoordinator.png' 
 				onmouseover="this.src='bootstrap/images/dissertationcoordinatorblack.png';" 
 				onmouseout="this.src='bootstrap/images/dissertationcoordinator.png';" />
 			Coordinator<span class="caret"></span></a>
@@ -43,7 +45,7 @@
 							next year</a></b></li>
 				</ul></li>
 			<li class="dropdown" id="lecturer"><a class="dropdown-toggle" data-toggle="dropdown" href="#">
-				<img class="imagestyle" src='bootstrap/images/lecturer.png' 
+				<img class="imagestyle" alt="lecturericon" src='bootstrap/images/lecturer.png' 
 				onmouseover="this.src='bootstrap/images/lecturerblack.png';" 
 				onmouseout="this.src='bootstrap/images/lecturer.png';" />
 				Lecturer<span class="caret"></span></a>
@@ -64,14 +66,14 @@
 				</ul></li>
 			<li>
 				<a href="${pageContext.request.contextPath}/projectlist">
-				<img class="imagestyle" src='bootstrap/images/projectlist.png' 
+				<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 				onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectlist.png';" />
 				Project List</a>
 			</li>
 			<li>
 				<a href="${pageContext.request.contextPath}/checklistlist">
-				<img class="imagestyle" src='bootstrap/images/schedule.png' 
+				<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 				onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
 				onmouseout="this.src='bootstrap/images/schedule.png';" />
 				Schedule</a>
@@ -81,7 +83,7 @@
 			%>
 
 			<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">				
-				<img class="imagestyle" src='bootstrap/images/lecturer.png' 
+				<img class="imagestyle" alt="lecturericon" src='bootstrap/images/lecturer.png' 
 				onmouseover="this.src='bootstrap/images/lecturerblack.png';" 
 				onmouseout="this.src='bootstrap/images/lecturer.png';" />
 			Lecturer<span class="caret"></span></a>
@@ -102,14 +104,14 @@
 				</ul></li>
 			<li>
 				<a href="${pageContext.request.contextPath}/projectlist">
-				<img class="imagestyle" src='bootstrap/images/projectlist.png' 
+				<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 				onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectlist.png';" />
 				Project List</a>
 			</li>
 			<li>
 				<a href="${pageContext.request.contextPath}/checklistlist">
-				<img class="imagestyle" src='bootstrap/images/schedule.png' 
+				<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 				onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
 				onmouseout="this.src='bootstrap/images/schedule.png';" />
 				Schedule</a>
@@ -119,27 +121,27 @@
 			%>
 			<li>
 				<a href="${pageContext.request.contextPath}/projectlist">
-				<img class="imagestyle" src='bootstrap/images/projectlist.png' 
+				<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 				onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectlist.png';" />
 				Project List</a>
 			</li>
 			<li>
 				<a href="${pageContext.request.contextPath}/checklistlist">
-				<img class="imagestyle" src='bootstrap/images/schedule.png' 
+				<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 				onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
 				onmouseout="this.src='bootstrap/images/schedule.png';" />
 				Schedule</a>
 			</li>
 			<li><a
 				href="${pageContext.request.contextPath}/projectinterestedlist">
-				<img class="imagestyle" src='bootstrap/images/studentlist.png' 
+				<img class="imagestyle" alt="studentlisticon" src='bootstrap/images/studentlist.png' 
 				onmouseover="this.src='bootstrap/images/studentlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/studentlist.png';" />
 				Your interest list</a></li>
 			<li><a 
 				href="${pageContext.request.contextPath}/projectproposal">
-				<img class="imagestyle" src='bootstrap/images/projectproposal.png' 
+				<img class="imagestyle" alt="projectproposalicon" src='bootstrap/images/projectproposal.png' 
 				onmouseover="this.src='bootstrap/images/projectproposalblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectproposal.png';" />
 				Propose a project</a>
@@ -149,18 +151,17 @@
 			%>
 			<li>
 				<a href="${pageContext.request.contextPath}/contactus">
-				<img class="imagestyle" src='bootstrap/images/envelope.png' 
+				<img class="imagestyle" alt="contactusicon" src='bootstrap/images/envelope.png' 
 				onmouseover="this.src='bootstrap/images/envelopeblack.png';" 
 				onmouseout="this.src='bootstrap/images/envelope.png';" />
 				ContactUs</a>
 			</li>
-			<br>
 			<%
 				if (user == 0) {//if user is 0 means that I still did not login so login menu will be show
 			%>
 			<li>
 				<a href="${pageContext.request.contextPath}/login">
-				<img class="imagestyle" src='bootstrap/images/login.png' 
+				<img class="imagestyle" alt="loginicon" src='bootstrap/images/login.png' 
 				onmouseover="this.src='bootstrap/images/loginblack.png';" 
 				onmouseout="this.src='bootstrap/images/login.png';" />
 				Login</a>
@@ -170,7 +171,7 @@
 			%>
 			<li>
 				<a href="${pageContext.request.contextPath}/logout">
-				<img class="imagestyle" src='bootstrap/images/logout.png' 
+				<img class="imagestyle" alt="logouticon" src='bootstrap/images/logout.png' 
 				onmouseover="this.src='bootstrap/images/logoutblack.png';" 
 				onmouseout="this.src='bootstrap/images/logout.png';" />
 				Logout</a>
