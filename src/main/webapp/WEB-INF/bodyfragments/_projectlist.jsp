@@ -8,6 +8,18 @@
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
 var actualID;
+<%
+	//Area where I am getting the values from the session from the session
+	int projectNum = 0;
+	int oldProjectNum = 0;
+	//Since menu will be load the first thing is normal that session still not exist 
+	//so I am catching the error and keep the webapp running
+	try {
+		projectNum = (Integer) session.getAttribute("projectNum");
+		oldProjectNum = (Integer) session.getAttribute("oldProjectNum");
+	} catch (java.lang.NullPointerException e) {
+	}
+%>
 
 function modalPopulator(title,description,projectID,topics,compulsoryReading, lecturerName, lecturerEmail) {
 
@@ -119,20 +131,42 @@ to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <input type="hidden" id="studentYear" name="userType" value="${studentYear}">
 <input type="hidden" id="actualYear" name="userType" value="${actualYear}">
-<c:forEach items="${projectList}" var="project">
+<c:forEach items="${projectList}" var="project" varStatus="status">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
 	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	
-	<div class="projectList"><b><a
-		onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
-  		"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
-		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
-		<br />Lecturer: ${project.user.username}</div></a></b>
-	</div>	
+	<%--If the element is the last on the loop enter there and show an special message to let the user know which one is the new project --%>
+	<c:if test="${status.last}">   
+		<div class="projectList"><b><a
+			onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
+  			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
+			href="#" class="test" id="userLoginButton" data-toggle="modal"
+			data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+			<br />Lecturer: ${project.user.username}<br /><br />
+			<%--If this is the last project on the list and we have new projects, then show that this is the new project --%>
+			<% if(projectNum > oldProjectNum){ 
+				//if I have more projects that the last time I logged in I will show a special message to let user know
+			%>
+				<b class="infomessage">New project!</b></div></a></b>
+			<% 
+			//after user see the new project, the value of old project changes, so the icon on the menu will dissapear
+				session.setAttribute("oldProjectNum", projectNum); 
+		   	} %>
+		</div> 
+	</c:if>
+	<%--If the project is not the last one, then show the project as usual --%>
+	<c:if test="${not status.last}">  
+		<div class="projectList"><b><a
+			onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
+  			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
+			href="#" class="test" id="userLoginButton" data-toggle="modal"
+			data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+			<br />Lecturer: ${project.user.username}</div></a></b>
+		</div>	
+	</c:if>
 </c:forEach>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"

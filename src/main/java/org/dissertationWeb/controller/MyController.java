@@ -82,12 +82,12 @@ public class MyController {
 	 * found.
 	 * @throws SQLException
 	 */
-	/*@Scheduled(fixedRate = 2700000 )//check every 45 minutes
+	@Scheduled(fixedRate = 2700000 )//check every 45 minutes
 	public void keepConnection() throws SQLException {
 		checkDBConnection();
 		//if(newConnection.isClosed())startDBConnection();
 		sqlController.keepConnectionAlive();
-	}*/
+	}
 	/**
 	 * Automatic method that checks every 24 hours if we have new events in the schedule coming within one week
 	 * If we have any events coming, an email will be send to all the students if not, nothing will happens
