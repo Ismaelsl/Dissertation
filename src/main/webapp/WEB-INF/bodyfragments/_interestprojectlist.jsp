@@ -16,8 +16,8 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     actualID = projectID;
     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
-    withInterestdiv.style.visibility  = 'visible';
-    withoutInterestdiv.style.visibility  = 'hidden';
+    withInterestdiv.style.display  = 'block';
+    withoutInterestdiv.style.display  = 'none';
     var userIDToApprove = document.getElementById("userIDToMakeVisible");
     var userIDToRemove = document.getElementById("userIDToRemove");
     userIDToApprove.value = userID;
@@ -34,8 +34,8 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
     actualID = projectID;
     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
-    withInterestdiv.style.visibility  = 'hidden';
-    withoutInterestdiv.style.visibility  = 'visible';
+    withInterestdiv.style.display  = 'none';
+    withoutInterestdiv.style.display  = 'block';
     var userIDToApprove = document.getElementById("userIDToMakeVisible");
     var userIDToRemove = document.getElementById("userIDToRemove");
     userIDToApprove.value = userID;
@@ -140,7 +140,7 @@ to the view from the controller or the variable names from the class --%>
 						data-dismiss="modal">Close</button>		
 				</form:form>
 			</div>
-			<div class="modal-footer" id="modal-footer-registerInterest">
+			<div class="modal-footer" id="modal-footer-registerInterest" class="buttonleft">
 				<form:form method="post" action="makeInterestVisible">
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
 						name="projectID" class="btn btn-success" value=" ">Make

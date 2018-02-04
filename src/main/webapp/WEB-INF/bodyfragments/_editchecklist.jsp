@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
 <div class="form_css">
 	<div class="w3-container w3-blue">	
 		<h1>Edit event</h1>

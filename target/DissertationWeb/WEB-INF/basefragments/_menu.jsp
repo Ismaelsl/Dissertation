@@ -3,11 +3,7 @@
 
 <nav class="navbar navbar-default">
 	<div class="container-fluid" id="menuContainer">
-		<div class="navbar-header">	
-			<a href="${pageContext.request.contextPath}/home">
-				<img src="bootstrap/images/logomenu.png" alt="logomenuicon" class="logomenustyle">
-			</a>
-		</div>	
+
 		<ul class="nav navbar-nav" id="menu">  
 			<%
 			//Area where I am getting the userType from the session

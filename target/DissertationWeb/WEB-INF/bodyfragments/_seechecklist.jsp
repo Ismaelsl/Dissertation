@@ -11,7 +11,7 @@
 <br>
 <b>Description:</b> ${description}</div>
 <br>
-<form:form method="get" action="${previousPage}">
-	<button class="btn btn-success" value=" ">Go back Schedule</button>
+<form:form method="get" action="checklistlist">
+	<button class="btn btn-success" value=" ">Go back to Schedule</button>
 </form:form>
 </div>

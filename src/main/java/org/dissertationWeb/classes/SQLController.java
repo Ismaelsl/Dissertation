@@ -32,6 +32,144 @@ public class SQLController {
 		newConnection = connect.connect();
 		updateYear();
 	}
+	
+	/**
+	 * SQL Method that is counting how many projects in the DB I have, the idea is count when enter and check with the previous count in the DB
+	 * if I have more then a green tick will be show on the project list in the menu.
+	 * @return
+	 */
+	public int numberOfProjectsInDB() {
+		try {
+			//I am using distinct since does not make sense to have the same project twice
+			PreparedStatement ps = newConnection.prepareStatement(
+					"SELECT COUNT( DISTINCT project.projectID) AS projectCount FROM project WHERE NOT EXISTS "
+							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = ?)"
+							+ "AND NOT EXISTS (SELECT * FROM approvedproject WHERE project.projectID = approvedproject.projectID AND visible = ?)"
+							+ "AND project.year = ? AND project.visible = ? AND project.waitingtobeapproved = ?");
+			ps.setBoolean(1,true);
+			ps.setBoolean(2,true);
+			ps.setInt(3,actualYear);
+			ps.setBoolean(4,true);
+			ps.setBoolean(5,true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while (rs.next())
+			{
+				return rs.getInt("projectCount");
+			}
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			return 0;
+		}
+		return 0;
+	}
+	
+	public int numberOfEventsInDB() {
+		String query = " SELECT COUNT(*) AS eventCount FROM checklist WHERE visible = ?";
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			ps.setBoolean(1, true);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return rs.getInt("eventCount"); 
+			}else {
+				return 0;
+			}
+		} catch (SQLException e) {
+		}
+		return 0;
+	}
+	
+	public int updateDBCount(int userID, int projectCount, int eventCount) {
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM dbcount WHERE userID = ? FOR UPDATE");
+			ps.setInt(1,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				System.out.println("Inside of update");
+				PreparedStatement ps2 = newConnection.prepareStatement(
+						"UPDATE dbcount SET projectcount = ?, eventcount = ? WHERE userID = ?");
+				ps2.setInt(1,projectCount);
+				ps2.setInt(2,eventCount);
+				ps2.setInt(3,rs.getInt("userID"));
+				ps2.executeUpdate();
+				ps2.close();
+				return 1;
+			}
+			rs.close();
+			ps.close();
+			//If the row does not exist in the DB then I will insert it, but if exist it will be update and then leave the method
+			System.out.println("Inside of insert");
+			String queryInsert = " INSERT INTO dbcount (userID, projectcount, eventcount, waitapprovecount) VALUES (?, ?, ?, ?)";
+			PreparedStatement preparedStmt;
+			try {
+				preparedStmt = newConnection.prepareStatement(queryInsert);
+				preparedStmt.setInt (1, userID);
+				preparedStmt.setInt (2, projectCount);
+				preparedStmt.setInt(3, eventCount);
+				preparedStmt.setInt(4, 0);//for now I am not using this value so I am always putting it as 0
+				preparedStmt.execute();
+				preparedStmt.close();
+				return 1;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			return 0;
+		}
+		return 0;
+	}
+	
+	public int getProjectCountDB(int userID) {
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+						"SELECT projectcount FROM dbcount WHERE userID = ?");
+			ps.setInt(1,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) return rs.getInt("projectcount");
+		} catch (SQLException e) {
+			return 0;
+		}		
+		return 0;
+	}
+	
+	public int getEventCountDB(int userID) {
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+						"SELECT eventcount FROM dbcount WHERE userID = ?");
+			ps.setInt(1,userID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) return rs.getInt("eventcount");
+		} catch (SQLException e) {
+			return 0;
+		}		
+		return 0;
+	}
+	
+	/**
+	 * This SQL method is only doing a really basic query to keep the connection alive
+	 * is not returning the data or doing anything with the data.
+	 * Is only using the DB so the DB does not close because of inactivity
+	 */
+	public void keepConnectionAlive() {
+		String query = "SELECT date FROM checklist WHERE true";
+		Statement st;
+		System.out.println("ping!!");
+		try {
+			st = newConnection.createStatement();
+			ResultSet rs = st.executeQuery(query);
+		} catch (SQLException e) {
+		}			
+	}
 
 	/**
 	 * Method that change automatically the year every first of June at midnight
@@ -396,7 +534,7 @@ public class SQLController {
 	 * @return
 	 */
 	public int saveCheckList(CheckList checklist) {
-		if(checkIfChecklistExistInDB(checklist)) return 1;
+		if(checkIfEventExistInDBNewEvent(checklist)) return 1;
 		String query = " INSERT INTO checklist (date, eventname, place, description, visible)"
 				+ " VALUES (?, ?, ?, ?, ?)";
 		try {
@@ -415,19 +553,47 @@ public class SQLController {
 		return 2;
 	}
 	/**
-	 * SQL Method to check if a checklist already exist in the DB
+	 * SQL Method to check if an event already exist in the DB when trying to save a modification
+	 * I am checking everything since I do not want user to be able to submit the same event without modification
 	 * @param checklist
 	 * @return
 	 */
-	public boolean checkIfChecklistExistInDB(CheckList checklist) {
-		//String query = " SELECT * FROM checklist WHERE date = ? AND eventname = ?";
-		String query = " SELECT * FROM checklist WHERE eventname = ?";
+	public boolean checkIfEventExistInDBSaveEdit(CheckList checklist) {
+		String query = " SELECT * FROM checklist WHERE date = ? AND eventname = ? AND place = ? AND description = ?";
 		try {
 			PreparedStatement ps = newConnection.prepareStatement(query);
 			//I am parsing to SQLDate since Date and SQLDate are different and does not work with prepared statements
-			//java.sql.Date sqlDate = java.sql.Date.valueOf( checklist.getDate() );
-			//ps.setDate(1, sqlDate);
-			ps.setString (1, checklist.getEventName());		
+			java.sql.Date sqlDate = java.sql.Date.valueOf( checklist.getDate() );
+			ps.setDate(1, sqlDate);
+			ps.setString (2, checklist.getEventName());	
+			ps.setString(3, checklist.getPlace());
+			ps.setString(4, checklist.getDescription());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return true; 
+			}else {
+				return false;
+			}
+		} catch (SQLException e) {
+		}
+
+		return false;
+	}
+	/**
+	 * SQL Method to check if an event already exist in the DB when creating a new event
+	 * I am only checking if the same event name and date are already in the DB
+	 * @param checklist
+	 * @return
+	 */
+	public boolean checkIfEventExistInDBNewEvent(CheckList checklist) {
+		String query = " SELECT * FROM checklist WHERE date = ? AND eventname = ?";
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			//I am parsing to SQLDate since Date and SQLDate are different and does not work with prepared statements
+			java.sql.Date sqlDate = java.sql.Date.valueOf( checklist.getDate() );
+			ps.setDate(1, sqlDate);
+			ps.setString (2, checklist.getEventName());	
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()) {
@@ -447,7 +613,7 @@ public class SQLController {
 	 * @return
 	 */
 	public int saveEditCheckList(CheckList checklist) {
-		if(checkIfChecklistExistInDB(checklist)) return 1;
+		if(checkIfEventExistInDBSaveEdit(checklist)) return 1;
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
@@ -647,6 +813,7 @@ public class SQLController {
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
 				user.setUserType(rs.getInt("userType"));
+				user.setYear(rs.getInt("year"));
 				rs.close();
 				ps.close();
 				return user;
@@ -677,6 +844,7 @@ public class SQLController {
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
 				user.setUserType(rs.getInt("userType"));
+				user.setYear(rs.getInt("year"));
 				rs.close();
 				ps.close();
 				return user;
@@ -707,6 +875,7 @@ public class SQLController {
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
 				user.setUserType(rs.getInt("userType"));
+				user.setYear(rs.getInt("year"));
 				rs.close();
 				ps.close();
 				return user;
@@ -863,10 +1032,11 @@ public class SQLController {
 					"SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
 							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = ?)"
 							+ "AND NOT EXISTS (SELECT * FROM approvedproject WHERE project.projectID = approvedproject.projectID AND visible = ?)"
-							+ "AND project.year = ?");
+							+ "AND project.year = ? AND project.visible = ?");
 			ps.setBoolean(1,true);
 			ps.setBoolean(2,true);
 			ps.setInt(3, actualYear);
+			ps.setBoolean(4,true);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			while (rs.next())

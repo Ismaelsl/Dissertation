@@ -29,10 +29,12 @@ ul li ul li a{
 
 .menudiv {
 	background-color: #006938;
-	position: relative;
+	position: fixed;
     vertical-align: top;
     display: table-cell;
     height:100%;
+    z-index: 9;
+    
 }
 .table {
     display: table;
@@ -49,7 +51,10 @@ ul li ul li a{
 }
 .logomenustyle{
 	height: 100px;
-	position: relative;
+	margin-left: auto;
+    margin-right: auto;
+    margin-top:20px;
+    margin-bottom:20px;
 }
 #submenu{
 	left: auto;
@@ -82,8 +87,8 @@ ul li ul li a{
 /*Header area*/
 .headerdiv{
 	background-color: white;
-	height: 55px; 
-	padding: 0px;
+	padding-left: 2.5cm;
+	align: center;
 }
 .headerh1{
 	color: #006938;
@@ -92,11 +97,10 @@ ul li ul li a{
 
 /*Footer area*/
 .footer {
-  position: relative;
+  position: fixed;
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 1rem;
   background-color: white;
   text-align: center;
 }
@@ -112,6 +116,8 @@ ul li ul li a{
 /*Body area*/
 .bodydiv{
 	height: 80%;
+	padding-left: 5cm;
+	
 }
 /*End body area*/
 
@@ -135,14 +141,8 @@ ul li ul li a{
     overflow: hidden;
     outline:none;
 }
-.divjumper{
-	height:220px;
-}
 .divjumper2{
-	 position: relative;
-     min-height: 660px;
-     /*I am moving the invisible div to the back so it not bothering me when I try to click on screen elements*/
-     z-index: -999;
+	float:left;
 }
 .divjumperbuttons{
 	 position: relative;
@@ -151,9 +151,9 @@ ul li ul li a{
      z-index: -999;
 }
 #box1 {
-	width:220px;
-	height:200px;
-	margin:10px;
+	width:270px;
+	height:220px;
+	margin:25px;
 	padding:10px;
 	background: #006938;
 	border-radius: 15px;
@@ -171,6 +171,9 @@ ul li ul li a{
 	font-size:smaller;
 	font-family:monospace;
 }
+.buttonleft{
+	float: left;
+}
 /*End of project lists CSS*/
 
 /*Search menu CSS*/
@@ -186,19 +189,21 @@ ul li ul li a{
 /*Formularies*/
 .form_css {
   min-width: 500px;
+  min-height: 250px;
   position: absolute;
   text-align: center;
   top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
-.inputtable { border: 0px solid #808080;
+.inputtable { 
+	border: 0px solid #808080;
 }
 .tdtable {
 border:none;
 }
-table tr td{
-	
+.formdisplay{
+	 display: inline-block; 
 }
 /*End of formularies*/
 
@@ -210,11 +215,11 @@ table tr td{
 	float: left;
 }
 #boxevents {
-	width:220px;
-	height:200px;
-	margin:10px;
+	width:250px;
+	height:220px;
+	margin:25px;
 	padding:10px;
-	background: #0000a0;
+	background: #5e0259;
 	border-radius: 15px;
 	color: white;
 	float: left;
@@ -236,3 +241,11 @@ table tr td{
 	color: red;
 }
 /*End error css*/
+
+/*Home Page*/
+.welcometext{
+	color: white;
+	font-size: 90px;
+	font-weight: bold;
+}
+/*End Home Page*/

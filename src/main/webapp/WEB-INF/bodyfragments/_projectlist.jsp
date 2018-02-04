@@ -47,26 +47,38 @@ function checkone(d){
  <%-- Method that show options based on which kind of user you are --%>
 window.onload = function() {
 	var user = document.getElementById("userType").value;
+	var studentyear = document.getElementById("studentYear").value;
+	var actualyear = document.getElementById("actualYear").value;
    	var userdiv = document.getElementById("modal-footer-user");
-   	var admindiv = document.getElementById("modal-footer-admin");
+   	var lecturerdiv = document.getElementById("modal-footer-admin");
    	var dcdiv = document.getElementById("modal-footer-dc");
-   	
+   	var nextYearStudent = document.getElementById("modal-footer-nextyear");
+
     if(user == 1){<%--Lecturer--%>
-    	admindiv.style.display = 'visible';
+   		lecturerdiv.style.display = 'visible';
         userdiv.style.display = 'none';
         dcdiv.style.display = 'none';
+        nextYearStudent.style.display = 'none';
     }
     if(user == 2){<%--Student--%>
-        dcdiv.style.display = 'none';
-        admindiv.style.display = 'none';
-        userdiv.style.display = 'visible';
+    	 if(studentyear != actualyear){
+     		dcdiv.style.display = 'none';
+        	lecturerdiv.style.display = 'none';
+        	nextYearStudent.style.display = 'visible';
+        	userdiv.style.display = 'none';
+     	}else{
+     		dcdiv.style.display = 'none';
+        	lecturerdiv.style.display = 'none';
+        	nextYearStudent.style.display = 'none';
+        	userdiv.style.display = 'visible';
+     	}     
     }
     if(user == 3){<%--Dissetation coordinator--%>
-        admindiv.style.display = 'none';
+        lecturerdiv.style.display = 'none';
         userdiv.style.display = 'none';
+        nextYearStudent.style.display = 'none';
         dcdiv.style.display = 'visible';
-    }
-   
+    } 
 }
 <%--Function that is removing all the special characters from the modal--%>
 function removeXml(unsafe) {
@@ -105,6 +117,8 @@ function clearContents(element) {
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
+<input type="hidden" id="studentYear" name="userType" value="${studentYear}">
+<input type="hidden" id="actualYear" name="userType" value="${actualYear}">
 <c:forEach items="${projectList}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
@@ -159,6 +173,11 @@ to the view from the controller or the variable names from the class --%>
 				<form:form method="post" action="remove">
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
+				</form:form>
+			</div>
+			<div class="modal-footer" id="modal-footer-nextyear">
+				<form:form method="post" action="">
+					<b>You are not allowed to register yet, wait a little longer</b>
 				</form:form>
 			</div>
 			<%--User can only register interest--%>

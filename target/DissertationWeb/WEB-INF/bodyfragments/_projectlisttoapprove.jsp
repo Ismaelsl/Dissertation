@@ -75,7 +75,7 @@ to the view from the controller or the variable names from the class --%>
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> <br /> Technologies:  ${fn:escapeXml(topics)}<br />
-		 <br />Lecturer: ${project.user.username}</div></a></b></div></div>
+		 <br />Lecturer: ${project.user.username}</div></a></b></div>
 </c:forEach>
 
 <!-- User login Modal -->

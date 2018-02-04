@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 public class DBConnection {
 	private static final String DATABASE_DRIVER = "com.mysql.jdbc.Driver";
-	private static final String DATABASE_URL = "jdbc:mysql://mysql0.cs.stir.ac.uk/isa";
+	private static final String DATABASE_URL = "jdbc:mysql://mysql.cs.stir.ac.uk/isa";
 	private static final String USERNAME = "";
 	private static final String PASSWORD = "";
 	private static final String MAX_POOL = "2050"; // set your own limit

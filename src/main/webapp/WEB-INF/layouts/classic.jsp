@@ -6,20 +6,18 @@
 </head>
 
 <body>
-	<table class="table">
-		<tr>
-			<td width = "12%" class="menudiv" rowspan="4" align="center"><tiles:insertAttribute
-					name="menu" /></td>
-			<td colspan="2" class="headerdiv"><tiles:insertAttribute
-					name="header" /></td>
-		</tr>
-		<tr>
-			<td width="90%" class="bodydiv"><tiles:insertAttribute name="body" /></td>
-		</tr>
-		<tr>
-			<td colspan="2" class="footer"><tiles:insertAttribute
-					name="footer" /></td>
-		</tr>
-	</table>
+	<div class="table">
+			<div class="menudiv" align="center">
+			<a href="${pageContext.request.contextPath}/home">
+				<img src="bootstrap/images/logomenu.png" align="middle" alt="logomenuicon" class="logomenustyle">
+			</a><tiles:insertAttribute
+					name="menu" /></div>
+			<div class="headerdiv"><tiles:insertAttribute
+					name="header" /></div>
+			<div class="bodydiv"><tiles:insertAttribute 
+					name="body" /></div>
+			<div class="footer"><tiles:insertAttribute
+					name="footer" /></div>
+	</div>
 </body>
 </html>

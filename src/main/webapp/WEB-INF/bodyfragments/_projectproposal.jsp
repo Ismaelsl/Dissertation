@@ -37,4 +37,4 @@
        </form:form>   
        </div> 
 <%--This form is the one that is telling to cancel input where to go if is pushed --%>
-<form:form id="cancelForm" method="get" action="${previousPage}"></form:form>
+<form:form id="cancelForm" method="get" action="home"></form:form>

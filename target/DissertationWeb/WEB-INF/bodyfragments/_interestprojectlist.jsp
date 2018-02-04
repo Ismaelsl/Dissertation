@@ -16,8 +16,8 @@ function modalPopulator(title,description,projectID,topics,compulsoryReading, le
     actualID = projectID;
     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
-    withInterestdiv.style.visibility  = 'visible';
-    withoutInterestdiv.style.visibility  = 'hidden';
+    withInterestdiv.style.display  = 'block';
+    withoutInterestdiv.style.display  = 'none';
     var userIDToApprove = document.getElementById("userIDToMakeVisible");
     var userIDToRemove = document.getElementById("userIDToRemove");
     userIDToApprove.value = userID;
@@ -34,8 +34,8 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
     actualID = projectID;
     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
-    withInterestdiv.style.visibility  = 'hidden';
-    withoutInterestdiv.style.visibility  = 'visible';
+    withInterestdiv.style.display  = 'none';
+    withoutInterestdiv.style.display  = 'block';
     var userIDToApprove = document.getElementById("userIDToMakeVisible");
     var userIDToRemove = document.getElementById("userIDToRemove");
     userIDToApprove.value = userID;
@@ -59,7 +59,7 @@ $("#secondList").html("Those are the project that you remove the interest, click
 }
  </script>
  <body onload='chooseMessage("${notInterestListSize}")'>
-
+<div class="divjumper2">
 <h1>Project list that you show interest</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
@@ -79,7 +79,8 @@ to the view from the controller or the variable names from the class --%>
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
-<div class="divjumper"><%--This div is here to force a new line between the first and second list--%></div>
+</div>
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h1 id="secondList"><%--Here is the title for the second list(the one with interest removed by student--%></h1>
 <c:forEach items="${projectListNotVisible}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
@@ -96,6 +97,7 @@ to the view from the controller or the variable names from the class --%>
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
+</div>
 </body>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
@@ -138,7 +140,7 @@ to the view from the controller or the variable names from the class --%>
 						data-dismiss="modal">Close</button>		
 				</form:form>
 			</div>
-			<div class="modal-footer" id="modal-footer-registerInterest">
+			<div class="modal-footer" id="modal-footer-registerInterest" class="buttonleft">
 				<form:form method="post" action="makeInterestVisible">
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
 						name="projectID" class="btn btn-success" value=" ">Make

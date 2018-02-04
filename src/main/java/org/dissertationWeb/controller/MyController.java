@@ -48,16 +48,53 @@ public class MyController {
 	private Connection newConnection;
 
 	private SQLController sqlController;
-	//private int userLoginID;
+	
 
 	/**
+	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
+	 */
+	@EventListener(ContextRefreshedEvent.class) //with this I am saying that as soon as I start the webapp this method MUST be called first
+	private void startDBConnection() {
+		//Create a connection to the DB as soon as we need it
+		DBConnection connect = new DBConnection();
+		newConnection = connect.connect();
+		sqlController = new SQLController();//object to control all the SQL activities
+	}
+	
+	/**
+	 * Method that checks if the DB connection is still ON, if is not then will catch the exception and restart the connection to the DB
+	 */
+	public void checkDBConnection() {
+		try {
+			//if is close will throw one of this two exception, in this case I will catch it and restart the connection
+			newConnection.isClosed();
+		}catch(com.mysql.jdbc.exceptions.jdbc4.CommunicationsException e) {
+			startDBConnection();
+		} catch (SQLException e) {
+			startDBConnection();
+		}
+	}
+	
+	/**
+	 * Method to keep connection to the DB alive
+	 * It would be better if the inactivity time will be higher in the configuration of the DB
+	 * but since I am not allowed to modify this file this was the only suitable solution that I
+	 * found.
+	 * @throws SQLException
+	 */
+	/*@Scheduled(fixedRate = 2700000 )//check every 45 minutes
+	public void keepConnection() throws SQLException {
+		checkDBConnection();
+		//if(newConnection.isClosed())startDBConnection();
+		sqlController.keepConnectionAlive();
+	}*/
+	/**
 	 * Automatic method that checks every 24 hours if we have new events in the schedule coming within one week
-	 * If we have any an email will be send to all the students if not, nothing will happens
+	 * If we have any events coming, an email will be send to all the students if not, nothing will happens
 	 */
 	@Scheduled(fixedRate = 86400000 )//check every 24 hours
-	//@Scheduled(fixedRate = 5000)
 	public void checkSchedule() {
-		startDBConnection();
+		checkDBConnection();
 		System.out.println("inside automatic method for schedule");
 		//I am getting all the events coming within a week
 		List<CheckList> checklistList = sqlController.checkScheduleTime();
@@ -87,28 +124,18 @@ public class MyController {
 	}
 
 	/**
-	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
-	 */
-	private void startDBConnection() {
-		//Create a connection to the DB as soon as we need it
-		DBConnection connect = new DBConnection();
-		newConnection = connect.connect();
-		sqlController = new SQLController();//object to control all the SQL activities
-	}
-
-	/**
 	 * This method it is the one that I use to load the homePage view
 	 * to call this method you need to write / or /home 
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
-	public ModelAndView homePage(HttpServletRequest request) {
-		if(newConnection == null) startDBConnection();
+	public ModelAndView homePage(HttpServletRequest request) throws SQLException {
+		checkDBConnection(); //check if connection is still ON
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
 		return new ModelAndView("homePage");
 	}
 
@@ -116,13 +143,14 @@ public class MyController {
 	 * This is the method that is load when /login it is wrote, this method it is loading the loginPage view
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value = "/login" , method = RequestMethod.GET)
-	public ModelAndView login(HttpServletRequest request) {
-		if(newConnection == null) startDBConnection();
+	public ModelAndView login(HttpServletRequest request) throws SQLException {
+		checkDBConnection(); //check if connection is still ON
 		//redirect to home page if you are login and try to login again
 		if(getSession(request) == null) return homePage(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		return new ModelAndView("loginPage","command",new User());
 	}
 
@@ -134,10 +162,11 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/logincheck",method = RequestMethod.POST)  
-	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
-		if(newConnection == null) startDBConnection();
+	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request) throws SQLException{ 
+		checkDBConnection(); //check if connection is still ON
 		//redirect to home page if you are login and try to login again
 		if(user.getPassword().isEmpty() && user.getUsername().isEmpty()) {
 			model.addAttribute("message", "Please fill the formulary");
@@ -152,12 +181,12 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 		if(getSession(request) == null) return homePage(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//user it is send to the loginCheck method in SQLController to confirm if the data entered is right, it is returning the userID if success
 		int userID = sqlController.loginCheck(user);
 		if(userID != 0) {//return userID 0 if fails that is why I check if userID is not 0
 			User userLogged = sqlController.getUser(userID);
-			createSession(request,userLogged.getUserID(), userLogged.getUserType());//createSession method
+			createSession(request,userLogged.getUserID(), userLogged.getUserType(), userLogged.getYear());//createSession method
 			model.addAttribute("welcomeMessage", "Welcome back " + userLogged.getUsername());
 			return new ModelAndView("homePage");
 		}else {
@@ -175,10 +204,11 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/logincheck",method = RequestMethod.GET)  
-	public ModelAndView checkLoginGET(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request){ 
-		if(newConnection == null) startDBConnection();
+	public ModelAndView checkLoginGET(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request) throws SQLException{ 
+		checkDBConnection(); //check if connection is still ON
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		return new ModelAndView("homePage");
@@ -188,12 +218,26 @@ public class MyController {
 	 * Method that create the session and set as attribute in the session the userID and the maximum inactive time to 60 seconds
 	 * @param request
 	 * @param userID
+	 * @throws SQLException 
 	 */
-	public void createSession(HttpServletRequest request, int userID, int userType) {
-		if(newConnection == null) startDBConnection();
+	public void createSession(HttpServletRequest request, int userID, int userType, int year) throws SQLException {
+		checkDBConnection(); //check if connection is still ON
 		HttpSession session = request.getSession() ;
+		int numberOfProject = sqlController.numberOfProjectsInDB();
+		int numberOfEvents = sqlController.numberOfEventsInDB();
+		//I could have a class that keep the value of the count, old and new and save the object of that class in the session
+		//But I think that this call are not that complex to the DB and will not take too many resources
+		int oldNumberOfProject = sqlController.getProjectCountDB(userID);
+		int oldNumberOfEvent = sqlController.getEventCountDB(userID);
+		System.out.println("number of projects are " + numberOfProject + " number of events are " + numberOfEvents);
+		System.out.println("Old number of projects are " + oldNumberOfProject + " Old number of events are " + oldNumberOfEvent);
 		session.setAttribute("userID", userID);
 		session.setAttribute("userType", userType);
+		session.setAttribute("yearUser", year);
+		session.setAttribute("projectNum", numberOfProject);
+		session.setAttribute("eventNum", numberOfEvents);
+		session.setAttribute("oldProjectNum", oldNumberOfProject);
+		session.setAttribute("oldEventNum", oldNumberOfEvent);
 		session.setMaxInactiveInterval(600);//right now is 600 seconds since I need to do some testing and need the session to last longer
 	}
 
@@ -201,9 +245,10 @@ public class MyController {
 	 * Method to get the session
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
-	public HttpSession getSession(HttpServletRequest request) {
-		if(newConnection == null) startDBConnection();
+	public HttpSession getSession(HttpServletRequest request) throws SQLException {
+		checkDBConnection(); //check if connection is still ON
 		HttpSession session = request.getSession() ;
 		if(session!= null) {
 			return request.getSession();
@@ -221,7 +266,8 @@ public class MyController {
 	 */
 	@RequestMapping(value = { "/contactus" }, method = RequestMethod.GET)
 	public ModelAndView contactusPage(Model model, HttpServletRequest request) throws SQLException {
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
+		checkDBConnection(); //check if connection is still ON
 		int userID = sqlController.contacPage();
 		if(userID != 0) {
 			User admin = sqlController.getUser(userID);
@@ -252,10 +298,12 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(true,true);
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));//getting userID from the session
 		model.addAttribute("userType", user.getUserType());
+		model.addAttribute("studentYear", user.getYear());
+		model.addAttribute("actualYear", sqlController.getActualYear());
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You project list is empty");//I am passing a message to the error page
@@ -278,7 +326,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -306,11 +354,12 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping( value="/approveproject",method = RequestMethod.POST)
 	public ModelAndView approveprojectPage(@RequestParam(value="projectID") int projectID, 
-			Model model,HttpServletRequest request) { 
-		if(newConnection == null) startDBConnection();
+			Model model,HttpServletRequest request) throws SQLException { 
+		checkDBConnection(); //check if connection is still ON
 		if(projectID == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -387,7 +436,7 @@ public class MyController {
 	 */
 	@RequestMapping( "/newproject")
 	public ModelAndView newprojectPage(Model model, HttpServletRequest request) throws SQLException {  
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -414,7 +463,7 @@ public class MyController {
 	 */
 	@RequestMapping( "/newprojectnextyear")
 	public ModelAndView newprojectNextYearPage(Model model, HttpServletRequest request) throws SQLException {  
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -441,7 +490,7 @@ public class MyController {
 	 */
 	@RequestMapping( "/projectproposal")
 	public ModelAndView newprojectProposalPage(Model model, HttpServletRequest request) throws SQLException { 
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -451,7 +500,7 @@ public class MyController {
 		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
-		model.addAttribute("year",sqlController.getActualYear());
+		model.addAttribute("year",session.getAttribute("yearUser"));
 		return new ModelAndView("projectproposalpage","command",new Project());  
 	}
 
@@ -462,10 +511,11 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/sendProposal",method = RequestMethod.POST)  
 	public ModelAndView saveProposal(@ModelAttribute("project") Project project, 
-			Model model, HttpServletRequest request){  
+			Model model, HttpServletRequest request) throws SQLException{  
 		if(project == null) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -473,7 +523,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -528,7 +578,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		//I am populating here the view so the user can modify the project, if I need to add more data to the form I should
 		//update the constructor on project class
@@ -570,7 +620,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		sqlController.updateProject(projectID, false);
@@ -610,10 +660,11 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/saveEdit",method = RequestMethod.POST)  
 	public ModelAndView saveEditProject(@ModelAttribute("project") Project project, 
-			Model model, HttpServletRequest request){ 
+			Model model, HttpServletRequest request) throws SQLException{ 
 		if(project == null) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -621,7 +672,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//I been having some issues with the booleans visible and waiting, so I rather prefer to check on the DB
 		//And get the actual values than show data that is not right
 		Project projectUpdated = sqlController.getProject(project.getProjectID());
@@ -681,10 +732,11 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/save",method = RequestMethod.POST)  
 	public ModelAndView save(@ModelAttribute("project") Project project, 
-			Model model, HttpServletRequest request){  
+			Model model, HttpServletRequest request) throws SQLException{  
 		if(project == null) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -692,7 +744,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();   
+		checkDBConnection(); //check if connection is still ON   
 		//I need to use model to populate the projectPage, using the project object itself, does not works
 		model.addAttribute("year",project.getYear());
 		model.addAttribute("title",project.getTitle());
@@ -758,12 +810,13 @@ public class MyController {
 	 * @param title
 	 * @param model
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/search",method = RequestMethod.POST)  
 	public ModelAndView search(@RequestParam String searchValue, @RequestParam(required = false)
 	String lecturer, @RequestParam(required = false) String technology, @RequestParam(required = false) String title,
-	Model model, HttpServletRequest request){ 
-		if(newConnection == null) startDBConnection();
+	Model model, HttpServletRequest request) throws SQLException{ 
+		checkDBConnection(); //check if connection is still ON
 		//required false indicate that it is not compulsory to have it, so if I do not have, for example, a title, java will not complaint
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -801,11 +854,12 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/searchStudent",method = RequestMethod.POST)  
 	public ModelAndView searchStudent(@RequestParam String searchValue, @RequestParam(required = false)
-	String name, @RequestParam(required = false) String email,Model model, HttpServletRequest request){ 
-		if(newConnection == null) startDBConnection();
+	String name, @RequestParam(required = false) String email,Model model, HttpServletRequest request) throws SQLException{ 
+		checkDBConnection(); //check if connection is still ON
 		//required false indicate that it is not compulsory to have it, so if I do not have, for example, a title, java will not complaint
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -866,7 +920,7 @@ public class MyController {
 	 */
 	@RequestMapping( "/newchecklist")
 	public ModelAndView newchecklistPage(Model model, HttpServletRequest request) throws SQLException {  
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -885,11 +939,12 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/savechecklist",method = RequestMethod.POST)  
 	public ModelAndView saveChecklist(@ModelAttribute("checklist") CheckList checklist, 
-			Model model, HttpServletRequest request){  
-		if(newConnection == null) startDBConnection();
+			Model model, HttpServletRequest request) throws SQLException{  
+		checkDBConnection(); //check if connection is still ON
 		if(checklist == null) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -971,9 +1026,9 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
-		
+
 		/**
 		 * This second list will not be see by students or lecturers, 
 		 * but in order to save space I am using the same view, but based on the userType
@@ -996,7 +1051,7 @@ public class MyController {
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
 		return new ModelAndView("checklistListPage","checklistList",checklistList);  
 	}
-	
+
 	/**
 	 * Method to sort the event list before be displayed on the front end
 	 * This method it is used in /checklistlist
@@ -1033,7 +1088,7 @@ public class MyController {
 	@RequestMapping( value="/editChecklist",method = RequestMethod.POST)
 	public ModelAndView editChecklistPage(@RequestParam(value="checklistID") int checklistID, 
 			Model model, HttpServletRequest request) throws SQLException {
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if(checklistID == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -1088,7 +1143,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1141,7 +1196,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1179,10 +1234,11 @@ public class MyController {
 	 * @param model
 	 * @param request
 	 * @return
+	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.POST)  
 	public ModelAndView saveEditChecklist(@ModelAttribute("checklist") CheckList checklist, 
-			Model model, HttpServletRequest request){ 
+			Model model, HttpServletRequest request) throws SQLException{ 
 		if(checklist == null) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -1190,7 +1246,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1254,7 +1310,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1342,7 +1398,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1423,7 +1479,7 @@ public class MyController {
 	@RequestMapping( value="/removeinterest",method = RequestMethod.POST)
 	public ModelAndView removeInterest(@RequestParam(value="projectID") int projectID, 
 			Model model, User user, HttpServletRequest request) throws SQLException { 
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if(projectID == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -1480,7 +1536,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1541,7 +1597,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1592,7 +1648,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		//only student can access this menu
 		if((Integer)session.getAttribute("userType") != 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
@@ -1632,7 +1688,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1667,7 +1723,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1696,7 +1752,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1737,7 +1793,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1808,7 +1864,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == 2) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1879,7 +1935,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1908,7 +1964,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3){
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1954,7 +2010,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3){
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -1988,7 +2044,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -2032,7 +2088,7 @@ public class MyController {
 	public ModelAndView seeAllProjectsActualYear(Model model, HttpServletRequest request) throws SQLException { 
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -2056,7 +2112,7 @@ public class MyController {
 	public ModelAndView seeAllNextYearProjects(Model model, HttpServletRequest request) throws SQLException { 
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != 3) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
@@ -2080,7 +2136,13 @@ public class MyController {
 	public ModelAndView logout(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
-		if(newConnection == null) startDBConnection();
+		checkDBConnection(); //check if connection is still ON
+		//I am saving the actual count of the DB when user logout
+		//int numberOfProject = sqlController.numberOfProjectsInDB();
+		//int numberOfEvents = sqlController.numberOfEventsInDB();
+		sqlController.updateDBCount((Integer)session.getAttribute("userID"),
+				(Integer)session.getAttribute("projectNum")
+				,(Integer)session.getAttribute("eventNum"));
 		session.setAttribute("userID", null);//I am making myself sure that the session is destroyed and userID is null
 		session.invalidate();
 		return login(request);

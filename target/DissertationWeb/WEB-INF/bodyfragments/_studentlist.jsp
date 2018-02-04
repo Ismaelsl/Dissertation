@@ -56,14 +56,16 @@ function clearContents(element) {
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
+<div class="divjumper2">
 <c:forEach items="${studentList}" var="student">
 <c:set var = "username" value="${fn:replace(student.username, '\"', '\\'')}" />
 	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(username)}","${student.userID}","${fn:escapeXml(student.email)}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Name: ${fn:escapeXml(username)}<br /> <br /> email: ${fn:escapeXml(student.email)}<br />
-		 </div></a></b></div></div>
+		 </div></a></b></div>
 </c:forEach>
+</div>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
 	aria-labelledby="profileModal" aria-hidden="true">
@@ -97,6 +99,3 @@ to the view from the controller or the variable names from the class --%>
 		</div>
 	</div>
 </div>
-<form:form method="get" action="home">
-	<button class="btn btn-success" value=" ">Go back Home</button>
-</form:form>

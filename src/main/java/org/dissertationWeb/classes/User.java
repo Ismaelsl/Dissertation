@@ -11,6 +11,7 @@ public class User {
 	private String password;
 	private String email;
 	private int userType;
+	private int year;
 	
 	public User() {
 		
@@ -45,6 +46,12 @@ public class User {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public int getYear() {
+		return year;
+	}
+	public void setYear(int year) {
+		this.year = year;
 	}
 
 }
