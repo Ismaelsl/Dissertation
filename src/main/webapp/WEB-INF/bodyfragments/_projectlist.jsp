@@ -149,11 +149,12 @@ to the view from the controller or the variable names from the class --%>
 			<% if(projectNum > oldProjectNum){ 
 				//if I have more projects that the last time I logged in I will show a special message to let user know
 			%>
-				<b class="infomessage">New project!</b></div></a></b>
+				<b class="infomessage">New project!</b>
 			<% 
 			//after user see the new project, the value of old project changes, so the icon on the menu will dissapear
 				session.setAttribute("oldProjectNum", projectNum); 
 		   	} %>
+		   	</div></a></b>
 		</div> 
 	</c:if>
 	<%--If the project is not the last one, then show the project as usual --%>

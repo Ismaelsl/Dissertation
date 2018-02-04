@@ -48,7 +48,7 @@ public class MyController {
 	private Connection newConnection;
 
 	private SQLController sqlController;
-	
+
 
 	/**
 	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
@@ -60,7 +60,7 @@ public class MyController {
 		newConnection = connect.connect();
 		sqlController = new SQLController();//object to control all the SQL activities
 	}
-	
+
 	/**
 	 * Method that checks if the DB connection is still ON, if is not then will catch the exception and restart the connection to the DB
 	 */
@@ -74,7 +74,7 @@ public class MyController {
 			startDBConnection();
 		}
 	}
-	
+
 	/**
 	 * Method to keep connection to the DB alive
 	 * It would be better if the inactivity time will be higher in the configuration of the DB
@@ -229,8 +229,8 @@ public class MyController {
 		//But I think that this call are not that complex to the DB and will not take too many resources
 		int oldNumberOfProject = sqlController.getProjectCountDB(userID);
 		int oldNumberOfEvent = sqlController.getEventCountDB(userID);
-		System.out.println("number of projects are " + numberOfProject + " number of events are " + numberOfEvents);
-		System.out.println("Old number of projects are " + oldNumberOfProject + " Old number of events are " + oldNumberOfEvent);
+		//System.out.println("number of projects are " + numberOfProject + " number of events are " + numberOfEvents);
+		//System.out.println("Old number of projects are " + oldNumberOfProject + " Old number of events are " + oldNumberOfEvent);
 		session.setAttribute("userID", userID);
 		session.setAttribute("userType", userType);
 		session.setAttribute("yearUser", year);

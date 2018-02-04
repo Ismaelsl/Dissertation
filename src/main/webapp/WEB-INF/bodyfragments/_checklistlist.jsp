@@ -104,11 +104,12 @@ to the view from the controller or the variable names from the class --%>
 			<br />Place: ${fn:escapeXml(place)}<br /><br />
 			<%--If this is the last project on the list and we have new projects, then show that this is the new project --%>
 			<% if(eventNum > oldEventNum){ //if I have more event that the last time I logged in I will show special message%>
-				<b >New Event!</b></div></a></b>
+				<b >New Event!</b>
 			<% 
 				//after user see the new event, the value of old event changes, so the icon on the menu will dissapear
 				session.setAttribute("oldEventNum", eventNum); 
 		   		} %>
+		   		</div></a></b>
 		</div> 
  	</c:if>
  	<%--If the event is not the last one then show as usual --%>
