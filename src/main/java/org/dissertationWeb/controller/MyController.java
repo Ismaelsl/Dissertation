@@ -89,10 +89,10 @@ public class MyController {
 		sqlController.keepConnectionAlive();
 	}
 	/**
-	 * Automatic method that checks every 24 hours if we have new events in the schedule coming within one week
+	 * Automatic method that checks every Friday at 17:59:59 if we have new events in the schedule coming within one week
 	 * If we have any events coming, an email will be send to all the students if not, nothing will happens
 	 */
-	@Scheduled(fixedRate = 86400000 )//check every 24 hours
+	@Scheduled(cron = "59 59 17 * * FRI")
 	public void checkSchedule() {
 		checkDBConnection();
 		System.out.println("inside automatic method for schedule");
@@ -111,10 +111,10 @@ public class MyController {
 
 			for (CheckList c : checklistList) {
 				if(c != null) {
-					title = " Event title:" + title + c.getEventName() + " \n";
+					title = " Event title: " + title + c.getEventName() + " \n";
 					info = " Event description: " + info + c.getDescription() + " \n";
-					place = " Event place:" + place + c.getPlace() + " \n";
-					divider = divider + "*******************************************";
+					place = " Event place: " + place + c.getPlace() + " \n";
+					divider = "*******************************************";
 					finalTable = finalTable + title + info + place + divider + " \n";
 				}
 			}

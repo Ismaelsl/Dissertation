@@ -6,6 +6,18 @@
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
 var actualID;
+<%
+	//Area where I am getting the values from the session from the session
+	int eventNum = 0;
+	int oldEventNum = 0;
+	//Since menu will be load the first thing is normal that session still not exist 
+	//so I am catching the error and keep the webapp running
+	try {
+		eventNum = (Integer) session.getAttribute("eventNum");
+		oldEventNum = (Integer) session.getAttribute("oldEventNum");
+	} catch (java.lang.NullPointerException e) {
+	}
+%>
 function modalPopulator(date,eventname,place, checklistID, description) {
     $(".modal-eventname").html(eventname);
     $("#modal-date").html(date);
@@ -76,19 +88,40 @@ function menu() {
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <div class="divjumper2">
-<c:forEach items="${checklistList}" var="checklist">
-<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
-<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
-<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
-<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-
-	<div class="eventList"><b><a
-		onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
-		"${checklist.checkListID}", "${fn:escapeXml(description)}")'
-		href="#" class="test" id="userLoginButton" data-toggle="modal"
-		data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-		<br /> Date: ${checklist.date}<br />
-		<br />Place: ${fn:escapeXml(place)}</div></a></b></div>
+<c:forEach items="${checklistList}" var="checklist" varStatus="status">
+	<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
+	<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
+	<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+	<%--If the event is the last one then show the special message to let the user know which one is the newer one --%>
+	<c:if test="${status.last}">
+		<div class="eventList"><b><a
+			onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
+			"${checklist.checkListID}", "${fn:escapeXml(description)}")'
+			href="#" class="test" id="userLoginButton" data-toggle="modal"
+			data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
+			<br /> Date: ${checklist.date}<br />
+			<br />Place: ${fn:escapeXml(place)}<br /><br />
+			<%--If this is the last project on the list and we have new projects, then show that this is the new project --%>
+			<% if(eventNum > oldEventNum){ //if I have more event that the last time I logged in I will show special message%>
+				<b >New Event!</b>
+			<% 
+				//after user see the new event, the value of old event changes, so the icon on the menu will dissapear
+				session.setAttribute("oldEventNum", eventNum); 
+		   		} %>
+		   		</div></a></b>
+		</div> 
+ 	</c:if>
+ 	<%--If the event is not the last one then show as usual --%>
+	<c:if test="${not status.last}">
+		<div class="eventList"><b><a
+			onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
+			"${checklist.checkListID}", "${fn:escapeXml(description)}")'
+			href="#" class="test" id="userLoginButton" data-toggle="modal"
+			data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
+			<br /> Date: ${checklist.date}<br />
+			<br />Place: ${fn:escapeXml(place)}</div></a></b></div>
+	</c:if>
 </c:forEach>
 </div>
 <body onload='chooseMessage("${notapprovedsize}")'>

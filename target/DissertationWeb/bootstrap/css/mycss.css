@@ -49,6 +49,14 @@ ul li ul li a{
     margin-right: auto;
     margin-top:20px;
 }
+.imagestylesmall{
+	height: 25px;
+	width: 25px;
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+    float: right;
+}
 .logomenustyle{
 	height: 100px;
 	margin-left: auto;
@@ -249,3 +257,6 @@ border:none;
 	font-weight: bold;
 }
 /*End Home Page*/
+.infomessage{
+	color: #5E0259;
+}

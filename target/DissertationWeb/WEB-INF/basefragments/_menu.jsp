@@ -6,10 +6,20 @@
 
 		<ul class="nav navbar-nav" id="menu">  
 			<%
-			//Area where I am getting the userType from the session
+			//Area where I am getting the values from the sessionfrom the session
 				int user = 0;
+				int projectNum = 0;
+				int eventNum = 0;
+				int oldProjectNum = 0;
+				int oldEventNum = 0;
+				//Since menu will be load the first thing is normal that session still not exist 
+				//so I am catching the error and keep the webapp running
 				try {
 					user = (Integer) session.getAttribute("userType");
+					projectNum = (Integer) session.getAttribute("projectNum");
+					eventNum = (Integer) session.getAttribute("eventNum");
+					oldProjectNum = (Integer) session.getAttribute("oldProjectNum");
+					oldEventNum = (Integer) session.getAttribute("oldEventNum");
 				} catch (java.lang.NullPointerException e) {
 
 				}
@@ -65,13 +75,19 @@
 				<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 				onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectlist.png';" />
-				Project List</a>
+				<% if(projectNum > oldProjectNum){ //if I have more projects that the last time I loged in load plus green icon%>
+					<img class="imagestylesmall" alt="plusgreenicon" src='bootstrap/images/plusgreen.ico'/>
+				<%} %>
+				 Project List</a>
 			</li>
 			<li>
 				<a href="${pageContext.request.contextPath}/checklistlist">
 				<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 				onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
 				onmouseout="this.src='bootstrap/images/schedule.png';" />
+				<% if(eventNum > oldEventNum){ //if I have more projects that the last time I loged in load plus green icon%>
+					<img class="imagestylesmall" alt="neweventicon" src='bootstrap/images/newevent.png'/>
+				<%} %>
 				Schedule</a>
 			</li>
 			<%
@@ -103,6 +119,9 @@
 				<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 				onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectlist.png';" />
+				<% if(projectNum > oldProjectNum){ //if I have more projects that the last time I loged in load plus green icon%>
+					<img class="imagestylesmall" alt="plusgreenicon" src='bootstrap/images/plusgreen.ico'/>
+				<%} %>
 				Project List</a>
 			</li>
 			<li>
@@ -110,16 +129,23 @@
 				<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 				onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
 				onmouseout="this.src='bootstrap/images/schedule.png';" />
+				<% if(eventNum > oldEventNum){ //if I have more projects that the last time I loged in load plus green icon%>
+					<img class="imagestylesmall" alt="neweventicon" src='bootstrap/images/newevent.png'/>
+				<%} %>
 				Schedule</a>
 			</li>
 			<%
 				} else if (user == 2) { //student menu
 			%>
 			<li>
+				
 				<a href="${pageContext.request.contextPath}/projectlist">
 				<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 				onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
 				onmouseout="this.src='bootstrap/images/projectlist.png';" />
+				<% if(projectNum > oldProjectNum){ //if I have more projects that the last time I loged in load plus green icon%>
+					<img class="imagestylesmall" alt="plusgreenicon" src='bootstrap/images/plusgreen.ico'/>
+				<%} %>
 				Project List</a>
 			</li>
 			<li>
@@ -127,6 +153,9 @@
 				<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 				onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
 				onmouseout="this.src='bootstrap/images/schedule.png';" />
+				<% if(eventNum > oldEventNum){ //if I have more projects that the last time I loged in load plus green icon%>
+					<img class="imagestylesmall" alt="neweventicon" src='bootstrap/images/newevent.png'/>
+				<%} %>
 				Schedule</a>
 			</li>
 			<li><a

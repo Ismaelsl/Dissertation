@@ -163,7 +163,7 @@ public class SQLController {
 	public void keepConnectionAlive() {
 		String query = "SELECT date FROM checklist WHERE true";
 		Statement st;
-		System.out.println("ping!!");
+		//System.out.println("ping!!");
 		try {
 			st = newConnection.createStatement();
 			ResultSet rs = st.executeQuery(query);
@@ -213,7 +213,7 @@ public class SQLController {
 				LocalDate to = LocalDate.parse(stringToDate);
 
 				long days = ChronoUnit.DAYS.between(from, to);// method to check the distance in long between the dates
-				if(days <= 6 && days > 0){//If is between 6 to 0 that means that is within a week
+				if(days <= 7 && days > 2){//If is between 7 to 2 that means that is from next Monday to Friday
 					CheckList checklist = new CheckList();
 					if(rs.getBoolean("visible") == true) {//only if the checklist is visible will be show
 						checklist.setCheckListID(rs.getInt("checklistID"));

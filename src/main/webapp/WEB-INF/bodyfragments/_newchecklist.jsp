@@ -24,7 +24,7 @@
 			</tr>
 			<tr>
 				<td style="border:none;"><b>Description :</b></td>
-				<td style="border:none;"><form:input class="w3-input" path="description" required='true' size="55" /></td>
+				<td style="border:none;"><form:input class="w3-input" path="description" required='true' size="45" /></td>
 			</tr>
 			<tr>
 				<td colspan="2" style="border:none;">
