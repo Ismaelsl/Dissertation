@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 <div class="form_css">
-	<div class="w3-container w3-blue">	
+	<div class="w3-container w3-teal">	
 		<h1>New project for the actual year</h1>
 	</div>   
        <form:form method="post" action="save">    
@@ -21,8 +21,9 @@
           <td style="border:none;"><form:input class="w3-input" path="topics"  required='true'/></td>  
          </tr>  
           <tr>    
-          <td style="border:none;"><b>Compulsory Readings : </b></td>   
-          <td style="border:none;"><form:input class="w3-input" path="compulsoryReading"  required='true'/></td>  
+          <%--Compulsory readings is the only optional element in the form, the rest are necessary to create a project --%>
+          <td style="border:none;"><b>Compulsory Readings : (optional)</b></td>   
+          <td style="border:none;"><form:input class="w3-input" path="compulsoryReading" /></td>  
          </tr>  
           <tr>    
           <td style="border:none;"><b>Description : </b></td>   

@@ -67,6 +67,7 @@ to the view from the controller or the variable names from the class --%>
 </div>
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h1>Your personal list of projects that are not visible (by students) for ${nextYear}</h1>
+<h4>Click in any circle to see further details of the projects</h4>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />

@@ -41,7 +41,7 @@ function chooseMessage(listSize){
 	}
 }
  </script>
-<h1>Your personal list of projects for ${actualYear}</h1>
+<h1>Your personal list of projects for ${actualYear}</h1><h4>Click in any circle to see further details of the projects</h4>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -62,7 +62,7 @@ to the view from the controller or the variable names from the class --%>
 	</div>
 </c:forEach>
 </div>
-<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
+<div class="divjumper"><%--This div is here to force a new line between the first and second list--%>
 <h1>Your personal list of projects for ${nextYear}</h1>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />

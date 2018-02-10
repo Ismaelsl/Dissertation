@@ -84,9 +84,9 @@ ul li ul li a{
 #ulmenustyle{
     position: absolute;
     background-color: #f9f9f9;
-    min-width: 210px;
+    min-width: 250px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 15px 16px;
+    padding: 15px 36px;
     z-index: 1;
 	list-style-type: square;
 }
@@ -152,6 +152,11 @@ ul li ul li a{
 .divjumper2{
 	float:left;
 }
+.divjumper{
+	clear: both;
+	display: block;
+	float:left;
+}
 .divjumperbuttons{
 	 position: relative;
      min-height: 220px;
@@ -178,6 +183,24 @@ ul li ul li a{
 	white-space:pre;
 	font-size:smaller;
 	font-family:monospace;
+}
+#box2 {
+	width:250px;
+	height:150px;
+	margin:25px;
+	padding:10px;
+	background: #006938;
+	border-radius: 15px;
+	color: white;
+	float: left;
+	/*Box shadow*/
+	border: 1px solid;
+    padding: 10px;
+    box-shadow: 4px 4px #888888;
+    /*End of box shadow*/
+}
+#box2 p {
+ padding: 30px;
 }
 .buttonleft{
 	float: left;
@@ -224,7 +247,7 @@ border:none;
 }
 #boxevents {
 	width:250px;
-	height:220px;
+	height:270px;
 	margin:25px;
 	padding:10px;
 	background: #5e0259;
@@ -301,7 +324,11 @@ border:none;
   z-index: 10;  
   position: absolute;  
   left: 110;  
-  top: -37;  
+  top: -55;  
   border-radius: 10px;
 }
 /*End area of info pop when new event or project added after last login*/
+
+.importantmessage{
+	color: red;
+}

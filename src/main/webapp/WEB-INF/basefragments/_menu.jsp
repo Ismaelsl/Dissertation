@@ -75,14 +75,13 @@
 					<a href="${pageContext.request.contextPath}/projectlist">
 					<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 						onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
-						onmouseout="this.src='bootstrap/images/projectlist.png';" />
+						onmouseout="this.src='bootstrap/images/projectlist.png';" /> Project List</a>
 					<% if(projectNum > oldProjectNum){ //if I have more projects that the last time I loged in load plus green icon%>
 						<img class="imagestylesmall" id = "image" alt="newicon" src='bootstrap/images/new.png'/>
 						<div class="middle">
-							<span class="text">New project!</span>
+							<span class="text">New Projects!</span>
 						</div>
-					<%} %>
-				 	Project List</a>
+					<%} %>			 	
 				</div>
 			</li>
 			<li>
@@ -90,14 +89,13 @@
 					<a href="${pageContext.request.contextPath}/checklistlist">
 					<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 						onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
-						onmouseout="this.src='bootstrap/images/schedule.png';" />
+						onmouseout="this.src='bootstrap/images/schedule.png';" /> Schedule</a>
 					<% if(eventNum > oldEventNum){ //if I have more projects that the last time I loged in load plus green icon%>
 						<img class="imagestylesmall" id = "image" alt="newicon" src='bootstrap/images/new.png'/>
 							<div class="middle">
-								<span class="text">New event!</span>
+								<span class="text">New Events!</span>
 							</div>
-						<%} %>
-					Schedule</a>
+						<%} %>				
 				</div>
 			</li>
 			<%
@@ -129,14 +127,13 @@
 					<a href="${pageContext.request.contextPath}/projectlist">
 					<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 						onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
-						onmouseout="this.src='bootstrap/images/projectlist.png';" />
+						onmouseout="this.src='bootstrap/images/projectlist.png';" /> Project List</a>
 					<% if(projectNum > oldProjectNum){ //if I have more projects that the last time I loged in load plus green icon%>
 						<img class="imagestylesmall" id = "image" alt="newicon" src='bootstrap/images/new.png'/>
 						<div class="middle">
-							<span class="text">New project!</span>
+							<span class="text">New Projects!</span>
 						</div>
-					<%} %>
-				 	Project List</a>
+					<%} %>		 	
 				</div>
 			</li>
 			<li>
@@ -144,14 +141,13 @@
 					<a href="${pageContext.request.contextPath}/checklistlist">
 					<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 						onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
-						onmouseout="this.src='bootstrap/images/schedule.png';" />
+						onmouseout="this.src='bootstrap/images/schedule.png';" /> Schedule</a>
 					<% if(eventNum > oldEventNum){ //if I have more projects that the last time I loged in load plus green icon%>
 						<img class="imagestylesmall" id = "image" alt="newicon" src='bootstrap/images/new.png'/>
 							<div class="middle">
-								<span class="text">New event!</span>
+								<span class="text">New Events!</span>
 							</div>
-						<%} %>
-					Schedule</a>
+						<%} %>					
 				</div>
 			</li>
 			<%
@@ -162,14 +158,13 @@
 					<a href="${pageContext.request.contextPath}/projectlist">
 					<img class="imagestyle" alt="projectlisticon" src='bootstrap/images/projectlist.png' 
 						onmouseover="this.src='bootstrap/images/projectlistblack.png';" 
-						onmouseout="this.src='bootstrap/images/projectlist.png';" />
+						onmouseout="this.src='bootstrap/images/projectlist.png';" /> Project List</a>
 					<% if(projectNum > oldProjectNum){ //if I have more projects that the last time I loged in load plus green icon%>
 						<img class="imagestylesmall" id = "image" alt="newicon" src='bootstrap/images/new.png'/>
 						<div class="middle">
-							<span class="text">New project!</span>
+							<span class="text">New Projects!</span>
 						</div>
-					<%} %>
-				 	Project List</a>
+					<%} %>			 	
 				</div>
 			</li>
 			<li>
@@ -177,14 +172,13 @@
 					<a href="${pageContext.request.contextPath}/checklistlist">
 					<img class="imagestyle" alt="scheduleicon" src='bootstrap/images/schedule.png' 
 						onmouseover="this.src='bootstrap/images/scheduleblack.png';" 
-						onmouseout="this.src='bootstrap/images/schedule.png';" />
+						onmouseout="this.src='bootstrap/images/schedule.png';" /> Schedule</a>
 					<% if(eventNum > oldEventNum){ //if I have more projects that the last time I loged in load plus green icon%>
 						<img class="imagestylesmall" id = "image" alt="newicon" src='bootstrap/images/new.png'/>
 							<div class="middle">
-								<span class="text">New event!</span>
+								<span class="text">New Events!</span>
 							</div>
-						<%} %>
-					Schedule</a>
+						<%} %>					
 				</div>
 			</li>
 			<li><a

@@ -84,9 +84,9 @@ ul li ul li a{
 #ulmenustyle{
     position: absolute;
     background-color: #f9f9f9;
-    min-width: 210px;
+    min-width: 250px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 15px 16px;
+    padding: 15px 36px;
     z-index: 1;
 	list-style-type: square;
 }
@@ -95,7 +95,7 @@ ul li ul li a{
 /*Header area*/
 .headerdiv{
 	background-color: white;
-	padding-left: 2.5cm;
+	padding-left: 3cm;
 	align: center;
 }
 .headerh1{
@@ -123,8 +123,8 @@ ul li ul li a{
 
 /*Body area*/
 .bodydiv{
-	height: 80%;
-	padding-left: 5cm;
+	height: 100%;
+	padding-left: 5.5cm;
 	
 }
 /*End body area*/
@@ -150,6 +150,11 @@ ul li ul li a{
     outline:none;
 }
 .divjumper2{
+	float:left;
+}
+.divjumper{
+	clear: both;
+	display: block;
 	float:left;
 }
 .divjumperbuttons{
@@ -178,6 +183,24 @@ ul li ul li a{
 	white-space:pre;
 	font-size:smaller;
 	font-family:monospace;
+}
+#box2 {
+	width:250px;
+	height:150px;
+	margin:25px;
+	padding:10px;
+	background: #006938;
+	border-radius: 15px;
+	color: white;
+	float: left;
+	/*Box shadow*/
+	border: 1px solid;
+    padding: 10px;
+    box-shadow: 4px 4px #888888;
+    /*End of box shadow*/
+}
+#box2 p {
+ padding: 30px;
 }
 .buttonleft{
 	float: left;
@@ -224,7 +247,7 @@ border:none;
 }
 #boxevents {
 	width:250px;
-	height:220px;
+	height:270px;
 	margin:25px;
 	padding:10px;
 	background: #5e0259;
@@ -259,4 +282,53 @@ border:none;
 /*End Home Page*/
 .infomessage{
 	color: #5E0259;
+}
+
+/*Area of info pop when new event or project added after last login*/
+#image {
+  opacity: 1;
+  display: block;
+  transition: .5s ease;
+  backface-visibility: hidden;
+  height: 25px;
+  width: 25px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+}
+
+.middle {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+    
+}
+
+.container:hover .image {
+  opacity: 0.3;
+}
+
+.container:hover .middle {
+  opacity: 1;
+}
+
+.text {
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  padding: 5px 5px;
+  z-index: 10;  
+  position: absolute;  
+  left: 110;  
+  top: -55;  
+  border-radius: 10px;
+}
+/*End area of info pop when new event or project added after last login*/
+
+.importantmessage{
+	color: red;
 }

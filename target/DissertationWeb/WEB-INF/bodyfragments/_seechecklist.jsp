@@ -5,11 +5,16 @@
 <div class="form_css">	
 <h1>Event: ${eventname}</h1>
 <div class="w3-ul w3-card-4">
-<b>Date:</b> ${date}
+<b>Date: </b> ${date}
 <br>
-<b>Place:</b> ${place}
+<b>Place: </b> ${place}
 <br>
-<b>Description:</b> ${description}</div>
+<b>Description: </b> ${description}
+<br>
+<b>Starting Time: </b> ${hour}
+<br>
+<b>Ending Time: </b> ${endhour}
+</div>
 <br>
 <form:form method="get" action="checklistlist">
 	<button class="btn btn-success" value=" ">Go back to Schedule</button>

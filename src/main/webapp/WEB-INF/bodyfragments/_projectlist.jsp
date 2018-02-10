@@ -125,7 +125,7 @@ function clearContents(element) {
 			<button onclick="getSearchValue();" id="search-id"
 					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
 </form:form>
-<h1>Project List</h1>
+<h1>Project List</h1><h4>Click in any circle to see further details of the projects</h4>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -135,30 +135,7 @@ to the view from the controller or the variable names from the class --%>
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
-	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<%--If the element is the last on the loop enter there and show an special message to let the user know which one is the new project --%>
-	<c:if test="${status.last}">   
-		<div class="projectList"><b><a
-			onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
-  			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
-			href="#" class="test" id="userLoginButton" data-toggle="modal"
-			data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
-			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
-			<br />Lecturer: ${project.user.username}<br /><br />
-			<%--If this is the last project on the list and we have new projects, then show that this is the new project --%>
-			<% if(projectNum > oldProjectNum){ 
-				//if I have more projects that the last time I logged in I will show a special message to let user know
-			%>
-				<b class="infomessage">New project!</b>
-			<% 
-			//after user see the new project, the value of old project changes, so the icon on the menu will dissapear
-				session.setAttribute("oldProjectNum", projectNum); 
-		   	} %>
-		   	</div></a></b>
-		</div> 
-	</c:if>
-	<%--If the project is not the last one, then show the project as usual --%>
-	<c:if test="${not status.last}">  
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />  
 		<div class="projectList"><b><a
 			onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
   			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
@@ -167,8 +144,31 @@ to the view from the controller or the variable names from the class --%>
 			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
 			<br />Lecturer: ${project.user.username}</div></a></b>
 		</div>	
-	</c:if>
 </c:forEach>
+<c:if test="${not empty newProjectList}">
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
+<h2>New Projects!</h2>
+<c:forEach items="${newProjectList}" var="project" varStatus="status">
+	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
+	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
+	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />  
+		<div class="projectList"><b><a
+			onclick='modalPopulator("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${project.projectID}",
+  			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
+			href="#" class="test" id="userLoginButton" data-toggle="modal"
+			data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
+			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+			<br />Lecturer: ${project.user.username}</div></a></b>
+		</div>	
+		<% if(projectNum > oldProjectNum){ 
+				//if I have more projects that the last time I logged in I will update the value of old project num to project num
+				//so in this way the special icon and message in the menu will dissapear
+				session.setAttribute("oldProjectNum", projectNum); 
+		   	} %>
+</c:forEach>
+</div>
+</c:if>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
 	aria-labelledby="profileModal" aria-hidden="true">

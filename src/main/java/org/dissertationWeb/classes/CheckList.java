@@ -19,6 +19,8 @@ public class CheckList {
 	//special spring notation that is telling to the view (JSP) how to format the date from the DB on the view
 	@DateTimeFormat(pattern="dd.MM.yyyy")
 	private String date;
+	private String hour;
+	private String endHour;
 	private String eventName;
 	private String place;
 	private String description;
@@ -34,13 +36,15 @@ public class CheckList {
 		this.place = place;
 		this.visible = true;
 	}
-	public CheckList(int id, String date, String eventName, String place, String description) {
+	public CheckList(int id, String date, String eventName, String place, String description, String hour, String endHour) {
 		this.checkListID = id;
 		this.date = date;
 		this.eventName = eventName;
 		this.place = place;
 		this.description = description;
 		this.visible = true;
+		this.hour = hour;
+		this.endHour = endHour;
 	}
 	
 	public String getDescription() {
@@ -67,6 +71,18 @@ public class CheckList {
 	}
 	public void setDate(String date) {
 		this.date = date;
+	}
+	public String getHour() {
+		return this.hour;
+	}
+	public void setHour(String hour) {
+		this.hour = hour;
+	}
+	public String getEndHour() {
+		return this.endHour;
+	}
+	public void setEndHour(String hour) {
+		this.endHour = hour;
 	}
 	public String getEventName() {
 		return eventName;
@@ -98,6 +114,8 @@ public class CheckList {
 				checklist.setEventName(rs.getString("eventname"));
 				checklist.setPlace(rs.getString("place"));
 				checklist.setDescription(rs.getString("description"));
+				checklist.setHour(rs.getString("hour"));
+				checklist.setEndHour(rs.getString("endhour"));
 			}
 
 		} catch (SQLException e) {

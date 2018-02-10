@@ -54,7 +54,13 @@
    <definition name="projectRemovedPage" extends="base.definition">  
        <put-attribute name="title" value="Remove Project" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectremoved.jsp" />  
-   </definition>     
+   </definition>   
+   
+   <!-- remove event Page -->
+   <definition name="eventRemovedPage" extends="base.definition">  
+       <put-attribute name="title" value="Remove Event" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_eventremoved.jsp" />  
+   </definition>    
     
    <!-- see one project Page -->
    <definition name="projectPage" extends="base.definition">  

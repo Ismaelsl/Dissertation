@@ -3,6 +3,7 @@ package org.dissertationWeb.controller;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,6 +73,38 @@ public class MyController {
 			startDBConnection();
 		} catch (SQLException e) {
 			startDBConnection();
+		}
+	}
+
+	/**
+	 * Method that is removing the element that share from one list with another
+	 * @param checklistList
+	 * @param newListList
+	 */
+	public void removeDuplicateFromEventList(List<CheckList> list1, List<CheckList> list2) {
+		for(int i = 0; i < list1.size(); i++) {
+			for(int j = 0; j < list2.size(); j++) {
+				if(list1.get(i).getCheckListID() == list2.get(j).getCheckListID()) {                 
+					list1.remove(list1.get(i));	
+					i--;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Method that is removing the element that share from one list with another
+	 * @param checklistList
+	 * @param newListList
+	 */
+	public void removeDuplicateFromProjectList(List<Project> list1, List<Project> list2) {
+		for(int i = 0; i < list1.size(); i++) {
+			for(int j = 0; j < list2.size(); j++) {
+				if(list1.get(i).getProjectID() == list2.get(j).getProjectID()) {                 
+					list1.remove(list1.get(i));	
+					i--;
+				}
+			}
 		}
 	}
 
@@ -187,7 +220,8 @@ public class MyController {
 		if(userID != 0) {//return userID 0 if fails that is why I check if userID is not 0
 			User userLogged = sqlController.getUser(userID);
 			createSession(request,userLogged.getUserID(), userLogged.getUserType(), userLogged.getYear());//createSession method
-			model.addAttribute("welcomeMessage", "Welcome back " + userLogged.getUsername());
+			model.addAttribute("welcomeMessage", "Welcome back: ");
+			model.addAttribute("username", userLogged.getUsername());
 			return new ModelAndView("homePage");
 		}else {
 			model.addAttribute("message", "You are not logged in, please go to login page and enter your credentials");
@@ -276,8 +310,9 @@ public class MyController {
 			model.addAttribute("department", "Computer Science");
 			model.addAttribute("email", admin.getEmail());
 			return new ModelAndView("contactusPage");
-		}else { //if retrieving the data fail, then an errorPage it is load
-			model.addAttribute("message", "Error retrieving information from the DB, please try again later");//I am passing a message to the error page
+		}else { //if retrieving the data fail, then an error page it is load
+			//I am passing a message to the error page
+			model.addAttribute("message", "Error retrieving information from the DB, please try again later");
 			return new ModelAndView("errorPage");
 		}
 	}
@@ -299,11 +334,19 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
+		int projectNum = (Integer)session.getAttribute("projectNum");
+		int oldProjectNum = (Integer)session.getAttribute("oldProjectNum");
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(true,true);
+		List<Project> newProjectList = sqlController.getProjectListVisibleAnDApprove(true,true,oldProjectNum,projectNum);
+		//I am only interested to do this if I have elements, if not then ignore the sorting, no point
+		if(!newProjectList.isEmpty()) {
+			removeDuplicateFromProjectList(projectList, newProjectList);
+		}
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));//getting userID from the session
 		model.addAttribute("userType", user.getUserType());
 		model.addAttribute("studentYear", user.getYear());
 		model.addAttribute("actualYear", sqlController.getActualYear());
+		model.addAttribute("newProjectList", newProjectList);
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(projectList.isEmpty()) {
 			model.addAttribute("message", "You project list is empty");//I am passing a message to the error page
@@ -404,7 +447,8 @@ public class MyController {
 				return new ModelAndView("projectPage","project",model);//will display object data 
 			}else {
 				model.addAttribute("message", "An error happens while trying to send the automatic email");
-				return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view
+				//I am using the errorPage since I only want to show the message on the screen without create a new view
+				return new ModelAndView("errorPage");
 			}			
 		}else {
 			model.addAttribute("message", "An error happens while trying to approve your project");
@@ -636,6 +680,10 @@ public class MyController {
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		String lecturerEmail = user.getEmail();
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Project removed from " + user.getUsername(),message);
+		model.addAttribute("mainmessage", "You make the project " + project.getTitle() + 
+				" not visible to students ");
+		model.addAttribute("secondmessage", " If you want to make the project visible again "
+				+ "or edit it, go to your not visible project list");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -741,6 +789,9 @@ public class MyController {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
 		}
+		//I am allowing the compulsory reading to be optional, if the lecturer do not add any reading then I will update the reading to 
+		//no compulsory readings
+		if(project.getCompulsoryReading().isEmpty()) project.setCompulsoryReading("No compulsory readings");
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -963,12 +1014,29 @@ public class MyController {
 			model.addAttribute("message", "Date cannot be less than today");
 			return new ModelAndView("checklistPage","command",checklist);
 		}
+		/**
+		 * If ending time is less than starting time, then an error will be show on screen
+		 */
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		try {
+			Date d1 = sdf.parse(checklist.getHour());
+			Date d2 = sdf.parse(checklist.getEndHour());
+			long elapsed = d2.getTime() - d1.getTime(); 
+			if(elapsed < 0) {//If elapsed is negative that mean that the end time is before starting time
+				model.addAttribute("message", "The ending hour cannot be less than the starting hour");
+				return new ModelAndView("checklistPage","command",checklist);
+			}
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
 		switch(sqlController.saveCheckList(checklist)) {
 		case 0 :
 			model.addAttribute("date", checklist.getDate());
 			model.addAttribute("eventname", checklist.getEventName());
 			model.addAttribute("place", checklist.getPlace());
 			model.addAttribute("description", checklist.getDescription());
+			model.addAttribute("hour", checklist.getHour());
+			model.addAttribute("endhour", checklist.getEndHour());
 			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			try {
 				int checkListID = sqlController.getLastChecklistID();
@@ -987,7 +1055,8 @@ public class MyController {
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "A new element in the scheduled had been added";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New element in the scheduled added for " + user.getUsername(),message);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
+					"New element in the scheduled added for " + user.getUsername(),message);
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
 		case 1 : 
 			model.addAttribute("message", "That event already exist in the DB");
@@ -1027,8 +1096,15 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
+		int eventNum = (Integer) session.getAttribute("eventNum");
+		int oldEventNum = (Integer) session.getAttribute("oldEventNum");
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
-
+		List<CheckList> newEventList = sqlController.getCheckListList(true, oldEventNum, eventNum);
+		//I am only interested to do this if I have elements, if not then ignore the sorting, no point
+		if(!newEventList.isEmpty()) {
+			removeDuplicateFromEventList(checklistList, newEventList);
+			model.addAttribute("newEventList", newEventList);
+		}
 		/**
 		 * This second list will not be see by students or lecturers, 
 		 * but in order to save space I am using the same view, but based on the userType
@@ -1047,6 +1123,7 @@ public class MyController {
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("userType", (Integer)session.getAttribute("userType"));
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
+
 		//I want to pass the size since based on the size the view will be different (if size is 0 do not load the list for not approved)
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
 		return new ModelAndView("checklistListPage","checklistList",checklistList);  
@@ -1107,7 +1184,8 @@ public class MyController {
 		model.addAttribute("checklistID", checklistID); //passing checklistID to the frontend
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		return new ModelAndView("editchecklistPage","command",new CheckList(checkList.getCheckListID(), checkList.getDate(),
-				checkList.getEventName(), checkList.getPlace(), checkList.getDescription()));  
+				checkList.getEventName(), checkList.getPlace(), checkList.getDescription(), 
+				checkList.getHour(), checkList.getEndHour()));  
 	}
 
 	/**
@@ -1160,6 +1238,10 @@ public class MyController {
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
 				"An element in the scheduled had been removed for " + user.getUsername(),message);
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
+		model.addAttribute("mainmessage", "You make the event " + checkList.getEventName() + 
+				" not visible to students ");
+		model.addAttribute("secondmessage", " If you want to make the event visible again "
+				+ "or edit it, go to the schedule and check on the bottom on the list");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1254,7 +1336,8 @@ public class MyController {
 		model.addAttribute("date", checklist.getDate());
 		model.addAttribute("eventname", checklist.getEventName());
 		model.addAttribute("place", checklist.getPlace());
-		model.addAttribute("description", checklist.getDescription());
+		model.addAttribute("hour", checklist.getHour());
+		model.addAttribute("endhour", checklist.getEndHour());
 		switch(sqlController.saveEditCheckList(checklist)) {
 		case 0 :
 			ApplicationContext context =
@@ -1272,7 +1355,8 @@ public class MyController {
 			return new ModelAndView("errorPage");
 
 		case 2 : 
-			model.addAttribute("message", "Error happens while saving your edit of the event, if this error continues please contact the system administrator");
+			model.addAttribute("message", "Error happens while saving your edit of the event, "
+					+ "if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
 		model.addAttribute("message", "An error happened saving your edit of the event, please try again later");
@@ -1498,9 +1582,12 @@ public class MyController {
 		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
 		String messageLecturer = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","You just remove interest from a project",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","One of your request for project had been cancel",messageStudent);
+		model.addAttribute("mainmessage", "The interest in " + project.getTitle() + 
+				" had been removed succesfully");
+		model.addAttribute("secondmessage", " Automatic email been sended to student and to yourself");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1559,6 +1646,9 @@ public class MyController {
 		//Another message it is send to the student
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Your final interest in project had been removed",messageStudent);
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
+		model.addAttribute("mainmessage", "The final project in " + project.getTitle() + 
+				" had been removed succesfully ");
+		model.addAttribute("secondmessage", " Automatic email been sended to student and to yourself");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1614,10 +1704,13 @@ public class MyController {
 		String messageLecturer = "Student " + student.getUsername() + " had cancel the interest in your project " + project.getTitle();
 		String messageStudent = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","A student remove interest in one of your projects",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","You remove interest in a project",messageStudent);
 		//I am using same page since the final message for project or checklist is the same
+		model.addAttribute("mainmessage", "The interest in " + project.getTitle() + 
+				" had been removed succesfully ");
+		model.addAttribute("secondmessage", " Automatic email been sended to the lecturer and to yourself");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1657,7 +1750,8 @@ public class MyController {
 		//If the student already have a final project approved, then we will only show that project to him
 		Project project = sqlController.getFinalProjectStudent((Integer)session.getAttribute("userID"));
 		if(project != null) {
-			//only if the project if visible this will be show, I am taking consideration of a project that had been approved and then remove interest by coordinator
+			//only if the project if visible this will be show, I am taking consideration of a project 
+			//that had been approved and then remove interest by coordinator
 			if(project.isVisible()) {
 				List<Project> projectList = new ArrayList<Project>();
 				projectList.add(project);
@@ -1896,7 +1990,8 @@ public class MyController {
 			User lecturer = sqlController.getUser(project.getlecturerID());
 			String lecturerEmail = lecturer.getEmail();
 
-			String messageStudent = "Congratulations " + student.getUsername() + " your request for the project " + project.getTitle() + " had been approved!";
+			String messageStudent = "Congratulations " + student.getUsername() + " your request for the project " + 
+					project.getTitle() + " had been approved!";
 			String messageLecturer = "You approved the interest in the project " + project.getTitle() + "for student " + student.getUsername();
 			//One message is for the lecturer
 			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageLecturer);
@@ -2070,8 +2165,9 @@ public class MyController {
 	 * @return
 	 */
 	@RequestMapping(value="/seeprojectbyyear",method = RequestMethod.GET)  
-	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException {  
-		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException { 
+		//I am using the errorPage since I only want to show the message on the screen without create a new view
+		return new ModelAndView("homePage"); 
 	}
 
 	/**
@@ -2137,14 +2233,17 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		checkDBConnection(); //check if connection is still ON
-		//I am saving the actual count of the DB when user logout
-		//int numberOfProject = sqlController.numberOfProjectsInDB();
-		//int numberOfEvents = sqlController.numberOfEventsInDB();
-		sqlController.updateDBCount((Integer)session.getAttribute("userID"),
-				(Integer)session.getAttribute("projectNum")
-				,(Integer)session.getAttribute("eventNum"));
-		session.setAttribute("userID", null);//I am making myself sure that the session is destroyed and userID is null
-		session.invalidate();
+		//I am saving the old count of the DB when user logout, so if the old had been updated that means that the user saw the new project
+		//or event, if it has not, then the user has not see the new project or event and the message of new will be show again the next
+		//time that the user login
+		if(sqlController != null) {
+			sqlController.updateDBCount((Integer)session.getAttribute("userID"),
+					(Integer)session.getAttribute("oldProjectNum")
+					,(Integer)session.getAttribute("oldEventNum"));
+			//I am making myself sure that the userID is null so it will fail if I try to access something else after logout
+			session.setAttribute("userID", null);
+			session.invalidate();
+		}
 		return login(request);
 	}
 }

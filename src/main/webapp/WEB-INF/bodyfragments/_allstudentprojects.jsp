@@ -42,7 +42,7 @@ function getProjectID() {
 to the view from the controller or the variable names from the class --%>
 <%--I am using and if statement to check if the student have or not a final project, if student have one
 then this piece of code will be load--%>
-<h1>Final Project</h1>
+<h1>Final Project</h1><h4>Click in any circle to see further details of the projects</h4>
 <c:if test="${noFinalProject}">
 	<h2>
 		This is the final project chosen by the student ${finalProject.student.username}
@@ -55,7 +55,7 @@ then this piece of code will be load--%>
 	<div class="projectList"><b><a
 		onclick='modalPopulatorNotVisible("${fn:escapeXml(title)}","${fn:escapeXml(description)}","${finalProject.projectID}",
   "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${finalProject.user.username}","${finalProject.user.email}", 
-  "${finalProject.user.userID}")'
+  "${finalProject.student.userID}")'<%-- I am passing the studentID since I need to keep this ID to know which final project remove --%>
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Title: ${finalProject.title}<br /> 
 		<br /> Student:  ${finalProject.student.username}<br />
@@ -67,7 +67,7 @@ of code--%>
 	<h2>
 		<div>This student has not final project</div>
 	</h2>
-	</c:if>
+</c:if>
 <!-- User login Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" role="dialog"
 	aria-labelledby="profileModal" aria-hidden="true">
@@ -106,7 +106,7 @@ of code--%>
 					<button onclick="getProjectID();" id="modal-removeinterest-id"
 						name="projectID" class="btn btn-danger" value=" ">Remove
 						Interest</button>
-					<form:hidden id="userIDRemove" path="userID" value="" />
+					<form:hidden id="userIDRemove" path="userID" value="${studentID }" />
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>

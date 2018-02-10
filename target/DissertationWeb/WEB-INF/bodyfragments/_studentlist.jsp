@@ -52,7 +52,7 @@ function clearContents(element) {
 	
 
 </form:form>
-<h1>Students list</h1>
+<h1>Students list</h1><h4>Click in any circle to see further details of the student</h4>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">

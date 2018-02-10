@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>Schedule of events for CSCU9Z7</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -10,6 +9,7 @@ var actualID;
 	//Area where I am getting the values from the session from the session
 	int eventNum = 0;
 	int oldEventNum = 0;
+	int loopCounter = 1;
 	//Since menu will be load the first thing is normal that session still not exist 
 	//so I am catching the error and keep the webapp running
 	try {
@@ -18,9 +18,11 @@ var actualID;
 	} catch (java.lang.NullPointerException e) {
 	}
 %>
-function modalPopulator(date,eventname,place, checklistID, description) {
+function modalPopulator(date,eventname,place, checklistID, description, hour, endhour) {
     $(".modal-eventname").html(eventname);
     $("#modal-date").html(date);
+    $("#modal-hour").html(hour);
+    $("#modal-endhour").html(endhour);
     $("#modal-place").html(place);
     $("#modal-description").html(description);
      actualID = checklistID;
@@ -29,9 +31,11 @@ function modalPopulator(date,eventname,place, checklistID, description) {
     visibletdiv.style.display   = 'block';
     novisiblediv.style.display   = 'none';
 }
-function modalPopulatorNoVisible(date,eventname,place, checklistID, description) {
+function modalPopulatorNoVisible(date,eventname,place, checklistID, description, hour, endhour) {
     $(".modal-eventname").html(eventname);
     $("#modal-date").html(date);
+    $("#modal-hour").html(hour);
+    $("#modal-endhour").html(endhour);
     $("#modal-place").html(place);
     $("#modal-description").html(description);
      actualID = checklistID;
@@ -83,52 +87,63 @@ function menu() {
    
 }
  </script>
+ <h1>Schedule of events for CSCU9Z7 (In date order)</h1><h4>Click in any circle to see further details of the events</h4>
 <h1 class="errormessage">${message}</h1><%--An error message to be show when need it --%>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <div class="divjumper2">
+<%-- varStatus is an special JSP feature that is like a pointer, which have .last to tell you when you are in the last element of the loop --%>
 <c:forEach items="${checklistList}" var="checklist" varStatus="status">
 	<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
 	<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
 	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
-	<%--If the event is the last one then show the special message to let the user know which one is the newer one --%>
-	<c:if test="${status.last}">
 		<div class="eventList"><b><a
 			onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
-			"${checklist.checkListID}", "${fn:escapeXml(description)}")'
+			"${checklist.checkListID}", "${fn:escapeXml(description)}", "${checklist.hour}","${checklist.endHour}")'
 			href="#" class="test" id="userLoginButton" data-toggle="modal"
-			data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-			<br /> Date: ${checklist.date}<br />
-			<br />Place: ${fn:escapeXml(place)}<br /><br />
-			<%--If this is the last project on the list and we have new projects, then show that this is the new project --%>
-			<% if(eventNum > oldEventNum){ //if I have more event that the last time I logged in I will show special message%>
-				<b >New Event!</b>
-			<% 
-				//after user see the new event, the value of old event changes, so the icon on the menu will dissapear
-				session.setAttribute("oldEventNum", eventNum); 
-		   		} %>
-		   		</div></a></b>
-		</div> 
- 	</c:if>
- 	<%--If the event is not the last one then show as usual --%>
-	<c:if test="${not status.last}">
-		<div class="eventList"><b><a
-			onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
-			"${checklist.checkListID}", "${fn:escapeXml(description)}")'
-			href="#" class="test" id="userLoginButton" data-toggle="modal"
-			data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-			<br /> Date: ${checklist.date}<br />
-			<br />Place: ${fn:escapeXml(place)}</div></a></b></div>
-	</c:if>
+			data-target="#userModal">
+			<div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
+				<br /> Date: ${checklist.date}<br />
+				<br />Place: ${fn:escapeXml(place)}<br />
+				<br />Starting time: ${checklist.hour}
+				<br />Ending time: ${checklist.endHour}
+			</div></a></b>
+		</div>
 </c:forEach>
 </div>
+<c:if test="${not empty newEventList}">
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
+<h2>New Events!</h2>
+	<c:forEach items="${newEventList}" var="checklist" varStatus="status">
+	<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
+	<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
+	<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
+	<c:set var = "readings" value="${fn:replace(project.compulsoryReading, '\"', '\\'')}" />
+		<div class="eventList"><b><a
+			onclick='modalPopulator("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
+			"${checklist.checkListID}", "${fn:escapeXml(description)}", "${checklist.hour}","${checklist.endHour}")'
+			href="#" class="test" id="userLoginButton" data-toggle="modal"
+			data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
+				<br /> Date: ${checklist.date}<br />
+				<br />Place: ${fn:escapeXml(place)}<br />
+				<br />Starting time: ${checklist.hour}
+				<br />Ending time: ${checklist.endHour}
+			</div></a></b>
+			<% if(eventNum > oldEventNum){ 
+				//if I have more events that the last time I logged in I will update the value of old event to event num
+				//so in this way the special icon and message in the menu will dissapear
+				session.setAttribute("oldEventNum", eventNum); 
+		   		} %>
+</c:forEach>
+</div>
+</c:if>
+
+<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <body onload='chooseMessage("${notapprovedsize}")'>
 	<h2 id="secondList"></h2>
 </body>
-
-<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <div id="secondListProjects">
 <c:forEach items="${checklistListNotApproved}" var="checklist">
 <c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
@@ -137,11 +152,14 @@ to the view from the controller or the variable names from the class --%>
 
 	<div class="eventList"><b><a
 		onclick='modalPopulatorNoVisible("${checklist.date}","${fn:escapeXml(title)}","${fn:escapeXml(place)}",
-		"${checklist.checkListID}", "${fn:escapeXml(description)}")'
+		"${checklist.checkListID}", "${fn:escapeXml(description)}","${checklist.hour}","${checklist.endHour}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-		<br /> Date: ${checklist.date}<br />
-		<br />Place: ${fn:escapeXml(place)}</div></a></b></div>
+				<br /> Date: ${checklist.date}<br />
+				<br />Place: ${fn:escapeXml(place)}<br />
+				<br />Starting time: ${checklist.hour}
+				<br />Ending time: ${checklist.endHour}
+			</div></a></b>
 </c:forEach>
 </div>
 </div>
@@ -160,6 +178,10 @@ to the view from the controller or the variable names from the class --%>
 					<div class="row">
 						<b>Date:</b>
 						<div class="col-md-12" id="modal-date"></div>
+						<b>Starting time:</b>
+						<div class="col-md-12" id="modal-hour"></div>
+						<b>Ending time:</b>
+						<div class="col-md-12" id="modal-endhour"></div>
 					</div>
 					<div class="row">
 						<b>Place:</b>

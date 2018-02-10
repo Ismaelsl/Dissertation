@@ -535,8 +535,8 @@ public class SQLController {
 	 */
 	public int saveCheckList(CheckList checklist) {
 		if(checkIfEventExistInDBNewEvent(checklist)) return 1;
-		String query = " INSERT INTO checklist (date, eventname, place, description, visible)"
-				+ " VALUES (?, ?, ?, ?, ?)";
+		String query = " INSERT INTO checklist (date, eventname, place, description, visible, hour, endhour)"
+				+ " VALUES (?, ?, ?, ?, ?, ?,?)";
 		try {
 			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
 			preparedStmt.setString (1, checklist.getDate());
@@ -544,6 +544,8 @@ public class SQLController {
 			preparedStmt.setString (3, checklist.getPlace());
 			preparedStmt.setString (4, checklist.getDescription());
 			preparedStmt.setBoolean (5, true);
+			preparedStmt.setString (6,checklist.getHour());
+			preparedStmt.setString (7,checklist.getEndHour());
 			preparedStmt.execute();
 			preparedStmt.close();
 			return 0;
@@ -559,7 +561,8 @@ public class SQLController {
 	 * @return
 	 */
 	public boolean checkIfEventExistInDBSaveEdit(CheckList checklist) {
-		String query = " SELECT * FROM checklist WHERE date = ? AND eventname = ? AND place = ? AND description = ?";
+		String query = " SELECT * FROM checklist WHERE date = ? AND eventname = ? AND place = ? AND description = ? AND hour = ?"
+				+ " AND endhour = ?";
 		try {
 			PreparedStatement ps = newConnection.prepareStatement(query);
 			//I am parsing to SQLDate since Date and SQLDate are different and does not work with prepared statements
@@ -568,6 +571,8 @@ public class SQLController {
 			ps.setString (2, checklist.getEventName());	
 			ps.setString(3, checklist.getPlace());
 			ps.setString(4, checklist.getDescription());
+			ps.setString(5, checklist.getHour());
+			ps.setString (6,checklist.getEndHour());
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			if(rs.next()) {
@@ -621,16 +626,19 @@ public class SQLController {
 			ps.setInt(1,checklist.getCheckListID());
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
+			System.out.println("0");
 			while(rs.next()) {
 				PreparedStatement ps2 = newConnection.prepareStatement(
-						"UPDATE checklist SET date = ?, eventname = ?, place = ?, description = ?, visible = ? "
+						"UPDATE checklist SET date = ?, eventname = ?, place = ?, description = ?, visible = ?, hour = ? , endhour = ?"
 								+ "WHERE checklistID = ?");
 				ps2.setString (1, checklist.getDate());
 				ps2.setString (2, checklist.getEventName());
 				ps2.setString (3, checklist.getPlace());
 				ps2.setString (4, checklist.getDescription());
 				ps2.setBoolean (5, true);
-				ps2.setInt(6,rs.getInt("checklistID"));
+				ps2.setString (6, checklist.getHour());
+				ps2.setString (7,checklist.getEndHour());
+				ps2.setInt (8,rs.getInt("checklistID"));
 				ps2.executeUpdate();
 				ps2.close();
 				ps.close();
@@ -1068,6 +1076,65 @@ public class SQLController {
 		return projectList;
 
 	}
+	
+	/**
+	 * SQL Method that is taking all the projects that are not already chosen or approved for other students
+	 * but only the projects that are between the range of projects that are the difference between the total
+	 * of projects from your last vist and the list of project from your actual visit
+	 * @param statusApproved
+	 * @param statusVisible
+	 * @param lowLimit
+	 * @param highLimit
+	 * @return
+	 */
+	public List<Project> getProjectListVisibleAnDApprove(boolean statusApproved, boolean statusVisible, int lowLimit, int highLimit) {
+		PreparedStatement ps;
+		List<Project> projectList = new ArrayList<Project>();
+
+		try {
+			//I am using distinct since does not make sense to have the same project twice
+			ps = newConnection.prepareStatement(
+					"SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
+							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = ?)"
+							+ "AND NOT EXISTS (SELECT * FROM approvedproject WHERE project.projectID = approvedproject.projectID AND visible = ?)"
+							+ "AND project.year = ? AND project.visible = ? ORDER BY projectID DESC LIMIT ?");
+			int dif = highLimit - lowLimit;
+			ps.setBoolean(1,true);
+			ps.setBoolean(2,true);
+			ps.setInt(3, actualYear);
+			ps.setBoolean(4,true);
+			ps.setInt(5, dif);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while (rs.next())
+			{
+				//if the project is not approved, then you wont show the project
+				if(rs.getBoolean("visible") == statusVisible && rs.getBoolean("waitingtobeapproved") == statusApproved) {
+					Project project = new Project();
+					if(rs.getInt("lecturerID")!=0) { //if the ID is 0 then ignore it since I have some projects with lecturerID 0
+						User actualUser = getUser(rs.getInt("lecturerID"));
+						if(actualUser == null) continue; //if by any chance the ID has no lecturer then do not add it.
+						project.setUser(actualUser);
+					}	
+					project.setProjectID(rs.getInt("projectID"));
+					project.setTitle(rs.getString("title"));
+					project.setDescription(rs.getString("description"));
+					project.setCompulsoryReading(rs.getString("compulsoryReading").replaceAll("[\\[\\]\\(\\)]", ""));
+					project.setTopics(rs.getString("topic").replaceAll("[\\[\\]\\(\\)]", ""));
+					project.setVisible(rs.getBoolean("visible"));
+					project.setWaitingToBeApproved(rs.getBoolean("waitingtobeapproved"));
+
+					projectList.add(project);
+				}			
+			}
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			return projectList;
+		}
+		return projectList;
+
+	}
 
 	/**
 	 * SQL method to get a list of all the events for the schedule between actual year and next year
@@ -1083,9 +1150,9 @@ public class SQLController {
 			 * because I need to say in my SQL query two dates between to choose the events
 			 * I am converting to SQL date since my DB is using this kind of date
 			 */
-			String actualYearDate = Integer.toString(actualYear) + "-09-01";
+			String actualYearDate = Integer.toString(actualYear) + "-03-01";
 			java.sql.Date sqlDateActualYear = java.sql.Date.valueOf( actualYearDate );
-			String nextYearDate = Integer.toString(actualYear + 1) + "-05-01";
+			String nextYearDate = Integer.toString(actualYear + 1) + "-05-31";
 			java.sql.Date sqlDateNextYear = java.sql.Date.valueOf( nextYearDate );
 			ps = newConnection.prepareStatement(
 					"SELECT * FROM checklist WHERE date BETWEEN ? AND ?");
@@ -1102,6 +1169,48 @@ public class SQLController {
 					checklist.setEventName(rs.getString("eventname"));
 					checklist.setPlace(rs.getString("place"));
 					checklist.setDescription(rs.getString("description"));
+					checklist.setHour(rs.getString("hour"));
+					checklist.setEndHour(rs.getString("endhour"));
+					checklistList.add(checklist);
+				}
+			}
+			rs.close();
+			ps.close();
+		}catch(SQLException e) {
+			return checklistList;
+		}
+		return checklistList;
+	}
+	
+	/**
+	 * SQL Method to obtain the last number of elements from the DB that are the newer
+	 * @param status
+	 * @param lowLimit
+	 * @param highLimit
+	 * @return
+	 */
+	public List<CheckList> getCheckListList(boolean status, int lowLimit, int highLimit) {
+		List<CheckList> checklistList = new ArrayList<CheckList>();
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM checklist ORDER BY checklistID DESC LIMIT ?;");
+			//I am only interested in the difference between them
+			int dif = highLimit - lowLimit;
+			ps.setInt(1,dif);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while (rs.next())
+			{
+				CheckList checklist = new CheckList();
+				if(rs.getBoolean("visible") == status) {//only if the checklist is visible will be show
+					checklist.setCheckListID(rs.getInt("checklistID"));
+					checklist.setDate(rs.getString("date"));
+					checklist.setEventName(rs.getString("eventname"));
+					checklist.setPlace(rs.getString("place"));
+					checklist.setDescription(rs.getString("description"));
+					checklist.setHour(rs.getString("hour"));
+					checklist.setEndHour(rs.getString("endhour"));
 					checklistList.add(checklist);
 				}
 			}

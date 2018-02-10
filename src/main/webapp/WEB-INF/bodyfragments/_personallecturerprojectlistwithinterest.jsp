@@ -42,7 +42,7 @@ function chooseMessage(listSize){
 	}
 }
  </script>
- <h1>List of interest showed by students and projects</h1>
+ <h1>List of interest showed by students and projects</h1> <h4>Click in any circle to see further details of the projects</h4>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <h2>${message}</h2>
