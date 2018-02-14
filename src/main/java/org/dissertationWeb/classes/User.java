@@ -16,6 +16,15 @@ public class User {
 	public User() {
 		
 	}
+	//Constructor used only when edit student
+	public User (int userID, String username, String password, String email, int userType, int year) {
+		this.userID = userID;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.userType = userType;
+		this.year = year;
+	}
 	public void setUserType(int type){
 		this.userType = type;
 	}

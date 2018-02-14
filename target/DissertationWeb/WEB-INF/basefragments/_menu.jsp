@@ -49,6 +49,8 @@
 					<li><b><a
 						href="${pageContext.request.contextPath}/nextyearprojects">See all projects
 							next year</a></b></li>
+					<li><b><a
+						href="${pageContext.request.contextPath}/uploadstudents">Add new students</a></b></li>
 				</ul></li>
 			<li class="dropdown" id="lecturer"><a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<img class="imagestyle" alt="lecturericon" src='bootstrap/images/lecturer.png' 

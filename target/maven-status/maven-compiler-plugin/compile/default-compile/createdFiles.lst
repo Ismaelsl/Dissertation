@@ -1,4 +1,4 @@
 org\dissertationWeb\classes\Document.class
 org\dissertationWeb\classes\Project.class
-org\dissertationWeb\classes\CheckList.class
 org\dissertationWeb\classes\DBConnection.class
+org\dissertationWeb\classes\CheckList.class

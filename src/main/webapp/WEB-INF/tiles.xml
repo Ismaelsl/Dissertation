@@ -175,5 +175,24 @@
        <put-attribute name="title" value="New project proposal" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectlisttobyyear.jsp" />  
    </definition> 
+   
+   <!-- Upload excel file for student information -->
+   <definition name="newstudentsuploadPage" extends="base.definition">  
+       <put-attribute name="title" value="New students upload file" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_uploadfile.jsp" />  
+   </definition> 
+   
+   <!-- Edit student page -->
+   <definition name="editstudentPage" extends="base.definition">  
+       <put-attribute name="title" value="Edit student page" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_editstudent.jsp" />  
+   </definition> 
+   
+   <!-- List of students by year page -->
+   <definition name="listtStudentsByYearPage" extends="base.definition">  
+       <put-attribute name="title" value="List of students by year page" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofstudentbyyear.jsp" />  
+   </definition> 
+   
      
 </tiles-definitions>

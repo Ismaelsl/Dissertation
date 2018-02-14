@@ -4,7 +4,7 @@
 
 <div class="form_css">
 	<div class="w3-container w3-blue">	
-		<h1>Project Edit</h1>
+		<h1>Edit Project</h1>
 	</div> 
 <form:form method="post" action="saveEdit">
 	<table>

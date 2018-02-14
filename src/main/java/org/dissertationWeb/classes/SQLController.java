@@ -336,9 +336,9 @@ public class SQLController {
 						"UPDATE project SET year = ?, title = ?, topic = ?, description = ?, compulsoryreading = ? WHERE projectID = ?");
 				ps2.setInt(1,project.getYear());
 				ps2.setString(2,project.getTitle());
-				ps2.setString(3,project.getTopics());
+				ps2.setString(3,project.getTopics().toLowerCase());
 				ps2.setString(4,project.getDescription());
-				ps2.setString(5,project.getCompulsoryReading());
+				ps2.setString(5,project.getCompulsoryReading().toLowerCase());
 				ps2.setInt(6,rs.getInt("projectID"));
 				ps2.executeUpdate();
 				ps2.close();
@@ -367,8 +367,8 @@ public class SQLController {
 			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
 			preparedStmt.setInt (1, project.getYear());
 			preparedStmt.setString (2, project.getTitle());
-			preparedStmt.setString (3, project.getTopics().toString());
-			preparedStmt.setString (4, project.getCompulsoryReading().toString());
+			preparedStmt.setString (3, project.getTopics().toString().toLowerCase());
+			preparedStmt.setString (4, project.getCompulsoryReading().toString().toLowerCase());
 			preparedStmt.setString (5, project.getDescription());
 			preparedStmt.setInt (6, userID);
 			preparedStmt.setBoolean (7, true);
@@ -626,11 +626,10 @@ public class SQLController {
 			ps.setInt(1,checklist.getCheckListID());
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
-			System.out.println("0");
 			while(rs.next()) {
 				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE checklist SET date = ?, eventname = ?, place = ?, description = ?, visible = ?, hour = ? , endhour = ?"
-								+ "WHERE checklistID = ?");
+								+ " WHERE checklistID = ?");
 				ps2.setString (1, checklist.getDate());
 				ps2.setString (2, checklist.getEventName());
 				ps2.setString (3, checklist.getPlace());
@@ -1416,13 +1415,14 @@ public class SQLController {
 	 * SQL method to get a list of all the students that we have in the DB
 	 * @return
 	 */
-	public List<User> getAllStudentList() {
+	public List<User> getAllStudentList(int year) {
 		List<User> userList = new ArrayList<User>();
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
-					"SELECT * from user WHERE user.userType = ?");
+					"SELECT * from user WHERE user.userType = ? AND year = ?");
 			ps.setInt(1,2);
+			ps.setInt(2, year);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			while (rs.next())
@@ -1747,5 +1747,133 @@ public class SQLController {
 	 */
 	public List<Project> getAllProjectNextYear() {
 		return getProjectsByYear(actualYear+1);
+	}
+	
+	/**
+	 * Method to add a new student to the DB, the data is coming from the CSV files that had been upload in the method
+	 * addNewStudentToDBFromCSV
+	 * @param user
+	 * @return
+	 */
+	public int addStudentToDB(User user) {
+		String queryInsert = " INSERT INTO user (name, username, password, email, userType, year) VALUES (?, ?, ?, ?, ?, ?)";
+		PreparedStatement preparedStmt;
+		try {
+			preparedStmt = newConnection.prepareStatement(queryInsert);
+			preparedStmt.setString(1, user.getUsername());
+			preparedStmt.setString(2, user.getUsername());
+			preparedStmt.setString(3, user.getPassword());
+			preparedStmt.setString(4, user.getEmail());
+			preparedStmt.setInt(5, user.getUserType());
+			preparedStmt.setInt(6, user.getYear());
+			preparedStmt.execute();
+			preparedStmt.close();
+			return 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * SQL Method that check if the user exist in the DB, and return true or false based on that
+	 * @param user
+	 * @return
+	 */
+	public boolean checkIfUserExistInDB(User user) {
+		String query = " SELECT * FROM user WHERE year = ? AND username = ? "
+				+ "AND email = ? AND userType = ?";
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			ps.setInt (1, user.getYear());
+			ps.setString (2, user.getUsername());
+			ps.setString (3, user.getEmail());
+			ps.setInt (4, user.getUserType());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return true;
+			}else {
+				return false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/**
+	 * SQL Method to save the edit data of the user into the DB, will return 0 if OK, 1 if not saved and 2 if SQL error
+	 * @param student
+	 * @return
+	 */
+	public int saveEditStudent(User student) {
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(
+					"SELECT * FROM user WHERE userID = ? FOR UPDATE");
+			ps.setInt(1,student.getUserID());
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				PreparedStatement ps2 = newConnection.prepareStatement(
+						"UPDATE user SET userID = ?, name = ?, username = ?, password = ?, email = ?, userType = ? , year = ?"
+								+ " WHERE userID = ?");
+				ps2.setInt (1, student.getUserID());
+				ps2.setString (2, student.getUsername());
+				ps2.setString (3, student.getUsername());
+				ps2.setString (4, student.getPassword());
+				ps2.setString (5, student.getEmail());
+				ps2.setInt (6, student.getUserType());
+				ps2.setInt (7, student.getYear());
+				ps2.setInt (8, student.getUserID());
+				ps2.executeUpdate();
+				ps2.close();
+				ps.close();
+				rs.close();
+				return 0;
+			}
+		} catch (SQLException e) {
+			return 2;
+		}
+		return 1;
+	}
+	
+	/**
+	 * SQL method to get a list of all the years that I have in the DB for students
+	 * @return
+	 */
+	public List<Integer> getAllYearOfStudents() {
+		List<Integer> yearList = new ArrayList<Integer>();
+
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT DISTINCT year FROM user");
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				yearList.add(rs.getInt("year"));
+			}
+			rs.close();
+			ps.close();
+		} catch (SQLException e) {
+			return yearList;
+		}
+		return yearList;
+	}
+	
+	public int getTotalNumberByTechnology(String technology) {
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(
+					"SELECT COUNT( DISTINCT topic) AS technologyCount FROM project");
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				return rs.getInt("technologyCount");
+			}
+		} catch (SQLException e) {
+			return 0;
+		}
+		return 0;
 	}
 }

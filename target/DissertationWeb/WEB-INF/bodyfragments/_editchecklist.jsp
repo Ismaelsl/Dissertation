@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <div class="form_css">
 	<div class="w3-container w3-blue">	
-		<h1>Edit event</h1>
+		<h1>Edit Event</h1>
 	</div>
 	<form:form method="post" action="saveEditChecklist">
 		<table class ="inputtable">

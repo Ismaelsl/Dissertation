@@ -14,7 +14,9 @@ function modalPopulator(username,userID,email) {
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getStudentID() {
     var studentID = document.getElementById("modal-studentproject-id");
+    var editStudentID = document.getElementById("modal-editstudent-id");
     studentID.value = actualID;
+    editStudentID.value = actualID;
 }
 
 <%-- Method that pass as value the search criteria to the back end --%>
@@ -53,6 +55,7 @@ function clearContents(element) {
 
 </form:form>
 <h1>Students list</h1><h4>Click in any circle to see further details of the student</h4>
+<h3 class ="importantmessage">${message}</h3><%--This message it is use when you add new users using the add new user option in menu --%>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -91,7 +94,11 @@ to the view from the controller or the variable names from the class --%>
 			<div class="modal-footer">
 				<form:form method="post" action="getstudentprojects">
 					<button onclick="getStudentID();" id="modal-studentproject-id"
-						name="studentID" class="btn btn-success" value=" ">Student project list</button>
+						name="studentID" class="btn btn-success" value=" ">Student final project</button>
+				</form:form>
+				<form:form method="post" action="editstudent">
+					<button onclick="getStudentID();" id="modal-editstudent-id"
+						name="studentID" class="btn btn-primary" value=" ">Edit student</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>

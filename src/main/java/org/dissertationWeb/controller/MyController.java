@@ -1,5 +1,7 @@
 package org.dissertationWeb.controller;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpSession;
 
 import org.dissertationWeb.classes.CheckList;
 import org.dissertationWeb.classes.DBConnection;
+import org.dissertationWeb.classes.FileBucket;
 import org.dissertationWeb.classes.MailMail;
 import org.dissertationWeb.classes.Project;
 import org.dissertationWeb.classes.SQLController;
@@ -27,12 +30,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.opencsv.CSVReader;
 
 /**
  * Main controller class, here I only have method that contains the @RequestMapping or in other words a link between the browser and java
@@ -44,17 +49,16 @@ import org.springframework.web.servlet.ModelAndView;
 @EnableScheduling
 public class MyController {
 	@Autowired 
-	private HttpSession httpSession;
+	//private HttpSession httpSession;
 
 	private Connection newConnection;
 
 	private SQLController sqlController;
 
-
 	/**
 	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
 	 */
-	@EventListener(ContextRefreshedEvent.class) //with this I am saying that as soon as I start the webapp this method MUST be called first
+	@EventListener(ContextRefreshedEvent.class) //with this I am saying that as soon as I start the web application this method MUST be called first
 	private void startDBConnection() {
 		//Create a connection to the DB as soon as we need it
 		DBConnection connect = new DBConnection();
@@ -198,7 +202,7 @@ public class MyController {
 	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/logincheck",method = RequestMethod.POST)  
-	public ModelAndView checkLogin(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request) throws SQLException{ 
+	public ModelAndView checkLogin(@ModelAttribute("user")User user, Model model, HttpServletRequest request) throws SQLException{ 
 		checkDBConnection(); //check if connection is still ON
 		//redirect to home page if you are login and try to login again
 		if(user.getPassword().isEmpty() && user.getUsername().isEmpty()) {
@@ -241,10 +245,11 @@ public class MyController {
 	 * @throws SQLException 
 	 */
 	@RequestMapping(value="/logincheck",method = RequestMethod.GET)  
-	public ModelAndView checkLoginGET(@ModelAttribute("user")User user, ModelMap model, HttpServletRequest request) throws SQLException{ 
+	public ModelAndView checkLoginGET(@ModelAttribute("user")User user, Model model, HttpServletRequest request) throws SQLException{ 
 		checkDBConnection(); //check if connection is still ON
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");
 	}
 
@@ -467,6 +472,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/approveproject",method = RequestMethod.GET)  
 	public ModelAndView approveProjectGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -597,6 +603,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/sendProposal",method = RequestMethod.GET)  
 	public ModelAndView saveProposalGet( Model model, HttpServletRequest request){  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}  
 
@@ -697,7 +704,8 @@ public class MyController {
 	 * @return
 	 */
 	@RequestMapping(value="/remove",method = RequestMethod.GET)  
-	public ModelAndView removeGet(Model model, HttpServletRequest request) throws SQLException {  
+	public ModelAndView removeGet(Model model, HttpServletRequest request) throws SQLException {
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
 
@@ -771,6 +779,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/saveEdit",method = RequestMethod.GET)  
 	public ModelAndView saveEditGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
 
@@ -850,6 +859,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/save",method = RequestMethod.GET)  
 	public ModelAndView saveGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
 
@@ -892,6 +902,21 @@ public class MyController {
 			model.addAttribute("message", "Your search criteria does not return any result please try something else");
 			return new ModelAndView("errorPage");
 		}
+	}
+
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/search",method = RequestMethod.GET)  
+	public ModelAndView searchGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
 	/**
@@ -957,8 +982,9 @@ public class MyController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value="/search",method = RequestMethod.GET)  
-	public ModelAndView searchGet(Model model, HttpServletRequest request) throws SQLException {  
+	@RequestMapping(value="/searchStudent",method = RequestMethod.GET)  
+	public ModelAndView searchStudentGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1080,6 +1106,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/savechecklist",method = RequestMethod.GET)  
 	public ModelAndView saveChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1199,6 +1226,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/editChecklist",method = RequestMethod.GET)  
 	public ModelAndView editChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1256,6 +1284,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/removeChecklist",method = RequestMethod.GET)  
 	public ModelAndView removeChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1373,7 +1402,8 @@ public class MyController {
 	 * @return
 	 */
 	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.GET)  
-	public ModelAndView saveEditChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
+	public ModelAndView saveEditChecklistGet(Model model, HttpServletRequest request) throws SQLException { 
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1461,6 +1491,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/registerinterest",method = RequestMethod.GET)  
 	public ModelAndView registerinterest(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1601,7 +1632,8 @@ public class MyController {
 	 * @return
 	 */
 	@RequestMapping(value="/removeinterest",method = RequestMethod.GET)  
-	public ModelAndView removeInterestGet(Model model, HttpServletRequest request) throws SQLException {  
+	public ModelAndView removeInterestGet(Model model, HttpServletRequest request) throws SQLException {
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1663,6 +1695,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/removeinterestfinal",method = RequestMethod.GET)  
 	public ModelAndView removeInterestFinalGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1934,6 +1967,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/makeItVisible",method = RequestMethod.GET)  
 	public ModelAndView makeItVisibleGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2015,6 +2049,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/approveinterest",method = RequestMethod.GET)  
 	public ModelAndView approveInterestGet(Model model, HttpServletRequest request) throws SQLException {  
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2035,10 +2070,32 @@ public class MyController {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
-		List<User> studentList = sqlController.getAllStudentList();
+		List<Integer> yearList = sqlController.getAllYearOfStudents();
+		model.addAttribute("yearList", yearList);
+		return new ModelAndView("listtStudentsByYearPage"); 
+	}
+	
+	@RequestMapping( value="/seestudentsbyyear",method = RequestMethod.POST)
+	public ModelAndView allStudentsByYearPage(Model model, HttpServletRequest request, int year) throws SQLException { 
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		checkDBConnection(); //check if connection is still ON
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
+		
+		List<User> studentList = sqlController.getAllStudentList(year);
+		if(studentList.isEmpty()) {
+			model.addAttribute("message", "No students for this year");
+			return new ModelAndView("errorPage");
+		}
+		model.addAttribute("year", year);
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		return new ModelAndView("studentListPage","studentList",studentList);  
 	}
+	
 
 	/**
 	 * This method it is returning the final project (if any) that the student have, the idea of this is allow to the
@@ -2088,7 +2145,8 @@ public class MyController {
 	 * @return
 	 */
 	@RequestMapping(value="/getstudentprojects",method = RequestMethod.GET)  
-	public ModelAndView getStudentProjectsGet(Model model, HttpServletRequest request) throws SQLException {  
+	public ModelAndView getStudentProjectsGet(Model model, HttpServletRequest request) throws SQLException {
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2166,6 +2224,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/seeprojectbyyear",method = RequestMethod.GET)  
 	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException { 
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		//I am using the errorPage since I only want to show the message on the screen without create a new view
 		return new ModelAndView("homePage"); 
 	}
@@ -2219,6 +2278,171 @@ public class MyController {
 		//I am passing the actual year + 1 to show it on the title of the page
 		model.addAttribute("actualYear", sqlController.getActualYear()+1);
 		return new ModelAndView("projectListByYearPage");
+	}
+
+	@RequestMapping( value="/uploadstudents",method = RequestMethod.GET)
+	public ModelAndView uploadFileForNewStudents(Model model, HttpServletRequest request) throws SQLException { 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		checkDBConnection(); //check if connection is still ON
+		if((Integer)session.getAttribute("userType") != 3) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}	
+		return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
+	}
+
+	/**
+	 * Method that receive a csv or xlsx file with student information and populate the DB with those student information
+	 * @param file
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
+	public ModelAndView addNewStudentToDBFromCSV(@RequestParam MultipartFile file, Model model, 
+			HttpServletRequest request) throws IOException {
+		try {
+			//If file does not have an .csv or .xlsx extension, then do not let the file go further and return to the previous page with an error message
+			if(!file.getContentType().equalsIgnoreCase("application/vnd.ms-excel") && 
+					!file.getContentType().equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")){
+				model.addAttribute("message", "The file need to have excel extension csv or xlsx");
+				return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
+			}else {
+				boolean newStudentAdded = false;//this boolean is taking care if new students had been added to the DB or not
+				CSVReader reader = new CSVReader(new FileReader(file.getOriginalFilename()));
+				String [] nextLine;
+				while ((nextLine = reader.readNext()) != null) {
+					User newStudent = new User();
+					newStudent.setUsername(nextLine[0]);
+					newStudent.setPassword(nextLine[1]);
+					newStudent.setEmail(nextLine[2]);
+					newStudent.setUserType(2);//since I am adding students, they will always have the same type
+					newStudent.setYear(Integer.parseInt(nextLine[4]));
+					//Only add student if the student does not exist already in the DB
+					if(!sqlController.checkIfUserExistInDB(newStudent)) {
+						//add new user to the DB, if 0 means that an error happened during the inclusion of the user to the DB
+						if(sqlController.addStudentToDB(newStudent) == 0) {
+							model.addAttribute("message", "User could not be added to the DB, please check the DB or the excel file");
+							return new ModelAndView("errorPage");
+						}
+						newStudentAdded = true;
+					}
+				}
+				reader.close();
+				if(newStudentAdded) {
+					//I am only setting this message if I actually added an user to the DB
+					model.addAttribute("message", "New users added to the system succesfully");
+				}else {
+					//If not new students found in the file I am showing this message
+					model.addAttribute("message", "The file did not contains any new user");
+				}
+				//At the end I am showing you the list of all students
+				List<Integer> yearList = sqlController.getAllYearOfStudents();
+				model.addAttribute("yearList", yearList);
+				return new ModelAndView("listtStudentsByYearPage"); 
+			}	
+			//If the file does not have the correct format then catch the error and go back to the upload file page
+		}catch(java.lang.ArrayIndexOutOfBoundsException e) {
+			model.addAttribute("message", "Not correct file data, the correct format is "
+					+ "Username, Password, Email, UserType and Year");
+			return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
+		}
+	}
+
+	/**
+	 * Get method for the upload file, this method is only here to avoid an error if someone try to enter the address of this method
+	 * on the browser without passing any file
+	 * @param file
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/uploadFile", method = RequestMethod.GET)
+	public ModelAndView addNewStudentToDBFromCSVGet(@RequestParam MultipartFile file, Model model, 
+			HttpServletRequest request) throws IOException {
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		return new ModelAndView("homePage");  
+	}
+
+	/**
+	 * Method to edit students, it is receiving the student ID and will redirect to the form
+	 * where to edit the student information
+	 * @param projectID
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/editstudent",method = RequestMethod.POST)
+	public ModelAndView editStudent(@RequestParam(value="studentID") int studentID, 
+			Model model, HttpServletRequest request) throws SQLException { 
+		//I create student so it can send all the information to the front end
+		User student = sqlController.getUser(studentID);
+		return new ModelAndView("editstudentPage", "command", new User(student.getUserID(),student.getUsername(), 
+				student.getPassword(), student.getEmail(), student.getUserType(), student.getYear()));
+	}
+	/**
+	 * Copy of the previous method that take care if the user try to access to this address without passing any value
+	 * @param projectID
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/editstudent",method = RequestMethod.GET)
+	public ModelAndView editStudentGet(@RequestParam(value="studentID") int studentID, 
+			Model model, HttpServletRequest request) throws SQLException { 
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		return new ModelAndView("homePage");  
+	}
+
+	/**
+	 * Method that save the edit student in the DB, I am only allowing to edit from the user
+	 * email, username and year, the rest of the data would never been edited
+	 * @param student
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping(value="/saveEditStudent",method = RequestMethod.POST)  
+	public ModelAndView saveEditStudent(@ModelAttribute("student") User student, 
+			Model model, HttpServletRequest request) throws SQLException{ 
+		int resultSavingStudent = sqlController.saveEditStudent(student);
+		//Based on the result the message show in screen will be different, but all of them will take you back to the
+		//student list page but showing the correct message that you got from the save edit method
+		switch(resultSavingStudent) {
+		case 0:
+			model.addAttribute("message", "Student " + student.getUsername() + " had been modify succesfully");
+			break;
+		case 1:
+			model.addAttribute("message", "Student " + student.getUsername() + " could not been modify, please try again later");
+			break;
+		case 2:
+			model.addAttribute("message", "A SQL error happens, please try again later");
+			break;
+		}
+		//At the end I am showing you the list of all students
+		List<Integer> yearList = sqlController.getAllYearOfStudents();
+		model.addAttribute("yearList", yearList);
+		return new ModelAndView("listtStudentsByYearPage"); 
+	}
+	/**
+	 * Copy of the previous method that take care if the user try to access to this address without passing any value
+	 * @param projectID
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/saveEditStudent",method = RequestMethod.GET)
+	public ModelAndView saveEditStudentGet(@ModelAttribute("student") User student, 
+			Model model, HttpServletRequest request) throws SQLException{ 
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		return new ModelAndView("homePage");  
 	}
 
 	/**
