@@ -163,9 +163,9 @@ public class SQLController {
 	public void keepConnectionAlive() {
 		String query = "SELECT date FROM checklist WHERE true";
 		Statement st;
-		//System.out.println("ping!!");
 		try {
 			st = newConnection.createStatement();
+			@SuppressWarnings("unused")
 			ResultSet rs = st.executeQuery(query);
 		} catch (SQLException e) {
 		}			
@@ -741,6 +741,7 @@ public class SQLController {
 	 * @return
 	 */
 	public boolean approveInteret(int projectID, User user) {
+		@SuppressWarnings("unused")
 		Project project = new Project();
 		project = getProject(projectID);
 		//getting user based on the userID, so I can have access to all his data

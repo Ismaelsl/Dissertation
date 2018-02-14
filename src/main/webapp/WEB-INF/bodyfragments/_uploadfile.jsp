@@ -14,11 +14,14 @@ function clearContents(element) {
 	<div class="w3-container w3-teal">	
 		<h1>Please choose the Excel file with students information</h1>
 	</div>
-    <form method="POST" action="uploadFile" enctype="multipart/form-data">
-            File to upload: <input type="file" name="file"> <input
-                type="submit" value="Upload"> Press here to upload the
-            file!
-        </form>
+	 <form method="POST" action="uploadFile" enctype="multipart/form-data">
+	<table class ="inputtable">
+   
+           <tr><td> File to upload: <input type="file" name="file">
+            <input type="submit" value="Upload"> Upload the file!</td></tr>
+       
+        </table>
+         </form>
 </div>
 <%--This form is the one that is telling to cancel input where to go if is pushed --%>
 <form:form id="homeForm" method="get" action="home"></form:form>

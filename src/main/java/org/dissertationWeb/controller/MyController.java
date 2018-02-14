@@ -49,7 +49,7 @@ import com.opencsv.CSVReader;
 @EnableScheduling
 public class MyController {
 	@Autowired 
-	//private HttpSession httpSession;
+	private HttpSession httpSession;
 
 	private Connection newConnection;
 
@@ -2304,13 +2304,18 @@ public class MyController {
 	public ModelAndView addNewStudentToDBFromCSV(@RequestParam MultipartFile file, Model model, 
 			HttpServletRequest request) throws IOException {
 		try {
+			if(file.getOriginalFilename().isEmpty()) {//if file name is empty that means that no file was uploaded so I will show an error
+				model.addAttribute("message", "Please upload a file using the choose file button on the left");
+				return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
+			}
 			//If file does not have an .csv or .xlsx extension, then do not let the file go further and return to the previous page with an error message
-			if(!file.getContentType().equalsIgnoreCase("application/vnd.ms-excel") && 
+			else if(!file.getContentType().equalsIgnoreCase("application/vnd.ms-excel") && 
 					!file.getContentType().equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")){
 				model.addAttribute("message", "The file need to have excel extension csv or xlsx");
 				return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
 			}else {
 				boolean newStudentAdded = false;//this boolean is taking care if new students had been added to the DB or not
+				@SuppressWarnings("resource")
 				CSVReader reader = new CSVReader(new FileReader(file.getOriginalFilename()));
 				String [] nextLine;
 				while ((nextLine = reader.readNext()) != null) {
