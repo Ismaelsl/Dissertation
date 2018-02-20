@@ -194,5 +194,4 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofstudentbyyear.jsp" />  
    </definition> 
    
-     
 </tiles-definitions>

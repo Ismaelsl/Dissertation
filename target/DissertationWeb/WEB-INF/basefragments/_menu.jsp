@@ -13,7 +13,7 @@
 				int oldProjectNum = 0;
 				int oldEventNum = 0;
 				//Since menu will be load the first thing is normal that session still not exist 
-				//so I am catching the error and keep the webapp running
+				//so I am catching the error and keep the webapplication running
 				try {
 					user = (Integer) session.getAttribute("userType");
 					projectNum = (Integer) session.getAttribute("projectNum");
@@ -33,13 +33,11 @@
 				onmouseout="this.src='bootstrap/images/dissertationcoordinator.png';" />
 			Coordinator<span class="caret"></span></a>
 				<ul class="dropdown-menu" id="ulmenustyle">
+					<li><b><a href="${pageContext.request.contextPath}/newchecklist">New
+							enter to the schedule</a></b></li>
 					<li><b><a
 						href="${pageContext.request.contextPath}/projectlisttoapprove">Project
 							List to approve</a></b></li>
-					<li><b><a href="${pageContext.request.contextPath}/newchecklist">New
-							enter to the schedule</a></b></li>
-					<li><b><a href="${pageContext.request.contextPath}/studentlist">Student
-							list</a></b></li>
 					<li><b><a
 						href="${pageContext.request.contextPath}/previousyearprojects">Previous
 							year projects</a></b></li>
@@ -50,7 +48,10 @@
 						href="${pageContext.request.contextPath}/nextyearprojects">See all projects
 							next year</a></b></li>
 					<li><b><a
-						href="${pageContext.request.contextPath}/uploadstudents">Add new students</a></b></li>
+						href="${pageContext.request.contextPath}/uploadstudents">Add new 
+						students</a></b></li>
+					<li><b><a href="${pageContext.request.contextPath}/studentlist">Student
+							list</a></b></li>
 				</ul></li>
 			<li class="dropdown" id="lecturer"><a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<img class="imagestyle" alt="lecturericon" src='bootstrap/images/lecturer.png' 

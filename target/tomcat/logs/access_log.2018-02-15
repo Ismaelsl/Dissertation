@@ -1,0 +1,10 @@
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:14:45:00 +0000] "GET /DissertationWeb/ HTTP/1.1" 200 2564 http-bio-8080-exec-1 607
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:14:45:01 +0000] "GET /DissertationWeb/bootstrap/css/mycss.css HTTP/1.1" 304 - http-bio-8080-exec-5 258
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:14:45:05 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 5486 http-bio-8080-exec-6 496
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:14:45:07 +0000] "GET /DissertationWeb/bootstrap/images/scheduleblack.png HTTP/1.1" 200 3420 http-bio-8080-exec-7 66
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:14:45:07 +0000] "GET /DissertationWeb/bootstrap/images/scheduleblack.png HTTP/1.1" 200 3420 http-bio-8080-exec-2 10
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:14:45:07 +0000] "GET /DissertationWeb/bootstrap/images/projectlistblack.png HTTP/1.1" 304 - http-bio-8080-exec-9 91
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:17:27:31 +0000] "GET /DissertationWeb/home HTTP/1.1" 200 2564 http-bio-8080-exec-1 277
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:17:27:35 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 5486 http-bio-8080-exec-2 244
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:17:27:38 +0000] "GET /DissertationWeb/bootstrap/images/projectlistblack.png HTTP/1.1" 200 18178 http-bio-8080-exec-3 50
+0:0:0:0:0:0:0:1 - - [15/Feb/2018:17:27:40 +0000] "GET /DissertationWeb/projectlist HTTP/1.1" 200 23154 http-bio-8080-exec-4 1698

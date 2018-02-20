@@ -6,9 +6,10 @@
 in this way I always will have the actual ID of the project open in the modal --%>
 var actualID;
 
-function modalPopulator(username,userID,email) {
+function modalPopulator(username,userID,email,year) {
     $("#modal-username").html( username );
     $("#modal-email").html(email );  
+    $("#modal-year").html(year ); 
     actualID = userID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
@@ -54,8 +55,7 @@ function clearContents(element) {
 	
 
 </form:form>
-<h1>Students list</h1><h4>Click in any circle to see further details of the student</h4>
-<h3 class ="importantmessage">${message}</h3><%--This message it is use when you add new users using the add new user option in menu --%>
+<h1>Students list for the year ${year }</h1><h4>Click in any circle to see further details of the student</h4>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -63,7 +63,7 @@ to the view from the controller or the variable names from the class --%>
 <c:forEach items="${studentList}" var="student">
 <c:set var = "username" value="${fn:replace(student.username, '\"', '\\'')}" />
 	<div class="projectList"><b><a
-		onclick='modalPopulator("${fn:escapeXml(username)}","${student.userID}","${fn:escapeXml(student.email)}")'
+		onclick='modalPopulator("${fn:escapeXml(username)}","${student.userID}","${fn:escapeXml(student.email)}","${student.year}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Name: ${fn:escapeXml(username)}<br /> <br /> email: ${fn:escapeXml(student.email)}<br />
 		 </div></a></b></div>
@@ -89,6 +89,10 @@ to the view from the controller or the variable names from the class --%>
 						<b>Email:</b>
 						<div class="col-md-12" id="modal-email"></div>
 					</div>
+					<div class="row">
+						<b>Year:</b>
+						<div class="col-md-12" id="modal-year"></div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -106,3 +110,6 @@ to the view from the controller or the variable names from the class --%>
 		</div>
 	</div>
 </div>
+<form:form method="get" action="studentlist">
+	<button class="btn btn-success" value=" ">Go back</button>
+</form:form>

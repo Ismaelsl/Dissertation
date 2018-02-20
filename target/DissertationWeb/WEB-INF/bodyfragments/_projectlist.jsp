@@ -73,7 +73,7 @@ window.onload = function() {
         nextYearStudent.style.display = 'none';
     }
     if(user == 2){<%--Student--%>
-    	 if(studentyear != actualyear){
+    	 if(studentyear != actualyear){<%--This cover if user is before of after the actual year--%>
      		dcdiv.style.display = 'none';
         	lecturerdiv.style.display = 'none';
         	nextYearStudent.style.display = 'visible';

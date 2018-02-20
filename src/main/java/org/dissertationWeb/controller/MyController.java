@@ -19,7 +19,6 @@ import org.dissertationWeb.classes.DBConnection;
 import org.dissertationWeb.classes.FileBucket;
 import org.dissertationWeb.classes.MailMail;
 import org.dissertationWeb.classes.Project;
-import org.dissertationWeb.classes.SQLController;
 import org.dissertationWeb.classes.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -277,7 +276,7 @@ public class MyController {
 		session.setAttribute("eventNum", numberOfEvents);
 		session.setAttribute("oldProjectNum", oldNumberOfProject);
 		session.setAttribute("oldEventNum", oldNumberOfEvent);
-		session.setMaxInactiveInterval(600);//right now is 600 seconds since I need to do some testing and need the session to last longer
+		session.setMaxInactiveInterval(1800);//session will expired if user is inactive for 30 minutes
 	}
 
 	/**
@@ -1316,6 +1315,8 @@ public class MyController {
 		sqlController.updateChecklist(checklistID,true);
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
+		bubblesrt(checklistList);
+		bubblesrt(checklistListNotApproved);
 		model.addAttribute("checklistList", checklistList);
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
@@ -1434,6 +1435,7 @@ public class MyController {
 		 * 0 general error saving. 
 		 * 1 everything is OK.
 		 * 2 duplicate entry (student trying to register twice in the same project).
+		 * 3 if student already have a final project approved
 		 * 5 limit of 5 projects achieved.
 		 */
 		int result = sqlController.registerInterest((Integer)session.getAttribute("userID"), projectID);
@@ -1462,14 +1464,19 @@ public class MyController {
 			User lecturer = sqlController.getUser(project.getlecturerID());
 
 			String messageLecturer = "Student " + user.getUsername() + " had show interest in your project " + project.getTitle();
-			String messageStudent = "Your interest in the project " + project.getTitle() + " had been send to the lecturer " + lecturer.getUsername();
+			String messageStudent = "Your interest in the project " + project.getTitle() + 
+					" had been send to the lecturer " + lecturer.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageStudent);
 			return new ModelAndView("interestProjectListPage","projectList",projectList); 
 		case 2:
 			model.addAttribute("message", "You are already register in this project");
+			return new ModelAndView("errorPage");
+		case 3 :
+			model.addAttribute("message", "You have already a final project approved, "
+					+ "if you want to change your final project, speak with the module coordinator"); 
 			return new ModelAndView("errorPage");
 		case 5:
 			model.addAttribute("message", "You already have 5 projects registered on your name, "
@@ -2096,6 +2103,21 @@ public class MyController {
 		return new ModelAndView("studentListPage","studentList",studentList);  
 	}
 	
+	/**
+	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
+	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
+	 * In this way I do not get the error, but instead I am redirected to homepage
+	 * @param project
+	 * @param model
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/seestudentsbyyear",method = RequestMethod.GET)  
+	public ModelAndView allStudentsByYearPageGet(Model model, HttpServletRequest request) throws SQLException {
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+	}
+	
 
 	/**
 	 * This method it is returning the final project (if any) that the student have, the idea of this is allow to the
@@ -2123,6 +2145,7 @@ public class MyController {
 		}
 		//If the student already have a final project approved, then we will only show that project to him
 		Project finalProject = sqlController.getFinalProjectStudent(studentID);
+		User user = sqlController.getUser(studentID);
 		//If I do not have a final project then I set the view variable noFinalProject to false it not will be true
 		if(finalProject == null) {
 			model.addAttribute("noFinalProject", false);
@@ -2314,7 +2337,12 @@ public class MyController {
 				model.addAttribute("message", "The file need to have excel extension csv or xlsx");
 				return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
 			}else {
-				boolean newStudentAdded = false;//this boolean is taking care if new students had been added to the DB or not
+				/**
+				 * this boolean is taking care if new students had been added to the DB or not
+				 * I am using this option is better than check if the number of student in the DB 
+				 * change between the start and the end of the method
+				 */
+				boolean newStudentAdded = false;
 				@SuppressWarnings("resource")
 				CSVReader reader = new CSVReader(new FileReader(file.getOriginalFilename()));
 				String [] nextLine;
@@ -2460,8 +2488,8 @@ public class MyController {
 	@RequestMapping( value="/logout",method = RequestMethod.GET)
 	public ModelAndView logout(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
-		HttpSession session = getSession(request);
 		checkDBConnection(); //check if connection is still ON
+		HttpSession session = getSession(request);	
 		//I am saving the old count of the DB when user logout, so if the old had been updated that means that the user saw the new project
 		//or event, if it has not, then the user has not see the new project or event and the message of new will be show again the next
 		//time that the user login

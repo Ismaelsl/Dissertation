@@ -32,5 +32,6 @@
 	<classpathentry kind="lib" path="C:/Users/ismael/Downloads/sqljdbc4-2.0.jar/sqljdbc4-2.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/ismael/Downloads/sqlserverjdbc.jar"/>
 	<classpathentry kind="lib" path="C:/Users/ismael/Downloads/slf4j-log4j12-1.7.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
