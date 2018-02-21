@@ -103,7 +103,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-description"></div>
 					</div>
 					<div class="row">
-						<b>Topics:</b>
+						<b>Technologies:</b>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">

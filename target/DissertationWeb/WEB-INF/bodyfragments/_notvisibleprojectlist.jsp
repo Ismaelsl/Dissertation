@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h2>${message}</h2>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -44,7 +43,9 @@ function getSearchValue() {
   } 
  }
  </script>
+<h4>Click in any circle to see further details of the projects</h4>
 <h1>Project list that are not visible (by students) for ${actualYear}</h1>
+<h2 class ="importantmessage">${message}</h2>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -67,7 +68,7 @@ to the view from the controller or the variable names from the class --%>
 </div>
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h1>Your personal list of projects that are not visible (by students) for ${nextYear}</h1>
-<h4>Click in any circle to see further details of the projects</h4>
+<h2 class ="importantmessage">${nextyearmessage}</h2>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
@@ -109,7 +110,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-description"></div>
 					</div>
 					<div class="row">
-						<b>Topics:</b>
+						<b>Technologies:</b>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">

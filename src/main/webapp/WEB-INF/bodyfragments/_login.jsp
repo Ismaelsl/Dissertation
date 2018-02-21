@@ -4,8 +4,8 @@
 <body>
 	<div id="parent">
 		<form:form method="POST" action="logincheck" id="form_login">
-			<b>User Name:</b>
-			<form:input path="username" required='true' /><br><br>
+			<b>User ID:</b>
+			<form:input path="userID" required='true' /><br><br>
 			<b>Password:</b>
 			<form:password path="password" required='true' /><br><br>
 			<input type="submit" class="btn btn-success" value="Submit" />

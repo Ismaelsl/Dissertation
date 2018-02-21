@@ -194,4 +194,16 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofstudentbyyear.jsp" />  
    </definition> 
    
+   <!-- Form to add one student -->
+   <definition name="addNewstudentsPage" extends="base.definition">  
+       <put-attribute name="title" value="List of your project that had students" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_newstudent.jsp" />  
+   </definition> 
+   
+   <!-- Project list that had been approved by lecturer -->
+   <definition name="projectlistapprovedinterest" extends="base.definition">  
+       <put-attribute name="title" value="List of your project that had students" />  
+       <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofprojectapprovedinterest.jsp" />  
+   </definition> 
+   
 </tiles-definitions>

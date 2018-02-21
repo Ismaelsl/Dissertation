@@ -48,6 +48,9 @@
 						href="${pageContext.request.contextPath}/nextyearprojects">See all projects
 							next year</a></b></li>
 					<li><b><a
+						href="${pageContext.request.contextPath}/uploadonestudents">Add one 
+						student</a></b></li>
+					<li><b><a
 						href="${pageContext.request.contextPath}/uploadstudents">Add new 
 						students</a></b></li>
 					<li><b><a href="${pageContext.request.contextPath}/studentlist">Student
@@ -65,6 +68,9 @@
 					<li><b><a
 						href="${pageContext.request.contextPath}/projectlistwithinterest">Your
 							project with interest</a></b></li>
+					<li><b><a
+						href="${pageContext.request.contextPath}/projectlistwithinterestapproved">Your approved 
+						projects</a></b></li>
 					<li><b><a
 						href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">Your
 							not visible project list</a></b></li>
@@ -117,6 +123,9 @@
 					<li><b><a
 						href="${pageContext.request.contextPath}/projectlistwithinterest">Your
 							project with interest</a></b></li>
+					<li><b><a
+						href="${pageContext.request.contextPath}/projectlistwithinterestapproved">Your approved 
+						projects</a></b></li>
 					<li><b><a
 						href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">Your
 							not visible project list</a></b></li>
@@ -198,7 +207,8 @@
 				Propose a project</a>
 			</li>
 			<%
-				}				
+				}		
+				if (user != 3) {
 			%>
 			<li>
 				<a href="${pageContext.request.contextPath}/contactus">
@@ -208,6 +218,7 @@
 				ContactUs</a>
 			</li>
 			<%
+				}
 				if (user == 0) {//if user is 0 means that I still did not login so login menu will be show
 			%>
 			<li>

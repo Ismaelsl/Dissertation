@@ -160,6 +160,7 @@ to the view from the controller or the variable names from the class --%>
 				<br />Starting time: ${checklist.hour}
 				<br />Ending time: ${checklist.endHour}
 			</div></a></b>
+			</div>
 </c:forEach>
 </div>
 </div>

@@ -24,7 +24,7 @@
 <c:if test="${not waitingapprove}"><b>Waiting to be approved:</b> Waiting approval</c:if>
 <c:if test="${waitingapprove}"><b>Waiting to be approved:</b> Approve!</c:if>
 <br>
-<b>Topics:</b> ${topics}
+<b>Technologies:</b> ${topics}
 <br>
 <b>Compulsory Readings:</b> ${compulsoryReading}
 <br>

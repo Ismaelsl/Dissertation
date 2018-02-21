@@ -17,7 +17,7 @@
           <td style="border:none;"><form:input class="w3-input" path="title"  required='true'/></td>  
          </tr>  
           <tr>    
-          <td style="border:none;">Topic : </td>   
+          <td style="border:none;">Technologies : </td>   
           <td style="border:none;"><form:input class="w3-input" path="topics"  required='true'/></td>  
          </tr>  
           <tr>    

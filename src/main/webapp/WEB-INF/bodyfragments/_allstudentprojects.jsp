@@ -85,7 +85,7 @@ of code--%>
 						<div class="col-md-12" id="modal-description"></div>
 					</div>
 					<div class="row">
-						<b>Topics:</b>
+						<b>Technologies:</b>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">

@@ -253,7 +253,7 @@ public class SQLController {
 			ResultSet rs = st.executeQuery(query);
 			while (rs.next())
 			{
-				if(rs.getString("username").equals(user.getUsername()) 
+				if(rs.getString("userID").equals(String.valueOf(user.getUserID())) 
 						&& rs.getString("password").equals(user.getPassword())) {
 					return userID = rs.getInt("userID");
 				}
@@ -342,9 +342,9 @@ public class SQLController {
 						"UPDATE project SET year = ?, title = ?, topic = ?, description = ?, compulsoryreading = ? WHERE projectID = ?");
 				ps2.setInt(1,project.getYear());
 				ps2.setString(2,project.getTitle());
-				ps2.setString(3,project.getTopics().toLowerCase());
+				ps2.setString(3,project.getTopics());
 				ps2.setString(4,project.getDescription());
-				ps2.setString(5,project.getCompulsoryReading().toLowerCase());
+				ps2.setString(5,project.getCompulsoryReading());
 				ps2.setInt(6,rs.getInt("projectID"));
 				ps2.executeUpdate();
 				ps2.close();
@@ -373,8 +373,8 @@ public class SQLController {
 			PreparedStatement preparedStmt = newConnection.prepareStatement(query);
 			preparedStmt.setInt (1, project.getYear());
 			preparedStmt.setString (2, project.getTitle());
-			preparedStmt.setString (3, project.getTopics().toString().toLowerCase());
-			preparedStmt.setString (4, project.getCompulsoryReading().toString().toLowerCase());
+			preparedStmt.setString (3, project.getTopics().toString());
+			preparedStmt.setString (4, project.getCompulsoryReading().toString());
 			preparedStmt.setString (5, project.getDescription());
 			preparedStmt.setInt (6, userID);
 			preparedStmt.setBoolean (7, true);
@@ -1395,6 +1395,42 @@ public class SQLController {
 			ps = newConnection.prepareStatement(
 					"SELECT * FROM project,interestproject WHERE interestproject.projectID = project.projectID "
 							+ " AND lecturerID = ? AND interestproject.visible = ? AND interestproject.year = ?;");
+			ps.setInt(1,userLoginID);
+			ps.setBoolean(2, true);
+			ps.setInt(3, actualYear);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			while (rs.next())
+			{
+				Project project = new Project();
+				project = getProject(rs.getInt("projectID"));
+				//Here I am getting the student who applied to this project
+				User student = getUser(rs.getInt("userID"));
+				project.setStudent(student);
+				projectList.add(project);
+			}
+		} catch (SQLException e) {
+			return projectList;
+		}
+
+		return projectList;
+	}
+	
+	/**
+	 * Method that return the list of project that students show interest 
+	 * @param userLoginID
+	 * @return projectList
+	 */
+	public List<Project> getLecturerProjectListApprovedInterest(int userLoginID) {
+		//Since I am only accepting project that their visibility is true, I am controlling that if another lecturer approve
+		//a student all the student list will stop show the interest of that student
+		//The student interest will still be keep on the DB but hidden
+		List<Project> projectList = new ArrayList<Project>();
+		PreparedStatement ps;
+		try {
+			ps = newConnection.prepareStatement(
+					"SELECT * FROM project,approvedproject WHERE approvedproject.projectID = project.projectID "
+							+ " AND lecturerID = ? AND approvedproject.visible = ? AND approvedproject.year = ?;");
 			ps.setInt(1,userLoginID);
 			ps.setBoolean(2, true);
 			ps.setInt(3, actualYear);

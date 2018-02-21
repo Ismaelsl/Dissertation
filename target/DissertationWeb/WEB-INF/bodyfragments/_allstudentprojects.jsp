@@ -85,7 +85,7 @@ of code--%>
 						<div class="col-md-12" id="modal-description"></div>
 					</div>
 					<div class="row">
-						<b>Topics:</b>
+						<b>Technologies:</b>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
@@ -111,19 +111,10 @@ of code--%>
 						data-dismiss="modal">Close</button>
 				</form:form>
 			</div>
-			<%--	<div class="modal-footer" id="modal-footer-registerInterest">
-				<form:form method="post" action="makeInterestVisible"
-					>
-					<button onclick="getProjectID();" id="modal-makeItVisible-id"
-						name="projectID" class="btn btn-success" value=" ">Make
-						it visible</button>
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Close</button>
-				</form:form>--%>
 		</div>
 	</div>
 </div>
 <div class="divjumperbuttons"><%--This div is here to force a new line between the first and second list--%></div>
-<form:form method="get" action="${previousPage}">
+<form:form method="get" action="studentlist">
 	<button class="btn btn-success" value=" ">Go back</button>
 </form:form>

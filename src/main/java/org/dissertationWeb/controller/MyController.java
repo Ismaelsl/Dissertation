@@ -53,6 +53,11 @@ public class MyController {
 	private Connection newConnection;
 
 	private SQLController sqlController;
+	
+	//Constant to control user type
+	public static final int LECTURER = 1;
+	public static final int STUDENT = 2;
+	public static final int COORDINATOR = 3;
 
 	/**
 	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
@@ -203,19 +208,6 @@ public class MyController {
 	@RequestMapping(value="/logincheck",method = RequestMethod.POST)  
 	public ModelAndView checkLogin(@ModelAttribute("user")User user, Model model, HttpServletRequest request) throws SQLException{ 
 		checkDBConnection(); //check if connection is still ON
-		//redirect to home page if you are login and try to login again
-		if(user.getPassword().isEmpty() && user.getUsername().isEmpty()) {
-			model.addAttribute("message", "Please fill the formulary");
-			return new ModelAndView("errorPage");
-		}
-		if(user.getPassword().isEmpty()) {
-			model.addAttribute("message", "Please enter a password");
-			return new ModelAndView("errorPage");
-		}
-		if(user.getUsername().isEmpty()) {
-			model.addAttribute("message", "Please enter a username");
-			return new ModelAndView("errorPage");
-		}
 		if(getSession(request) == null) return homePage(request);
 		checkDBConnection(); //check if connection is still ON
 		//user it is send to the loginCheck method in SQLController to confirm if the data entered is right, it is returning the userID if success
@@ -374,7 +366,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -414,7 +406,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -489,7 +481,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -516,7 +508,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -543,7 +535,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 2) {
+		if((Integer)session.getAttribute("userType") != STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -573,7 +565,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 2) {
+		if((Integer)session.getAttribute("userType") != STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -624,7 +616,6 @@ public class MyController {
 
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
-		System.out.println("testing URL " + session.getAttribute("previousURL"));
 		if(session.getAttribute("userID") == null) return login(request);
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
@@ -724,6 +715,12 @@ public class MyController {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
 		}
+		//Since Year it is editable here, is better to take care than you did not change year to something less than actual year
+		if(project.getYear() < sqlController.getActualYear()) {
+			model.addAttribute("message", "Year cannot be less than actual year");
+			return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
+					project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));
+		}
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -738,7 +735,6 @@ public class MyController {
 		model.addAttribute("description",project.getDescription());
 		model.addAttribute("waitingapprove",projectUpdated.isWaitingToBeApproved());
 		model.addAttribute("visible",projectUpdated.isVisible());
-		//HttpSession session = getSession(request);
 		User actualUser = sqlController.getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("lecturerID",actualUser.getUserID());
 		model.addAttribute("lecturername", actualUser.getUsername());
@@ -814,7 +810,6 @@ public class MyController {
 		model.addAttribute("documentID",1);
 		model.addAttribute("waitingToBeApproved",false);
 		model.addAttribute("checklistID",1);
-		//HttpSession session = getSession(request);
 		User actualUser = sqlController.getUser((Integer)session.getAttribute("userID"));
 		model.addAttribute("lecturerID",actualUser.getUserID());
 		model.addAttribute("lecturername", actualUser.getUsername());
@@ -1000,7 +995,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1028,7 +1023,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1199,7 +1194,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1249,7 +1244,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1307,7 +1302,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1359,7 +1354,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1426,7 +1421,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 2) {
+		if((Integer)session.getAttribute("userType") != STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1521,7 +1516,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 2) {
+		if((Integer)session.getAttribute("userType") != STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1663,7 +1658,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1728,7 +1723,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 2) {
+		if((Integer)session.getAttribute("userType") != STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1783,7 +1778,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		//only student can access this menu
-		if((Integer)session.getAttribute("userType") != 2) {
+		if((Integer)session.getAttribute("userType") != STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1823,7 +1818,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1858,7 +1853,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1871,6 +1866,35 @@ public class MyController {
 		model.addAttribute("interestListSize",projectWithInterest.size());
 		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
 		return new ModelAndView("yourPersonalListPageWithInterest");
+	}
+	
+	/**
+	 * This method it is showing the list of projects that a student show interest based on the lecturer, or in other words this method
+	 * it is creating a list of projects per lecturer that have interest show by students
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/projectlistwithinterestapproved",method = RequestMethod.GET)
+	public ModelAndView lecturerProjectListWithApprovedInterest(Model model, HttpServletRequest request) throws SQLException { 
+		//redirect to login page if you are not login
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		checkDBConnection(); //check if connection is still ON
+		if((Integer)session.getAttribute("userType") == STUDENT) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}
+		List<Project> projectWithInterestApproved = sqlController.getLecturerProjectListApprovedInterest(
+				(Integer)session.getAttribute("userID"));	
+		request.getSession().setAttribute("previousURL", request.getRequestURL());
+		model.addAttribute("projectWithInterest", projectWithInterestApproved);
+		//I been forced to send the size separately to the front end because javaScript length function
+		//does not work when the list is with objects
+		model.addAttribute("interestListSize",projectWithInterestApproved.size());
+		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
+		return new ModelAndView("projectlistapprovedinterest");
 	}
 
 	/**
@@ -1887,7 +1911,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1899,9 +1923,10 @@ public class MyController {
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
-			return new ModelAndView("errorPage");
 		}	
-		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
+		if(projectListNextYear.isEmpty()) {
+			model.addAttribute("nextyearmessage", "You do not have any project not visible for next year");
+		}
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		model.addAttribute("projectListNextYear", projectListNextYear);
 		model.addAttribute("actualYear", sqlController.getActualYear());
@@ -1928,7 +1953,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -1944,7 +1969,9 @@ public class MyController {
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
 			model.addAttribute("message", "You do not have any project not visible");
-			return new ModelAndView("errorPage");
+		}	
+		if(projectListNextYear.isEmpty()) {
+			model.addAttribute("nextyearmessage", "You do not have any project for not visible for next year");
 		}	
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		ApplicationContext context =
@@ -2000,11 +2027,10 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") == 2) {
+		if((Integer)session.getAttribute("userType") == STUDENT) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
-		//HttpSession session = getSession(request);
 		if(sqlController.approveInteret(projectID, user)) {
 			Project project = new Project();
 			project = sqlController.getProject(projectID);
@@ -2073,7 +2099,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2088,7 +2114,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2139,7 +2165,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3){
+		if((Integer)session.getAttribute("userType") != COORDINATOR){
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2187,7 +2213,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3){
+		if((Integer)session.getAttribute("userType") != COORDINATOR){
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2221,7 +2247,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2267,7 +2293,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2291,7 +2317,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
@@ -2302,13 +2328,88 @@ public class MyController {
 		model.addAttribute("actualYear", sqlController.getActualYear()+1);
 		return new ModelAndView("projectListByYearPage");
 	}
+	
+	/**
+	 * Main method where the process to upload one student starts
+	 * It is only checking that you are an admin and returning a view to the page for upload files with a new
+	 * fileBucket object that will be populated when a file is uploaded
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
+	@RequestMapping( value="/uploadonestudents",method = RequestMethod.GET)
+	public ModelAndView uploadOneNewStudent(Model model, HttpServletRequest request) throws SQLException { 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		checkDBConnection(); //check if connection is still ON
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}	
+		return new ModelAndView("addNewstudentsPage", "command", new User());
+	}
+	
+	@RequestMapping( value="/savestudent",method = RequestMethod.POST)
+	public ModelAndView saveStudent(Model model, HttpServletRequest request, User student) throws SQLException { 
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
+		checkDBConnection(); //check if connection is still ON
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
+			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			return new ModelAndView("homePage");
+		}	
+		if(student.getYear() < sqlController.getActualYear()) {
+			model.addAttribute("message", "The year cannot be less than actual year " + sqlController.getActualYear());
+			return new ModelAndView("addNewstudentsPage", "command", new User());
+		}
+		Boolean newStudentAdded = false;
+		student.setUserType(STUDENT);//since is a student this value is giving here
+		//A best approach would be to have a password generator that choose a unique password that only works for one login and then user is force
+		//to change the password
+		student.setPassword("111111");
+		if(!sqlController.checkIfUserExistInDB(student)) {
+			//add new user to the DB, if 0 means that an error happened during the inclusion of the user to the DB
+			if(sqlController.addStudentToDB(student) == 0) {
+				model.addAttribute("message", "User could not be added to the DB, please check the DB or the excel file");
+				return new ModelAndView("errorPage");
+			}
+			newStudentAdded = true;
+		}
+		if(newStudentAdded) {
+			//I am only setting this message if I actually added an user to the DB
+			model.addAttribute("message", "New user added to the system successfully in the year " + student.getYear());
+		}else {
+			//If not new students found in the file I am showing this message
+			model.addAttribute("message", "User already exist in the DB");
+		}
+		List<Integer> yearList = sqlController.getAllYearOfStudents();
+		model.addAttribute("yearList", yearList);
+		return new ModelAndView("listtStudentsByYearPage"); 
+	}
 
+
+	@RequestMapping( value="/savestudent",method = RequestMethod.GET)
+	public ModelAndView saveStudentGet(Model model, HttpServletRequest request, User student) throws SQLException { 
+		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		return new ModelAndView("homePage");  
+	}
+
+	/**
+	 * Main method where the process to upload student starts
+	 * It is only checking that you are an admin and returning a view to the page for upload files with a new
+	 * fileBucket object that will be populated when a file is uploaded
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SQLException
+	 */
 	@RequestMapping( value="/uploadstudents",method = RequestMethod.GET)
 	public ModelAndView uploadFileForNewStudents(Model model, HttpServletRequest request) throws SQLException { 
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
-		if((Integer)session.getAttribute("userType") != 3) {
+		if((Integer)session.getAttribute("userType") != COORDINATOR) {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}	
@@ -2342,6 +2443,8 @@ public class MyController {
 				 * I am using this option is better than check if the number of student in the DB 
 				 * change between the start and the end of the method
 				 */
+				int numberStudentAdded = 0;
+				int numberStudentIgnored = 0;
 				boolean newStudentAdded = false;
 				@SuppressWarnings("resource")
 				CSVReader reader = new CSVReader(new FileReader(file.getOriginalFilename()));
@@ -2351,7 +2454,7 @@ public class MyController {
 					newStudent.setUsername(nextLine[0]);
 					newStudent.setPassword(nextLine[1]);
 					newStudent.setEmail(nextLine[2]);
-					newStudent.setUserType(2);//since I am adding students, they will always have the same type
+					newStudent.setUserType(STUDENT);//since I am adding students, they will always have the same type
 					newStudent.setYear(Integer.parseInt(nextLine[4]));
 					//Only add student if the student does not exist already in the DB
 					if(!sqlController.checkIfUserExistInDB(newStudent)) {
@@ -2361,15 +2464,20 @@ public class MyController {
 							return new ModelAndView("errorPage");
 						}
 						newStudentAdded = true;
+						numberStudentAdded +=1;
+					}else {
+						numberStudentIgnored+=1;
 					}
 				}
 				reader.close();
 				if(newStudentAdded) {
 					//I am only setting this message if I actually added an user to the DB
-					model.addAttribute("message", "New users added to the system succesfully");
+					model.addAttribute("message",  numberStudentAdded + " new users added to the system successfully and " 
+					+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
 				}else {
 					//If not new students found in the file I am showing this message
-					model.addAttribute("message", "The file did not contains any new user");
+					model.addAttribute("message", numberStudentAdded + " new users added to the system successfully and " 
+					+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
 				}
 				//At the end I am showing you the list of all students
 				List<Integer> yearList = sqlController.getAllYearOfStudents();
@@ -2378,7 +2486,7 @@ public class MyController {
 			}	
 			//If the file does not have the correct format then catch the error and go back to the upload file page
 		}catch(java.lang.ArrayIndexOutOfBoundsException e) {
-			model.addAttribute("message", "Not correct file data, the correct format is "
+			model.addAttribute("message", "Not correct file data, the correct content is "
 					+ "Username, Password, Email, UserType and Year");
 			return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
 		}
@@ -2489,7 +2597,8 @@ public class MyController {
 	public ModelAndView logout(Model model, HttpServletRequest request) throws SQLException { 
 		//redirect to login page if you are not login
 		checkDBConnection(); //check if connection is still ON
-		HttpSession session = getSession(request);	
+		HttpSession session = getSession(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		//I am saving the old count of the DB when user logout, so if the old had been updated that means that the user saw the new project
 		//or event, if it has not, then the user has not see the new project or event and the message of new will be show again the next
 		//time that the user login
