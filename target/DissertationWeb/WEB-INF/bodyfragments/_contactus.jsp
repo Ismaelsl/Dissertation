@@ -6,5 +6,5 @@
 <br>
 <b>Deparment:</b> ${department}
 <br>
-<b>Email:</b> ${email}</div>
+<a href="mailto:${email}"><b>Click to send an email to the coordinator</b></a></div>
 </div>

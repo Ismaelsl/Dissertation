@@ -25,7 +25,7 @@
 			<form:hidden path="password" />
 			<form:hidden path="userType" />
 				<td colspan="2" style="border:none;">
-					<input type="submit" class="btn btn-success btn-lg" value="Save" /> 
+					<input type="submit" class="btn btn-success btn-lg" value="Save Changes" /> 
 					<input type="submit" name="cancel" value="Cancel" class="btn btn-danger btn-lg" form="homeForm" />
 				</td>
 			</tr>

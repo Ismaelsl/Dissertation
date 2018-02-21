@@ -207,7 +207,8 @@
 				Propose a project</a>
 			</li>
 			<%
-				}				
+				}		
+				if (user != 3) {
 			%>
 			<li>
 				<a href="${pageContext.request.contextPath}/contactus">
@@ -217,6 +218,7 @@
 				ContactUs</a>
 			</li>
 			<%
+				}
 				if (user == 0) {//if user is 0 means that I still did not login so login menu will be show
 			%>
 			<li>

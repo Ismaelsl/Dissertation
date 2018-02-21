@@ -705,3 +705,16 @@
 0:0:0:0:0:0:0:1 - - [21/Feb/2018:15:49:44 +0000] "GET /DissertationWeb/bootstrap/images/projectproposal.png HTTP/1.1" 200 15145 http-bio-8080-exec-9 36
 0:0:0:0:0:0:0:1 - - [21/Feb/2018:15:49:44 +0000] "GET /DissertationWeb/bootstrap/images/studentlist.png HTTP/1.1" 200 22378 http-bio-8080-exec-10 60
 0:0:0:0:0:0:0:1 - - [21/Feb/2018:15:49:44 +0000] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-10 0
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:02 +0000] "GET /DissertationWeb/home HTTP/1.1" 200 2559 http-bio-8080-exec-1 499
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:11 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 4156 http-bio-8080-exec-2 261
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:15 +0000] "GET /DissertationWeb/projectlist HTTP/1.1" 200 21831 http-bio-8080-exec-3 1455
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:18 +0000] "GET /DissertationWeb/projectinterestedlist HTTP/1.1" 200 7792 http-bio-8080-exec-4 376
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:22 +0000] "GET /DissertationWeb/logout HTTP/1.1" 200 2559 http-bio-8080-exec-5 154
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:30 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 4770 http-bio-8080-exec-6 200
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:33 +0000] "GET /DissertationWeb/newproject HTTP/1.1" 200 6208 http-bio-8080-exec-7 67
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:43 +0000] "POST /DissertationWeb/save HTTP/1.1" 200 4988 http-bio-8080-exec-8 3285
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:46 +0000] "GET /DissertationWeb/projectlecturerlist? HTTP/1.1" 200 24817 http-bio-8080-exec-9 719
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:49 +0000] "GET /DissertationWeb/projectlecturerlist HTTP/1.1" 200 24817 http-bio-8080-exec-10 605
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:53 +0000] "GET /DissertationWeb/logout HTTP/1.1" 200 2559 http-bio-8080-exec-10 144
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:12:57 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 4770 http-bio-8080-exec-10 205
+0:0:0:0:0:0:0:1 - - [21/Feb/2018:16:13:00 +0000] "GET /DissertationWeb/projectlecturerlist HTTP/1.1" 200 24817 http-bio-8080-exec-10 594

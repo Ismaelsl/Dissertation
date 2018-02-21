@@ -32,7 +32,7 @@
         <tr>    
         	<form:hidden path="projectID" /><%--This projectID is telling me which project will be updated in the DB --%>
           	<td colspan="2" style="border:none;">
-          		<input type="submit" class="btn btn-success btn-lg"  value="Save Edition" />
+          		<input type="submit" class="btn btn-success btn-lg"  value="Save Changes" />
           		<input type="submit" name="cancel" value="Cancel Edition" class="btn btn-danger btn-lg" form="cancelForm" />
           	</td>    
         </tr>    
