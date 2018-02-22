@@ -32,6 +32,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="slf4j-log4j12-1.7.2.jar"/>
 	<classpathentry kind="lib" path="sqljdbc4-2.0.jar"/>
-	<classpathentry kind="lib" path="sqljdbc4-2.0.jar.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1933,19 +1933,4 @@ public class SQLController {
 		}
 		return yearList;
 	}
-	
-	public int getTotalNumberByTechnology(String technology) {
-		try {
-			PreparedStatement ps = newConnection.prepareStatement(
-					"SELECT COUNT( DISTINCT topic) AS technologyCount FROM project");
-			ps.getResultSet();
-			ResultSet rs = ps.executeQuery();
-			while(rs.next()) {
-				return rs.getInt("technologyCount");
-			}
-		} catch (SQLException e) {
-			return 0;
-		}
-		return 0;
-	}
 }

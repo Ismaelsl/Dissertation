@@ -74,13 +74,23 @@ public class MyController {
 	 * Method that checks if the DB connection is still ON, if is not then will catch the exception and restart the connection to the DB
 	 */
 	public void checkDBConnection() {
-		try {
+		/*try {
 			//if is close will throw one of this two exception, in this case I will catch it and restart the connection
 			newConnection.isClosed();
 		}catch(com.mysql.jdbc.exceptions.jdbc4.CommunicationsException e) {
 			startDBConnection();
 		} catch (SQLException e) {
 			startDBConnection();
+		}*/
+		try {
+			if(newConnection == null) {
+				startDBConnection();
+			}else if(newConnection.isClosed()) {
+				startDBConnection();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -95,6 +105,7 @@ public class MyController {
 				if(list1.get(i).getCheckListID() == list2.get(j).getCheckListID()) {                 
 					list1.remove(list1.get(i));	
 					i--;
+					if(i < 0) i = 0;
 				}
 			}
 		}
@@ -111,6 +122,7 @@ public class MyController {
 				if(list1.get(i).getProjectID() == list2.get(j).getProjectID()) {                 
 					list1.remove(list1.get(i));	
 					i--;
+					if(i < 0) i = 0;
 				}
 			}
 		}
@@ -191,7 +203,6 @@ public class MyController {
 		checkDBConnection(); //check if connection is still ON
 		//redirect to home page if you are login and try to login again
 		if(getSession(request) == null) return homePage(request);
-		checkDBConnection(); //check if connection is still ON
 		return new ModelAndView("loginPage","command",new User());
 	}
 
@@ -209,7 +220,6 @@ public class MyController {
 	public ModelAndView checkLogin(@ModelAttribute("user")User user, Model model, HttpServletRequest request) throws SQLException{ 
 		checkDBConnection(); //check if connection is still ON
 		if(getSession(request) == null) return homePage(request);
-		checkDBConnection(); //check if connection is still ON
 		//user it is send to the loginCheck method in SQLController to confirm if the data entered is right, it is returning the userID if success
 		int userID = sqlController.loginCheck(user);
 		if(userID != 0) {//return userID 0 if fails that is why I check if userID is not 0
@@ -297,7 +307,6 @@ public class MyController {
 	@RequestMapping(value = { "/contactus" }, method = RequestMethod.GET)
 	public ModelAndView contactusPage(Model model, HttpServletRequest request) throws SQLException {
 		checkDBConnection(); //check if connection is still ON
-		checkDBConnection(); //check if connection is still ON
 		int userID = sqlController.contacPage();
 		if(userID != 0) {
 			User admin = sqlController.getUser(userID);
@@ -327,9 +336,9 @@ public class MyController {
 	@RequestMapping(value = { "/projectlist" }, method = RequestMethod.GET)
 	public ModelAndView projectListPage(Model model, HttpServletRequest request) throws SQLException {
 		//redirect to login page if you are not login
-		HttpSession session = getSession(request);
-		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
+		HttpSession session = getSession(request);
+		if(getSession(request) == null) return homePage(request);
 		int projectNum = (Integer)session.getAttribute("projectNum");
 		int oldProjectNum = (Integer)session.getAttribute("oldProjectNum");
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(true,true);
@@ -580,7 +589,7 @@ public class MyController {
 		String emailFrom = user.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
 		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project proposal from " + user.getUsername(),message);
 		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
-		return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
+		return new ModelAndView("homePage"); 
 	} 
 
 	/**

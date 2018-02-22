@@ -164,43 +164,43 @@
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_previousyearprojectlist.jsp" />  
    </definition>  
 
-   <!-- New project proposal -->
+   <!-- New project proposal Page -->
    <definition name="projectproposalpage" extends="base.definition">  
        <put-attribute name="title" value="New project proposal" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectproposal.jsp" />  
    </definition> 
    
-   <!-- Project list actual year -->
+   <!-- Project list actual year Page -->
    <definition name="projectListByYearPage" extends="base.definition">  
        <put-attribute name="title" value="New project proposal" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_projectlisttobyyear.jsp" />  
    </definition> 
    
-   <!-- Upload excel file for student information -->
+   <!-- Upload excel file for student information Page -->
    <definition name="newstudentsuploadPage" extends="base.definition">  
        <put-attribute name="title" value="New students upload file" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_uploadfile.jsp" />  
    </definition> 
    
-   <!-- Edit student page -->
+   <!-- Edit student Page -->
    <definition name="editstudentPage" extends="base.definition">  
        <put-attribute name="title" value="Edit student page" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_editstudent.jsp" />  
    </definition> 
    
-   <!-- List of students by year page -->
+   <!-- List of students by year Page -->
    <definition name="listtStudentsByYearPage" extends="base.definition">  
        <put-attribute name="title" value="List of students by year page" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofstudentbyyear.jsp" />  
    </definition> 
    
-   <!-- Form to add one student -->
+   <!-- Form to add one student Page -->
    <definition name="addNewstudentsPage" extends="base.definition">  
        <put-attribute name="title" value="List of your project that had students" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_newstudent.jsp" />  
    </definition> 
    
-   <!-- Project list that had been approved by lecturer -->
+   <!-- Project list that had been approved by lecturer Page -->
    <definition name="projectlistapprovedinterest" extends="base.definition">  
        <put-attribute name="title" value="List of your project that had students" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofprojectapprovedinterest.jsp" />  

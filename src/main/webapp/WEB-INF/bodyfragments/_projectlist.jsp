@@ -144,6 +144,11 @@ to the view from the controller or the variable names from the class --%>
 			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
 			<br />Lecturer: ${project.user.username}</div></a></b>
 		</div>	
+		<% if(projectNum > oldProjectNum){ 
+				//if I have more projects that the last time I logged in I will update the value of old project num to project num
+				//so in this way the special icon and message in the menu will dissapear
+				session.setAttribute("oldProjectNum", projectNum); 
+		   	} %>
 </c:forEach>
 <c:if test="${not empty newProjectList}">
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
