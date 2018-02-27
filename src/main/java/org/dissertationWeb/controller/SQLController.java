@@ -458,11 +458,14 @@ public class SQLController {
 		try {
 			ps = newConnection.prepareStatement(
 					"SELECT DISTINCT project.* FROM project WHERE NOT EXISTS "
-							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID) "
-							+ "AND visible = ? AND waitingtobeapproved = ? AND year = ?");
+							+ "(SELECT * FROM interestproject WHERE project.projectID = interestproject.projectID AND visible = ?) "
+							+ "AND NOT EXISTS (SELECT * FROM approvedproject WHERE project.projectID = approvedproject.projectID AND visible = ?) "
+							+ "AND project.year = ? AND project.visible = ? AND project.waitingtobeapproved = ?");
 			ps.setBoolean(1,true);
 			ps.setBoolean(2,true);
 			ps.setInt(3, actualYear);
+			ps.setBoolean(4,true);
+			ps.setBoolean(5,true);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			searchValue = searchValue.toLowerCase();

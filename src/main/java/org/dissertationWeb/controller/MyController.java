@@ -58,6 +58,8 @@ public class MyController {
 	public static final int LECTURER = 1;
 	public static final int STUDENT = 2;
 	public static final int COORDINATOR = 3;
+	
+	public int actualYear;
 
 	/**
 	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
@@ -68,6 +70,7 @@ public class MyController {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
 		sqlController = new SQLController();//object to control all the SQL activities
+		actualYear = sqlController.getActualYear();
 	}
 
 	/**
@@ -338,7 +341,7 @@ public class MyController {
 		//redirect to login page if you are not login
 		checkDBConnection(); //check if connection is still ON
 		HttpSession session = getSession(request);
-		if(getSession(request) == null) return homePage(request);
+		if(session.getAttribute("userID") == null) return login(request);
 		int projectNum = (Integer)session.getAttribute("projectNum");
 		int oldProjectNum = (Integer)session.getAttribute("oldProjectNum");
 		List<Project> projectList = sqlController.getProjectListVisibleAnDApprove(true,true);
@@ -350,7 +353,7 @@ public class MyController {
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));//getting userID from the session
 		model.addAttribute("userType", user.getUserType());
 		model.addAttribute("studentYear", user.getYear());
-		model.addAttribute("actualYear", sqlController.getActualYear());
+		model.addAttribute("actualYear", actualYear);
 		model.addAttribute("newProjectList", newProjectList);
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(projectList.isEmpty()) {
@@ -496,7 +499,7 @@ public class MyController {
 		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
-		model.addAttribute("year",sqlController.getActualYear());
+		model.addAttribute("year",actualYear);
 		//I am redirecting to homePage since I do not have a proper previous page to redirect if cancel happens
 		model.addAttribute("previousPage", "home");
 		return new ModelAndView("newprojectPage","command",new Project());  
@@ -523,7 +526,7 @@ public class MyController {
 		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
 		//So year will be predefined and readonly.
-		model.addAttribute("year",sqlController.getActualYear() + 1);//I am increasing to next year
+		model.addAttribute("year",actualYear + 1);//I am increasing to next year
 		//I am redirecting to homePage since I do not have a proper previous page to redirect if cancel happens
 		model.addAttribute("previousPage", "home");
 		return new ModelAndView("newprojectPage","command",new Project());  
@@ -725,7 +728,7 @@ public class MyController {
 			return new ModelAndView("errorPage");
 		}
 		//Since Year it is editable here, is better to take care than you did not change year to something less than actual year
-		if(project.getYear() < sqlController.getActualYear()) {
+		if(project.getYear() < actualYear) {
 			model.addAttribute("message", "Year cannot be less than actual year");
 			return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
 					project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));
@@ -804,7 +807,7 @@ public class MyController {
 		}
 		//I am allowing the compulsory reading to be optional, if the lecturer do not add any reading then I will update the reading to 
 		//no compulsory readings
-		if(project.getCompulsoryReading().isEmpty()) project.setCompulsoryReading("No compulsory readings");
+		if(project.getCompulsoryReading().isEmpty() || project.getCompulsoryReading() == null) project.setCompulsoryReading("No compulsory readings");
 		//redirect to login page if you are not login
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
@@ -1164,7 +1167,7 @@ public class MyController {
 	 * This method it is used in /checklistlist
 	 * @param list
 	 */
-	public static void bubblesrt(List<CheckList> list)
+	public void bubblesrt(List<CheckList> list)
 	{
 		CheckList temp;
 		if (list.size()>1) // check if the number of orders is larger than 1
@@ -1501,7 +1504,7 @@ public class MyController {
 	 * @return
 	 */
 	@RequestMapping(value="/registerinterest",method = RequestMethod.GET)  
-	public ModelAndView registerinterest(Model model, HttpServletRequest request) throws SQLException {  
+	public ModelAndView registerinterestGet(Model model, HttpServletRequest request) throws SQLException {  
 		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
@@ -1843,8 +1846,8 @@ public class MyController {
 		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
 		model.addAttribute("projectList", projectList);
 		model.addAttribute("projectListNextYear", projectListNextYear);
-		model.addAttribute("actualYear", sqlController.getActualYear());
-		model.addAttribute("nextYear", sqlController.getActualYear() + 1);
+		model.addAttribute("actualYear", actualYear);
+		model.addAttribute("nextYear", actualYear + 1);
 		return new ModelAndView("yourPersonalListPage");
 	}
 
@@ -1938,8 +1941,8 @@ public class MyController {
 		}
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		model.addAttribute("projectListNextYear", projectListNextYear);
-		model.addAttribute("actualYear", sqlController.getActualYear());
-		model.addAttribute("nextYear", sqlController.getActualYear() + 1);
+		model.addAttribute("actualYear", actualYear);
+		model.addAttribute("nextYear", actualYear + 1);
 		return new ModelAndView("notVisibleProjectPage");
 	}
 
@@ -1994,8 +1997,8 @@ public class MyController {
 		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		model.addAttribute("projectListNextYear", projectListNextYear);
-		model.addAttribute("actualYear", sqlController.getActualYear());
-		model.addAttribute("nextYear", sqlController.getActualYear() + 1);
+		model.addAttribute("actualYear", actualYear);
+		model.addAttribute("nextYear", actualYear + 1);
 		return new ModelAndView("notVisibleProjectPage");
 	}
 
@@ -2247,7 +2250,7 @@ public class MyController {
 	 * @throws SQLException
 	 */
 	@RequestMapping( value="/seeprojectbyyear",method = RequestMethod.POST)
-	public ModelAndView seeProviousYearProject(Model model, HttpServletRequest request, int year) throws SQLException { 
+	public ModelAndView seePreviousYearProject(Model model, HttpServletRequest request, int year) throws SQLException { 
 		if(year == 0) {
 			model.addAttribute("message", "Error loading the page");
 			return new ModelAndView("errorPage");
@@ -2310,7 +2313,7 @@ public class MyController {
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
 		//I am passing the actual year to show it on the title of the page
-		model.addAttribute("actualYear", sqlController.getActualYear());
+		model.addAttribute("actualYear", actualYear);
 		return new ModelAndView("projectListByYearPage");
 	}
 
@@ -2334,7 +2337,7 @@ public class MyController {
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
 		//I am passing the actual year + 1 to show it on the title of the page
-		model.addAttribute("actualYear", sqlController.getActualYear()+1);
+		model.addAttribute("actualYear", actualYear+1);
 		return new ModelAndView("projectListByYearPage");
 	}
 	
@@ -2368,8 +2371,8 @@ public class MyController {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}	
-		if(student.getYear() < sqlController.getActualYear()) {
-			model.addAttribute("message", "The year cannot be less than actual year " + sqlController.getActualYear());
+		if(student.getYear() < actualYear) {
+			model.addAttribute("message", "The year cannot be less than actual year " + actualYear);
 			return new ModelAndView("addNewstudentsPage", "command", new User());
 		}
 		Boolean newStudentAdded = false;
@@ -2436,6 +2439,7 @@ public class MyController {
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
 	public ModelAndView addNewStudentToDBFromCSV(@RequestParam MultipartFile file, Model model, 
 			HttpServletRequest request) throws IOException {
+		checkDBConnection(); //check if connection is still ON
 		try {
 			if(file.getOriginalFilename().isEmpty()) {//if file name is empty that means that no file was uploaded so I will show an error
 				model.addAttribute("message", "Please upload a file using the choose file button on the left");
@@ -2511,7 +2515,7 @@ public class MyController {
 	 * @throws IOException
 	 */
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.GET)
-	public ModelAndView addNewStudentToDBFromCSVGet(@RequestParam MultipartFile file, Model model, 
+	public ModelAndView addNewStudentToDBFromCSVGet(Model model, 
 			HttpServletRequest request) throws IOException {
 		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");  
@@ -2529,6 +2533,7 @@ public class MyController {
 	@RequestMapping( value="/editstudent",method = RequestMethod.POST)
 	public ModelAndView editStudent(@RequestParam(value="studentID") int studentID, 
 			Model model, HttpServletRequest request) throws SQLException { 
+		checkDBConnection(); //check if connection is still ON
 		//I create student so it can send all the information to the front end
 		User student = sqlController.getUser(studentID);
 		return new ModelAndView("editstudentPage", "command", new User(student.getUserID(),student.getUsername(), 
@@ -2543,8 +2548,7 @@ public class MyController {
 	 * @throws SQLException
 	 */
 	@RequestMapping( value="/editstudent",method = RequestMethod.GET)
-	public ModelAndView editStudentGet(@RequestParam(value="studentID") int studentID, 
-			Model model, HttpServletRequest request) throws SQLException { 
+	public ModelAndView editStudentGet(Model model, HttpServletRequest request) throws SQLException { 
 		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");  
 	}
@@ -2561,6 +2565,7 @@ public class MyController {
 	@RequestMapping(value="/saveEditStudent",method = RequestMethod.POST)  
 	public ModelAndView saveEditStudent(@ModelAttribute("student") User student, 
 			Model model, HttpServletRequest request) throws SQLException{ 
+		checkDBConnection(); //check if connection is still ON
 		int resultSavingStudent = sqlController.saveEditStudent(student);
 		//Based on the result the message show in screen will be different, but all of them will take you back to the
 		//student list page but showing the correct message that you got from the save edit method
@@ -2589,8 +2594,7 @@ public class MyController {
 	 * @throws SQLException
 	 */
 	@RequestMapping( value="/saveEditStudent",method = RequestMethod.GET)
-	public ModelAndView saveEditStudentGet(@ModelAttribute("student") User student, 
-			Model model, HttpServletRequest request) throws SQLException{ 
+	public ModelAndView saveEditStudentGet(Model model, HttpServletRequest request) throws SQLException{ 
 		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");  
 	}
