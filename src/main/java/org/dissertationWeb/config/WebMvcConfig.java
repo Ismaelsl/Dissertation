@@ -8,16 +8,15 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+//Self generated class by Spring
 @Configuration
 @EnableWebMvc
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
-//	private static final String RESOURCES_HANDLER = "/resources/";
-//	private static final String RESOURCES_LOCATION = RESOURCES_HANDLER + "**";
 
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-	//	registry.addResourceHandler(RESOURCES_HANDLER).addResourceLocations(RESOURCES_LOCATION);
+		//	registry.addResourceHandler(RESOURCES_HANDLER).addResourceLocations(RESOURCES_LOCATION);
 		// Default..
 	}
 
@@ -25,12 +24,4 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
 	}
-
-	/*@Controller
-	static class FaviconController {
-		@RequestMapping("favicon.ico")
-		String favicon() {
-			return "forward:/bootstrap/images/favicon.ico";
-		}
-	}*/
 }

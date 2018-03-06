@@ -32,14 +32,14 @@ function getSearchValue() {
     var searchValue = document.getElementById("search-value-id").value;
     search.value = searchValue;
 }
-
- function checkone(d){
- if (!d.checked) return; //if it's unchecked, then do nothing
- var os=document.getElementsByTagName('input');
- for (var i=0;i<os.length;i++){
-    if (os[i].checked&&os[i]!=d) os[i].checked=false;
-  } 
- }
+<%-- Function that only allow to choose one of the checkboxes at the same time --%>
+function checkone(d){
+ 	if (!d.checked) return; //if it's unchecked, then do nothing
+ 	var os=document.getElementsByTagName('input');
+ 	for (var i=0;i<os.length;i++){
+    	if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  	} 
+}
 <%--Function to remove the text from the textarea when you click over--%>
 function clearContents(element) {
   element.value = '';
@@ -60,11 +60,13 @@ function clearContents(element) {
 			<button onclick="getSearchValue();" id="search-id"
 					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
 </form:form>
-<h1>Project list for the year ${actualYear}</h1><h4>Click in any circle to see further details of the projects</h4>
+<h4>Click in any circle to see further details of the projects</h4>
+<h1>Project list for the year ${actualYear}</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />

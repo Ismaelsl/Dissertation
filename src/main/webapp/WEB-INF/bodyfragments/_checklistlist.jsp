@@ -25,7 +25,7 @@ function modalPopulator(date,eventname,place, checklistID, description, hour, en
     $("#modal-endhour").html(endhour);
     $("#modal-place").html(place);
     $("#modal-description").html(description);
-     actualID = checklistID;
+    actualID = checklistID;
     var visibletdiv = document.getElementById("visible");
    	var novisiblediv = document.getElementById("novisible");
     visibletdiv.style.display   = 'block';
@@ -38,7 +38,7 @@ function modalPopulatorNoVisible(date,eventname,place, checklistID, description,
     $("#modal-endhour").html(endhour);
     $("#modal-place").html(place);
     $("#modal-description").html(description);
-     actualID = checklistID;
+    actualID = checklistID;
     var visibletdiv = document.getElementById("visible");
    	var novisiblediv = document.getElementById("novisible");
    	visibletdiv.style.display   = 'none';
@@ -87,7 +87,8 @@ function menu() {
    
 }
  </script>
- <h1>Schedule of events for CSCU9Z7 (In date order)</h1><h4>Click in any circle to see further details of the events</h4>
+ <h4>Click in any circle to see further details of the events</h4>
+ <h1>Schedule of events for CSCU9Z7 (In date order)</h1>
 <h1 class="errormessage">${message}</h1><%--An error message to be show when need it --%>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
@@ -95,6 +96,7 @@ to the view from the controller or the variable names from the class --%>
 <div class="divjumper2">
 <%-- varStatus is an special JSP feature that is like a pointer, which have .last to tell you when you are in the last element of the loop --%>
 <c:forEach items="${checklistList}" var="checklist" varStatus="status">
+	<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
 	<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
@@ -117,6 +119,7 @@ to the view from the controller or the variable names from the class --%>
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h2>New Events!</h2>
 	<c:forEach items="${newEventList}" var="checklist" varStatus="status">
+	<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
 	<c:set var = "place" value="${fn:replace(checklist.place, '\"', '\\'')}" />
@@ -130,21 +133,21 @@ to the view from the controller or the variable names from the class --%>
 				<br />Place: ${fn:escapeXml(place)}<br />
 				<br />Starting time: ${checklist.hour}
 				<br />Ending time: ${checklist.endHour}
-			</div></a></b>
+			</div></a></b></div>
 			<% if(eventNum > oldEventNum){ 
 				//if I have more events that the last time I logged in I will update the value of old event to event num
 				//so in this way the special icon and message in the menu will dissapear
-				session.setAttribute("oldEventNum", eventNum); 
+					session.setAttribute("oldEventNum", eventNum); 
 		   		} %>
 </c:forEach>
 </div>
 </c:if>
 
-<div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
+<div class="divjumper"><%--This div is here to force a new line between the first and second list--%>
 <body onload='chooseMessage("${notapprovedsize}")'>
 	<h2 id="secondList"></h2>
 </body>
-<div id="secondListProjects">
+<div id="secondListProjects"><%--This id makes this list invisible to students and lecturers--%>
 <c:forEach items="${checklistListNotApproved}" var="checklist">
 <c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(checklist.description, '\"', '\\'')}" />
@@ -159,8 +162,7 @@ to the view from the controller or the variable names from the class --%>
 				<br />Place: ${fn:escapeXml(place)}<br />
 				<br />Starting time: ${checklist.hour}
 				<br />Ending time: ${checklist.endHour}
-			</div></a></b>
-			</div>
+			</div></a></b></div>
 </c:forEach>
 </div>
 </div>

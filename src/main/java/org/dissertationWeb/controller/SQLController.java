@@ -27,7 +27,12 @@ import org.dissertationWeb.classes.User;
  */
 public class SQLController {
 	private Connection newConnection;
-	private int actualYear = 2017;
+	private int actualYear = 2017;//I do not like to have this hardcode here, but is the best solution to show which year you are working with
+
+	//This two constant control the date within dissertation happens, which should be between 01 March to 31 next year Mat
+	private final String MONTHDAY = "-06-01";//right now I am using june for testing purpose, but the real date must be 03-01
+	private final String NEXTMONTHDAY = "-05-31"; //this is when students should be done with dissertation
+	private final String HOURSECONDMILI = " 00:00:00";
 
 	public int getActualYear() {
 		return actualYear;
@@ -36,13 +41,14 @@ public class SQLController {
 	public SQLController() {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
+		//when sqlController created the year it is update immediately, so hardcode value will be only use if we are really in 2017 dissertation year
 		updateYear();
 	}
-	
+
 	/**
 	 * SQL Method that is counting how many projects in the DB I have, the idea is count when enter and check with the previous count in the DB
 	 * if I have more then a green tick will be show on the project list in the menu.
-	 * @return
+	 * @return number of projects in DB if success and 0 if fails
 	 */
 	public int numberOfProjectsInDB() {
 		try {
@@ -70,7 +76,12 @@ public class SQLController {
 		}
 		return 0;
 	}
-	
+
+	/**
+	 * SQL Method to count how many events, that are visible, are in the Database,
+	 * this method it is use to keep record on the cookie and show the new event icon if need it
+	 * @return total count of events if success and 0 if fails
+	 */
 	public int numberOfEventsInDB() {
 		String query = " SELECT COUNT(*) AS eventCount FROM checklist WHERE visible = ?";
 		try {
@@ -87,7 +98,16 @@ public class SQLController {
 		}
 		return 0;
 	}
-	
+
+	/**
+	 * SQL Method that update the table dbcount with the actual total number of projects and events in the DB
+	 * If the user still does not have any entry on dbcount then the system will insert the new entry with the
+	 * total count of project and events
+	 * @param userID
+	 * @param projectCount
+	 * @param eventCount
+	 * @return 1 if success 0 if fails
+	 */
 	public int updateDBCount(int userID, int projectCount, int eventCount) {
 		PreparedStatement ps;
 		try {
@@ -97,7 +117,6 @@ public class SQLController {
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				System.out.println("Inside of update");
 				PreparedStatement ps2 = newConnection.prepareStatement(
 						"UPDATE dbcount SET projectcount = ?, eventcount = ? WHERE userID = ?");
 				ps2.setInt(1,projectCount);
@@ -110,7 +129,6 @@ public class SQLController {
 			rs.close();
 			ps.close();
 			//If the row does not exist in the DB then I will insert it, but if exist it will be update and then leave the method
-			System.out.println("Inside of insert");
 			String queryInsert = " INSERT INTO dbcount (userID, projectcount, eventcount, waitapprovecount) VALUES (?, ?, ?, ?)";
 			PreparedStatement preparedStmt;
 			try {
@@ -130,12 +148,17 @@ public class SQLController {
 		}
 		return 0;
 	}
-	
+
+	/**
+	 * SQL Method that obtain the number of projects that the user has in his/her last visit
+	 * @param userID
+	 * @return total count of projects if success or 0 if fails
+	 */
 	public int getProjectCountDB(int userID) {
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
-						"SELECT projectcount FROM dbcount WHERE userID = ?");
+					"SELECT projectcount FROM dbcount WHERE userID = ?");
 			ps.setInt(1,userID);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
@@ -145,12 +168,17 @@ public class SQLController {
 		}		
 		return 0;
 	}
-	
+
+	/**
+	 * SQL Method that obtain the number of events that the user has in his/her last visit
+	 * @param userID
+	 * @return total count of events if success or 0 if fails
+	 */
 	public int getEventCountDB(int userID) {
 		PreparedStatement ps;
 		try {
 			ps = newConnection.prepareStatement(
-						"SELECT eventcount FROM dbcount WHERE userID = ?");
+					"SELECT eventcount FROM dbcount WHERE userID = ?");
 			ps.setInt(1,userID);
 			ps.getResultSet();
 			ResultSet rs = ps.executeQuery();
@@ -160,7 +188,7 @@ public class SQLController {
 		}		
 		return 0;
 	}
-	
+
 	/**
 	 * This SQL method is only doing a really basic query to keep the connection alive
 	 * is not returning the data or doing anything with the data.
@@ -183,7 +211,7 @@ public class SQLController {
 	public void updateYear() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
-			Date changeDate = sdf.parse(Calendar.getInstance().get(Calendar.YEAR) + "-03-01 00:00:00");
+			Date changeDate = sdf.parse(Calendar.getInstance().get(Calendar.YEAR) + MONTHDAY + HOURSECONDMILI);
 			Date today = new Date();
 			//I am checking both just in case some delay happens and I compare dates a little bit late in this case if today is after changeDate will
 			//trigger the change as well
@@ -192,6 +220,7 @@ public class SQLController {
 				actualYear = Calendar.getInstance().get(Calendar.YEAR);
 			}
 		} catch (ParseException e) {
+			//This catch should never been reach since the parsing is quite simple and all the data is automatic
 		}
 	}
 
@@ -348,7 +377,6 @@ public class SQLController {
 				ps2.setInt(6,rs.getInt("projectID"));
 				ps2.executeUpdate();
 				ps2.close();
-				//newConnection.commit();
 			}
 			rs.close();
 			ps.close();
@@ -471,7 +499,6 @@ public class SQLController {
 			searchValue = searchValue.toLowerCase();
 			while (rs.next())
 			{
-				//if(rs.getBoolean("waitingtobeapproved") == false) continue; //if the project is not approved, then added to the view
 				Project project = new Project();
 				if(technology != null) {
 					if(rs.getString("topic").toLowerCase().contains(searchValue)) {
@@ -535,6 +562,36 @@ public class SQLController {
 			return null;
 		}
 		return projectList;
+	}
+	/**
+	 * SQL Method to get an event based on its ID
+	 * @param checklistID
+	 * @return
+	 */
+	public CheckList getchecklist(int checklistID) {
+
+		String query = " SELECT * FROM checklist WHERE checklistID = ?";
+		CheckList checklist = new CheckList();
+		try {
+			PreparedStatement ps = newConnection.prepareStatement(query);
+			ps.setInt(1, checklistID);
+			ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+
+				checklist.setCheckListID(rs.getInt("checklistID"));
+				checklist.setDate(rs.getString("date"));
+				checklist.setEventName(rs.getString("eventname"));
+				checklist.setPlace(rs.getString("place"));
+				checklist.setDescription(rs.getString("description"));
+				checklist.setHour(rs.getString("hour"));
+				checklist.setEndHour(rs.getString("endhour"));
+			}else {
+				return checklist;
+			}
+		} catch (SQLException e) {
+		}	
+		return checklist;
 	}
 
 	/**
@@ -652,7 +709,6 @@ public class SQLController {
 				ps.close();
 				rs.close();
 				return 0;
-				//newConnection.commit();
 			}
 		} catch (SQLException e) {
 			return 2;
@@ -717,7 +773,7 @@ public class SQLController {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * SQL Method that is returning true if student already have a final project approved
 	 * And false if not
@@ -740,8 +796,8 @@ public class SQLController {
 				return true;
 			}
 		}catch(Exception e) {
-			
-			}
+
+		}
 		return false;
 	}
 
@@ -778,7 +834,7 @@ public class SQLController {
 	 * @param user
 	 * @return
 	 */
-	public boolean approveInteret(int projectID, User user) {
+	public boolean approveInterest(int projectID, User user) {
 		@SuppressWarnings("unused")
 		Project project = new Project();
 		project = getProject(projectID);
@@ -807,7 +863,6 @@ public class SQLController {
 	 * @throws SQLException
 	 */
 	public int getLastProjectID() throws SQLException {
-		//if(newConnection == null) startDBConnection();
 		String query = "SELECT projectID FROM project ORDER BY projectID DESC LIMIT 1";
 		Statement st = newConnection.createStatement();
 		ResultSet rs = st.executeQuery(query);
@@ -821,12 +876,11 @@ public class SQLController {
 	}
 
 	/**
-	 * SQL method used to obtain the last checkListID saved on the DB
+	 * SQL method used to obtain the last checkListID saved on the DB for the event
 	 * @return
 	 * @throws SQLException
 	 */
 	public int getLastChecklistID() throws SQLException {
-		//if(newConnection == null) startDBConnection();
 		String query = "SELECT checklistID FROM checklist ORDER BY checklistID DESC LIMIT 1";
 		Statement st = newConnection.createStatement();
 		ResultSet rs = st.executeQuery(query);
@@ -1114,7 +1168,7 @@ public class SQLController {
 		return projectList;
 
 	}
-	
+
 	/**
 	 * SQL Method that is taking all the projects that are not already chosen or approved for other students
 	 * but only the projects that are between the range of projects that are the difference between the total
@@ -1188,9 +1242,9 @@ public class SQLController {
 			 * because I need to say in my SQL query two dates between to choose the events
 			 * I am converting to SQL date since my DB is using this kind of date
 			 */
-			String actualYearDate = Integer.toString(actualYear) + "-03-01";
+			String actualYearDate = Integer.toString(actualYear) + MONTHDAY;
 			java.sql.Date sqlDateActualYear = java.sql.Date.valueOf( actualYearDate );
-			String nextYearDate = Integer.toString(actualYear + 1) + "-05-31";
+			String nextYearDate = Integer.toString(actualYear + 1) + NEXTMONTHDAY;
 			java.sql.Date sqlDateNextYear = java.sql.Date.valueOf( nextYearDate );
 			ps = newConnection.prepareStatement(
 					"SELECT * FROM checklist WHERE date BETWEEN ? AND ?");
@@ -1219,7 +1273,7 @@ public class SQLController {
 		}
 		return checklistList;
 	}
-	
+
 	/**
 	 * SQL Method to obtain the last number of elements from the DB that are the newer
 	 * @param status
@@ -1418,7 +1472,7 @@ public class SQLController {
 
 		return projectList;
 	}
-	
+
 	/**
 	 * Method that return the list of project that students show interest 
 	 * @param userLoginID
@@ -1533,7 +1587,6 @@ public class SQLController {
 				ps2.setInt(2, checklistID);
 				ps2.execute();
 				ps2.close();
-				//newConnection.commit();
 			}
 			rs.close();
 			ps.close();
@@ -1562,7 +1615,6 @@ public class SQLController {
 				ps2.setInt(2, projectID);
 				ps2.execute();
 				ps2.close();
-				//newConnection.commit();
 			}
 			rs.close();
 			ps.close();
@@ -1594,7 +1646,6 @@ public class SQLController {
 				ps2.setInt(3, userID);
 				ps2.execute();
 				ps2.close();
-				//newConnection.commit();
 			}
 			rs.close();
 			ps.close();
@@ -1626,7 +1677,6 @@ public class SQLController {
 				ps2.setInt(3, userID);
 				ps2.execute();
 				ps2.close();
-				//newConnection.commit();
 			}
 			rs.close();
 			ps.close();
@@ -1657,7 +1707,6 @@ public class SQLController {
 				ps2.setInt(3, actualYear);
 				ps2.execute();
 				ps2.close();
-				//newConnection.commit();
 			}
 			rs.close();
 			ps.close();
@@ -1823,7 +1872,7 @@ public class SQLController {
 	public List<Project> getAllProjectNextYear() {
 		return getProjectsByYear(actualYear+1);
 	}
-	
+
 	/**
 	 * Method to add a new student to the DB, the data is coming from the CSV files that had been upload in the method
 	 * addNewStudentToDBFromCSV
@@ -1849,7 +1898,7 @@ public class SQLController {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * SQL Method that check if the user exist in the DB, and return true or false based on that
 	 * @param user
@@ -1876,7 +1925,7 @@ public class SQLController {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * SQL Method to save the edit data of the user into the DB, will return 0 if OK, 1 if not saved and 2 if SQL error
 	 * @param student
@@ -1912,7 +1961,7 @@ public class SQLController {
 		}
 		return 1;
 	}
-	
+
 	/**
 	 * SQL method to get a list of all the years that I have in the DB for students
 	 * @return

@@ -1,14 +1,10 @@
 package org.dissertationWeb.classes;
 
 /**
- * Class that I am using to control the projects within the application
+ * Main class for project, it contains all the attribute and method need it to manage projects
+ * @author ismael
+ *
  */
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
 public class Project {
 	private int projectID;
 	private int year;
@@ -54,6 +50,8 @@ public class Project {
 		this.compulsoryReading = compulsoryReading;
 		this.description = description;
 	}
+
+	//Getter and setter area
 	public int getProjectID() {
 		return projectID;
 	}
@@ -129,5 +127,5 @@ public class Project {
 	public int getlecturerID() {
 		return lecturerID;
 	}
-
+	//End getter and setter area
 }

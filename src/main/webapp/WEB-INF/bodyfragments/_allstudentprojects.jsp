@@ -27,8 +27,8 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
     $("#modal-lecturerEmail").html(lecturerEmail );
     actualID = projectID;
     userID = user;
-     var userIDToRemove = document.getElementById("userIDRemove");
-     userIDToRemove.value = userID;
+    var userIDToRemove = document.getElementById("userIDRemove");
+    userIDToRemove.value = userID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getProjectID() { 
@@ -42,12 +42,13 @@ function getProjectID() {
 to the view from the controller or the variable names from the class --%>
 <%--I am using and if statement to check if the student have or not a final project, if student have one
 then this piece of code will be load--%>
-<h1>Final Project</h1><h4>Click in any circle to see further details of the projects</h4>
+<h4>Click in any circle to see further details of the projects</h4>
+<h1>Final Project</h1>
 <c:if test="${noFinalProject}">
 	<h2>
 		This is the final project chosen by the student ${finalProject.student.username}
 	</h2>
-
+	<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(finalProject.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(finalProject.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(finalProject.topics, '\"', '\\'')}" />

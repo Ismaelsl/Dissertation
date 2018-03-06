@@ -10,11 +10,11 @@ public class User {
 	private String username;
 	private String password;
 	private String email;
-	private int userType;
+	private int userType;//This attribute decide which kind of user are you
 	private int year;
-	
+
 	public User() {
-		
+
 	}
 	//Constructor used only when edit student
 	public User (int userID, String username, String password, String email, int userType, int year) {
@@ -25,13 +25,15 @@ public class User {
 		this.userType = userType;
 		this.year = year;
 	}
+
+	//Getter and setter area
 	public void setUserType(int type){
 		this.userType = type;
 	}
 	public int getUserType() {
 		return this.userType;
 	}
-	
+
 	public void setUserID(int id) {
 		this.userID = id;
 	}
@@ -62,5 +64,5 @@ public class User {
 	public void setYear(int year) {
 		this.year = year;
 	}
-
+	//End getter and setter area
 }

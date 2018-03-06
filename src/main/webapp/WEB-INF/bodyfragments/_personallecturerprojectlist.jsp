@@ -41,12 +41,14 @@ function chooseMessage(listSize){
 	}
 }
  </script>
-<h1>Your personal list of projects for ${actualYear}</h1><h4>Click in any circle to see further details of the projects</h4>
+<h4>Click in any circle to see further details of the projects</h4>
+<h1>Your personal list of projects for ${actualYear}</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <div class="divjumper2">
 <c:forEach items="${projectList}" var="project">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />

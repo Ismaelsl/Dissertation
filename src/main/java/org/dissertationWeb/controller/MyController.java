@@ -40,7 +40,8 @@ import com.opencsv.CSVReader;
 
 /**
  * Main controller class, here I only have method that contains the @RequestMapping or in other words a link between the browser and java
- * those methods are the one that are populating the front end with the data necessary.
+ * those methods are the one that are populating the front end with the data necessary 
+ * or methods directly related with the method mentioned before
  * @author Ismael
  *
  */
@@ -53,13 +54,16 @@ public class MyController {
 	private Connection newConnection;
 
 	private SQLController sqlController;
-	
+
 	//Constant to control user type
 	public static final int LECTURER = 1;
 	public static final int STUDENT = 2;
 	public static final int COORDINATOR = 3;
-	
-	public int actualYear;
+
+	//Constant for the contact us section to specify the department
+	public static final String DEPARTMENT = "Computer Science";
+
+	public int actualYear;//Actual year it is use all around the application to tell SQLController which year for projects, event, user load 
 
 	/**
 	 * Main method that start the connection with the DB and start the SQLController class which contains all the SQL related methods
@@ -70,7 +74,7 @@ public class MyController {
 		DBConnection connect = new DBConnection();
 		newConnection = connect.connect();
 		sqlController = new SQLController();//object to control all the SQL activities
-		actualYear = sqlController.getActualYear();
+		actualYear = sqlController.getActualYear();//I am updating the year from SQLController
 	}
 
 	/**
@@ -92,13 +96,12 @@ public class MyController {
 				startDBConnection();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Method that is removing the element that share from one list with another
+	 * Method that is removing the element that share from one event list with another
 	 * @param checklistList
 	 * @param newListList
 	 */
@@ -115,7 +118,7 @@ public class MyController {
 	}
 
 	/**
-	 * Method that is removing the element that share from one list with another
+	 * Method that is removing the element that share from one project list with another
 	 * @param checklistList
 	 * @param newListList
 	 */
@@ -141,7 +144,6 @@ public class MyController {
 	@Scheduled(fixedRate = 2700000 )//check every 45 minutes
 	public void keepConnection() throws SQLException {
 		checkDBConnection();
-		//if(newConnection.isClosed())startDBConnection();
 		sqlController.keepConnectionAlive();
 	}
 	/**
@@ -175,7 +177,7 @@ public class MyController {
 				}
 			}
 			mm.sendAutomaticEmailSchedule("Those are the events coming this week \n" + finalTable, "ismael.sanchez.leon@gmail.com",
-					"tatowoke@gmail.com", "New events coming this week");	
+					"iss00009uos@gmail.com", "New events coming this week");	
 		}
 	}
 
@@ -228,8 +230,10 @@ public class MyController {
 		if(userID != 0) {//return userID 0 if fails that is why I check if userID is not 0
 			User userLogged = sqlController.getUser(userID);
 			createSession(request,userLogged.getUserID(), userLogged.getUserType(), userLogged.getYear());//createSession method
+			//I am generating the welcome message to be shown after be login here
 			model.addAttribute("welcomeMessage", "Welcome back: ");
 			model.addAttribute("username", userLogged.getUsername());
+			//The welcome message it is passed to the homePage here
 			return new ModelAndView("homePage");
 		}else {
 			model.addAttribute("message", "You are not logged in, please go to login page and enter your credentials");
@@ -272,8 +276,6 @@ public class MyController {
 		//But I think that this call are not that complex to the DB and will not take too many resources
 		int oldNumberOfProject = sqlController.getProjectCountDB(userID);
 		int oldNumberOfEvent = sqlController.getEventCountDB(userID);
-		//System.out.println("number of projects are " + numberOfProject + " number of events are " + numberOfEvents);
-		//System.out.println("Old number of projects are " + oldNumberOfProject + " Old number of events are " + oldNumberOfEvent);
 		session.setAttribute("userID", userID);
 		session.setAttribute("userType", userType);
 		session.setAttribute("yearUser", year);
@@ -293,7 +295,7 @@ public class MyController {
 	public HttpSession getSession(HttpServletRequest request) throws SQLException {
 		checkDBConnection(); //check if connection is still ON
 		HttpSession session = request.getSession() ;
-		if(session!= null) {
+		if(session!= null) {//if session exist, then return the session if not return null
 			return request.getSession();
 		}
 		return null;
@@ -315,7 +317,7 @@ public class MyController {
 			User admin = sqlController.getUser(userID);
 			//Passing the data to the model
 			model.addAttribute("name", admin.getUsername());
-			model.addAttribute("department", "Computer Science");
+			model.addAttribute("department", DEPARTMENT);//This is hardcode as a constant since for now this web application is only for CS
 			model.addAttribute("email", admin.getEmail());
 			return new ModelAndView("contactusPage");
 		}else { //if retrieving the data fail, then an error page it is load
@@ -422,7 +424,7 @@ public class MyController {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
-		if(sqlController.approveProject(projectID)!= 0) {
+		if(sqlController.approveProject(projectID)!= 0) {//if I am getting 0, that means error
 			Project project = new Project();
 			project = sqlController.getProject(projectID);
 			//Area of populating the model view
@@ -447,10 +449,10 @@ public class MyController {
 			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			if(mm.sendAutomaticEmail(actualUser, "Your project has been approved", "ismael.sanchez.leon@gmail.com",
-					"tatowoke@gmail.com", "Approved project from ")){
+					"iss00009uos@gmail.com", "Approved project from ")){
 				//Final version will be sending an email to the lecturer letting him now that the project had been approved
 				//(mm.sendAutomaticEmail(actualUser, "Your project has been approved", actualUser.getEmail(),
-				//"tatowoke@gmail.com", "You approved the project " + project.getTitle())
+				//"iss00009uos@gmail.com", "You approved the project " + project.getTitle())
 				model.addAttribute("previousPage", session.getAttribute("previousURL"));
 				return new ModelAndView("projectPage","project",model);//will display object data 
 			}else {
@@ -590,7 +592,7 @@ public class MyController {
 		String message = mm.createMessageProjectProposal(user.getUsername(), project.getDescription(),
 				project.getCompulsoryReading(),project.getTitle(),project.getTopics());
 		String emailFrom = user.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project proposal from " + user.getUsername(),message);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","New project proposal from " + user.getUsername(),message);
 		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
 		return new ModelAndView("homePage"); 
 	} 
@@ -688,7 +690,7 @@ public class MyController {
 		String message = "The visibility of your project had been deactivated";
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		String lecturerEmail = user.getEmail();
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Project removed from " + user.getUsername(),message);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Project removed from " + user.getUsername(),message);
 		model.addAttribute("mainmessage", "You make the project " + project.getTitle() + 
 				" not visible to students ");
 		model.addAttribute("secondmessage", " If you want to make the project visible again "
@@ -729,7 +731,7 @@ public class MyController {
 		}
 		//Since Year it is editable here, is better to take care than you did not change year to something less than actual year
 		if(project.getYear() < actualYear) {
-			model.addAttribute("message", "Year cannot be less than actual year");
+			model.addAttribute("message", "Year cannot be before than actual year");
 			return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
 					project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));
 		}
@@ -761,7 +763,7 @@ public class MyController {
 			String message = "Your project had been modified";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 			String lecturerEmail = user.getEmail();
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Modified project from " + user.getUsername(),message);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Modified project from " + user.getUsername(),message);
 			return new ModelAndView("projectPage","project",model);//will display object data  
 		case 1 : 
 			model.addAttribute("message", "That project already exist in the DB");
@@ -835,7 +837,7 @@ public class MyController {
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = mm.newOrApproveProjectMessage(actualUser.getUsername(),project.getTitle(), "created");
 			String emailFrom = actualUser.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","New project from " + actualUser.getUsername(),message);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","New project from " + actualUser.getUsername(),message);
 			model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
 			return new ModelAndView("projectPage","project",model);//will display object data  
 		case 1 : 
@@ -1087,7 +1089,7 @@ public class MyController {
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "A new element in the scheduled had been added";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com",
 					"New element in the scheduled added for " + user.getUsername(),message);
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
 		case 1 : 
@@ -1136,6 +1138,7 @@ public class MyController {
 		//I am only interested to do this if I have elements, if not then ignore the sorting, no point
 		if(!newEventList.isEmpty()) {
 			removeDuplicateFromEventList(checklistList, newEventList);
+			bubblesrt(newEventList);//sort the list by date
 			model.addAttribute("newEventList", newEventList);
 		}
 		/**
@@ -1151,7 +1154,7 @@ public class MyController {
 		}
 		//I am sorting both list to be show in a date order
 		bubblesrt(checklistList);
-		bubblesrt(checklistListNotApproved);
+		if(!checklistListNotApproved.isEmpty()) bubblesrt(checklistListNotApproved); //only sort if the list is not empty
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("userType", (Integer)session.getAttribute("userType"));
@@ -1211,7 +1214,7 @@ public class MyController {
 			return new ModelAndView("homePage");
 		}
 		CheckList checkList = new CheckList();
-		checkList = checkList.getchecklist(checklistID);
+		checkList = sqlController.getchecklist(checklistID);
 		//I am populating here the view so the user can modify the checklist, if I need to add more data to the form I should
 		//update the constructor on checklist class
 		model.addAttribute("checklistID", checklistID); //passing checklistID to the frontend
@@ -1266,10 +1269,10 @@ public class MyController {
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
 		MailMail mm = (MailMail) context.getBean("mailMail");
 		CheckList checkList = new CheckList();
-		checkList = checkList.getchecklist(checklistID);
+		checkList = sqlController.getchecklist(checklistID);
 		String message = "The element in the scheduled " + checkList.getEventName() + " had been removed";
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com",
 				"An element in the scheduled had been removed for " + user.getUsername(),message);
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		model.addAttribute("mainmessage", "You make the event " + checkList.getEventName() + 
@@ -1318,12 +1321,16 @@ public class MyController {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
-		//System.out.println("test projectID " + checklistID);
 		sqlController.updateChecklist(checklistID,true);
 		List<CheckList> checklistList = sqlController.getCheckListList(true);
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
+		//This should never happens since this method is redirecting from a populated list, but better to prevent that regret
+		if(checklistList.isEmpty()) {
+			model.addAttribute("message", "Error loading the events page, please try again later");
+			return new ModelAndView("errorPage");
+		}
 		bubblesrt(checklistList);
-		bubblesrt(checklistListNotApproved);
+		if(!checklistListNotApproved.isEmpty()) bubblesrt(checklistListNotApproved); //only sort if the list is not empty
 		model.addAttribute("checklistList", checklistList);
 		model.addAttribute("checklistListNotApproved", checklistListNotApproved);
 		model.addAttribute("notapprovedsize", checklistListNotApproved.size());
@@ -1372,6 +1379,7 @@ public class MyController {
 		}
 		model.addAttribute("date", checklist.getDate());
 		model.addAttribute("eventname", checklist.getEventName());
+		model.addAttribute("description", checklist.getDescription());
 		model.addAttribute("place", checklist.getPlace());
 		model.addAttribute("hour", checklist.getHour());
 		model.addAttribute("endhour", checklist.getEndHour());
@@ -1383,7 +1391,7 @@ public class MyController {
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			String message = "The element in the scheduled " + checklist.getEventName() + " had been modified";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com",
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com",
 					"An element in the scheduled had been modified for " + user.getUsername(),message);
 			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
@@ -1455,8 +1463,9 @@ public class MyController {
 			//I am using same page since the final message for project or checklist is the same
 			List<Project> projectList = sqlController.getProjectInterestedListByStudent(true,(Integer)session.getAttribute("userID"));
 			List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
-			if(projectList.isEmpty()) {
-				model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			//I am taking under consideration the situation where a student have only not visible projects in his/her list
+			if(projectList.isEmpty() && projectListNotVisible.isEmpty()) {
+				model.addAttribute("message", "You do not have any project with interest, go to project list and choose one!");
 				return new ModelAndView("errorPage");
 			}
 			model.addAttribute("projectListNotVisible",projectListNotVisible);
@@ -1474,9 +1483,9 @@ public class MyController {
 			String messageStudent = "Your interest in the project " + project.getTitle() + 
 					" had been send to the lecturer " + lecturer.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageStudent);
 			return new ModelAndView("interestProjectListPage","projectList",projectList); 
 		case 2:
 			model.addAttribute("message", "You are already register in this project");
@@ -1556,7 +1565,7 @@ public class MyController {
 			List<Project> projectList = sqlController.getProjectInterestedListByStudent(true, (Integer)session.getAttribute("userID"));
 			List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 			if(projectList.isEmpty()) {
-				model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+				model.addAttribute("message", "You do not have any project with interest, go to project list and choose one!");
 				return new ModelAndView("errorPage");
 			}
 			model.addAttribute("projectListNotVisible",projectListNotVisible);
@@ -1573,9 +1582,9 @@ public class MyController {
 			String messageLecturer = "Student " + user.getUsername() + " had show interest in your project " + project.getTitle();
 			String messageStudent = "Your interest in the project " + project.getTitle() + " had been send to the lecturer " + lecturer.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your proejcts",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your proejcts",messageStudent);
 			return new ModelAndView("interestProjectListPage","projectList",projectList);
 		}
 	}
@@ -1624,12 +1633,12 @@ public class MyController {
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		User lecturer = sqlController.getUser(project.getlecturerID());
-		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
+		String messageStudent = "Lecturer " + lecturer.getUsername() + " had remove your interest in the project " + project.getTitle();
 		String messageLecturer = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","You just remove interest from a project",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You just remove interest from a project",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","One of your request for project had been cancel",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","One of your request for project had been cancel",messageStudent);
 		model.addAttribute("mainmessage", "The interest in " + project.getTitle() + 
 				" had been removed succesfully");
 		model.addAttribute("secondmessage", " Automatic email been sended to student and to yourself");
@@ -1688,9 +1697,9 @@ public class MyController {
 		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
 		String messageLecturer = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Your remoed final interest of a project",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Your remoed final interest of a project",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Your final interest in project had been removed",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Your final interest in project had been removed",messageStudent);
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		model.addAttribute("mainmessage", "The final project in " + project.getTitle() + 
 				" had been removed succesfully ");
@@ -1751,9 +1760,9 @@ public class MyController {
 		String messageLecturer = "Student " + student.getUsername() + " had cancel the interest in your project " + project.getTitle();
 		String messageStudent = "You remove the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","A student remove interest in one of your projects",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","A student remove interest in one of your projects",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","You remove interest in a project",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You remove interest in a project",messageStudent);
 		//I am using same page since the final message for project or checklist is the same
 		model.addAttribute("mainmessage", "The interest in " + project.getTitle() + 
 				" had been removed succesfully ");
@@ -1809,7 +1818,7 @@ public class MyController {
 		List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty() && projectListNotVisible.isEmpty()) {
-			model.addAttribute("message", "You do not have any project register yet, go to projec list and choose one!");
+			model.addAttribute("message", "You do not have any project with interest yet, go to project list and choose one!");
 			return new ModelAndView("errorPage");
 		}	
 		model.addAttribute("projectListNotVisible",projectListNotVisible);
@@ -1847,7 +1856,7 @@ public class MyController {
 		model.addAttribute("projectList", projectList);
 		model.addAttribute("projectListNextYear", projectListNextYear);
 		model.addAttribute("actualYear", actualYear);
-		model.addAttribute("nextYear", actualYear + 1);
+		model.addAttribute("nextYear", actualYear + 1);//next year it is obtained increasing the actual year plus one
 		return new ModelAndView("yourPersonalListPage");
 	}
 
@@ -1879,7 +1888,7 @@ public class MyController {
 		model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend
 		return new ModelAndView("yourPersonalListPageWithInterest");
 	}
-	
+
 	/**
 	 * This method it is showing the list of projects that a student show interest based on the lecturer, or in other words this method
 	 * it is creating a list of projects per lecturer that have interest show by students
@@ -1991,7 +2000,7 @@ public class MyController {
 		MailMail mm = (MailMail) context.getBean("mailMail");
 		String messageStudent = "You make visible the project " + project.getTitle();
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your proejcts",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your proejcts",messageStudent);
 		//extra message to show that the project had been made visible
 		model.addAttribute("message", "Project " + project.getTitle() + " is visible now to students");
 		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
@@ -2043,7 +2052,7 @@ public class MyController {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
-		if(sqlController.approveInteret(projectID, user)) {
+		if(sqlController.approveInterest(projectID, user)) {//approveInterest return a boolean true if success false if fails
 			Project project = new Project();
 			project = sqlController.getProject(projectID);
 			//getting user based on the userID, so I can have access to all his data
@@ -2073,9 +2082,9 @@ public class MyController {
 					project.getTitle() + " had been approved!";
 			String messageLecturer = "You approved the interest in the project " + project.getTitle() + "for student " + student.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","tatowoke@gmail.com","Someone register in one of your projects",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageStudent);
 			return new ModelAndView("yourPersonalListPageWithInterest");
 		}else {
 			model.addAttribute("message", "Error approving project, please try again later");
@@ -2119,7 +2128,7 @@ public class MyController {
 		model.addAttribute("yearList", yearList);
 		return new ModelAndView("listtStudentsByYearPage"); 
 	}
-	
+
 	@RequestMapping( value="/seestudentsbyyear",method = RequestMethod.POST)
 	public ModelAndView allStudentsByYearPage(Model model, HttpServletRequest request, int year) throws SQLException { 
 		//redirect to login page if you are not login
@@ -2130,7 +2139,7 @@ public class MyController {
 			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
 			return new ModelAndView("homePage");
 		}
-		
+
 		List<User> studentList = sqlController.getAllStudentList(year);
 		if(studentList.isEmpty()) {
 			model.addAttribute("message", "No students for this year");
@@ -2140,7 +2149,7 @@ public class MyController {
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		return new ModelAndView("studentListPage","studentList",studentList);  
 	}
-	
+
 	/**
 	 * This method is a copy of the previous method since I need to take care of users who write the address of the method on the browser
 	 * Since previous method is a POST if I tried to access as a GET (writing the address on the browser) I will get an error
@@ -2155,7 +2164,7 @@ public class MyController {
 		model.addAttribute("message", "You been redirected since the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
-	
+
 
 	/**
 	 * This method it is returning the final project (if any) that the student have, the idea of this is allow to the
@@ -2310,6 +2319,10 @@ public class MyController {
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectList = sqlController.getAllProjectActualYear();
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "We could not found any project for the year " + actualYear);
+			return new ModelAndView("errorPage"); 
+		}
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
 		//I am passing the actual year to show it on the title of the page
@@ -2334,13 +2347,17 @@ public class MyController {
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectList = sqlController.getAllProjectNextYear();
+		if(projectList.isEmpty()) {
+			model.addAttribute("message", "We could not found any project for the year " + actualYear+1);
+			return new ModelAndView("errorPage"); 
+		}
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		model.addAttribute("projectList", projectList);
 		//I am passing the actual year + 1 to show it on the title of the page
 		model.addAttribute("actualYear", actualYear+1);
 		return new ModelAndView("projectListByYearPage");
 	}
-	
+
 	/**
 	 * Main method where the process to upload one student starts
 	 * It is only checking that you are an admin and returning a view to the page for upload files with a new
@@ -2361,7 +2378,7 @@ public class MyController {
 		}	
 		return new ModelAndView("addNewstudentsPage", "command", new User());
 	}
-	
+
 	@RequestMapping( value="/savestudent",method = RequestMethod.POST)
 	public ModelAndView saveStudent(Model model, HttpServletRequest request, User student) throws SQLException { 
 		HttpSession session = getSession(request);
@@ -2486,11 +2503,11 @@ public class MyController {
 				if(newStudentAdded) {
 					//I am only setting this message if I actually added an user to the DB
 					model.addAttribute("message",  numberStudentAdded + " new users added to the system successfully and " 
-					+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
+							+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
 				}else {
 					//If not new students found in the file I am showing this message
 					model.addAttribute("message", numberStudentAdded + " new users added to the system successfully and " 
-					+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
+							+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
 				}
 				//At the end I am showing you the list of all students
 				List<Integer> yearList = sqlController.getAllYearOfStudents();

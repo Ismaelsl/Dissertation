@@ -33,6 +33,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
+/**
+ * Main JUnit testing class, all the method are tested here
+ * @author ismael
+ *
+ */
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration                      // <-- enable WebApp Test Support
@@ -363,7 +368,7 @@ public class MyControllerTest {
 		when(session.getAttribute("userType")).thenReturn(STUDENT);
 		when(session.getAttribute("userID")).thenReturn(7);//I need a student that does not have a final project already approved
 		view = controller.registerInterestPage(100, model, request);
-		
+
 		assertEquals("interestProjectListPage", view.getViewName());
 		when(session.getAttribute("userID")).thenReturn(3);//Since student with studentID 3 have a final project, this will show an error
 		view = controller.registerInterestPage(100, model, request);
@@ -412,7 +417,7 @@ public class MyControllerTest {
 		when(session.getAttribute("userID")).thenReturn(5);
 		view = controller.getListProjectInterested(model, request);
 		assertEquals("interestProjectListPage", view.getViewName());
-		
+
 		//This test will show how a student with final project is loading a different view
 		when(session.getAttribute("userID")).thenReturn(3);
 		view = controller.getListProjectInterested(model, request);
@@ -499,7 +504,7 @@ public class MyControllerTest {
 		when(session.getAttribute("userType")).thenReturn(COORDINATOR);
 		view = controller.seePreviousYearProject(model, request, 2015);
 		assertEquals("previousyearprojectlist", view.getViewName());
-		
+
 		//This one will fail since I do not have projects for the year 2000
 		view = controller.seePreviousYearProject(model, request, 2000);
 		assertEquals("errorPage", view.getViewName());
@@ -547,10 +552,10 @@ public class MyControllerTest {
 		byte[] content = null;
 		String fileName = null;
 		MockMultipartFile mockMultipartFile = new MockMultipartFile(
-			    "fileData",
-			    fileName,
-			    "text/plain",
-			    content);
+				"fileData",
+				fileName,
+				"text/plain",
+				content);
 		view = controller.addNewStudentToDBFromCSV(mockMultipartFile, model, request);
 		assertEquals("newstudentsuploadPage", view.getViewName());
 	}

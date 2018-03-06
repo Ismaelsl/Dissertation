@@ -17,6 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class CheckList {
 	private int checkListID;
 	//special spring notation that is telling to the view (JSP) how to format the date from the DB on the view
+	//If you need to change the format, just change the pattern
 	@DateTimeFormat(pattern="dd.MM.yyyy")
 	private String date;
 	private String hour;
@@ -29,13 +30,14 @@ public class CheckList {
 	public CheckList() {
 
 	}
-	
+
 	public CheckList(String date, String eventName, String place) {
 		this.date = date;
 		this.eventName = eventName;
 		this.place = place;
 		this.visible = true;
 	}
+
 	public CheckList(int id, String date, String eventName, String place, String description, String hour, String endHour) {
 		this.checkListID = id;
 		this.date = date;
@@ -46,7 +48,8 @@ public class CheckList {
 		this.hour = hour;
 		this.endHour = endHour;
 	}
-	
+
+	//Getter and setter area
 	public String getDescription() {
 		return description;
 	}
@@ -59,7 +62,7 @@ public class CheckList {
 	public void setVisible(boolean visible) {
 		this.visible = visible;
 	}
-	
+
 	public int getCheckListID() {
 		return checkListID;
 	}
@@ -96,32 +99,5 @@ public class CheckList {
 	public void setPlace(String place) {
 		this.place = place;
 	}
-
-	public CheckList getchecklist(int checklistID) {
-		DBConnection connect = new DBConnection();
-		Connection newConnection = connect.connect();
-		String query = "SELECT * FROM checklist WHERE checklistID = " + "'" + checklistID + "';";
-		Statement st;
-		CheckList checklist = new CheckList();
-		try {
-			st = newConnection.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
-			while (rs.next())
-			{
-				checklist.setCheckListID(rs.getInt("checklistID"));
-				checklist.setDate(rs.getString("date"));
-				checklist.setEventName(rs.getString("eventname"));
-				checklist.setPlace(rs.getString("place"));
-				checklist.setDescription(rs.getString("description"));
-				checklist.setHour(rs.getString("hour"));
-				checklist.setEndHour(rs.getString("endhour"));
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return checklist;
-	}
-
+	//End of getter and setter area
 }

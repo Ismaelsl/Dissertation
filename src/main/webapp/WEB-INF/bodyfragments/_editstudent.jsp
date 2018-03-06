@@ -20,7 +20,8 @@
 				<td style="border:none;"><form:input class="w3-input" path="year" required='true' size="55"/></td>
 			</tr>
 			<tr>
-			<%--I am passing the rest of the student information as hidden since I do not need to edit this but I still need the data to be saved into the DB --%>
+			<%--I am passing the rest of the student information as hidden since I do not need 
+			to edit this but I still need the data to be saved into the DB --%>
 			<form:hidden path="userID" />
 			<form:hidden path="password" />
 			<form:hidden path="userType" />

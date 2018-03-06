@@ -15,14 +15,14 @@ function modalInterestPopulator(title,description,projectID,visible, approved,to
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     $("#modal-studentName").html(studentName );
-     $("#modal-visible").html(visible );
+    $("#modal-visible").html(visible );
     $("#modal-approved").html(approved );
     actualID = projectID; 
     userID = user;
-     var userIDToApprove = document.getElementById("userID");
-      var userIDToRemove = document.getElementById("userIDRemove");
-     userIDToApprove.value = userID;
-     userIDToRemove.value = userID;
+    var userIDToApprove = document.getElementById("userID");
+    var userIDToRemove = document.getElementById("userIDRemove");
+    userIDToApprove.value = userID;
+    userIDToRemove.value = userID;
 }
 <%-- Method that pass as value to the edit method on the backend the ID of the actual projet that the modal have open right now --%>
 function getProjectID() { 
@@ -42,7 +42,8 @@ function chooseMessage(listSize){
 	}
 }
  </script>
- <h1>List of interest showed by students and projects</h1> <h4>Click in any circle to see further details of the projects</h4>
+ <h4>Click in any circle to see further details of the projects</h4>
+ <h1>List of interest showed by students and projects</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <h2>${message}</h2>
@@ -53,6 +54,7 @@ to the view from the controller or the variable names from the class --%>
 	<h2 id="secondList"></h2>
 </body>
 <c:forEach items="${projectWithInterest}" var="project">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />

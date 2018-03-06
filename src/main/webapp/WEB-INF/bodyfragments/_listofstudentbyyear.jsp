@@ -31,14 +31,14 @@ function getSearchValue() {
     var searchValue = document.getElementById("search-value-id").value;
     search.value = searchValue;
 }
-
- function checkone(d){
- if (!d.checked) return; //if it's unchecked, then do nothing
- var os=document.getElementsByTagName('input');
- for (var i=0;i<os.length;i++){
-    if (os[i].checked&&os[i]!=d) os[i].checked=false;
-  } 
- }
+<%-- Method to only allow to choose one item from the checkbox --%>
+function checkone(d){
+ 	if (!d.checked) return; //if it's unchecked, then do nothing
+ 	var os=document.getElementsByTagName('input');
+ 	for (var i=0;i<os.length;i++){
+    	if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  	} 
+}
  <%-- Method that show options based on which kind of user you are --%>
 window.onload = function() {
 	var user = document.getElementById("userType").value;
@@ -51,17 +51,11 @@ window.onload = function() {
     if(user == 2){
         admindiv.style.display = 'none';
         userdiv.style.display = 'visible';
-    }
-   <%-- DC code, is comment out because I am still not implementing his functionality
-   if(user == 3){
-        admindiv.style.display = 'none';
-        userdiv.style.display = 'none';
-        dcdiv.style.display = 'visible';
-    } --%>
-   
+    } 
 }
  </script>
-<h1>Student list by year</h1><h4>Click in any circle to see further details of the year projects</h4>
+ <h4>Click in any circle to see further details of the year projects</h4>
+<h1>Student list by year</h1>
 <h3 class ="importantmessage">${message}</h3><%--This message it is use when you add new users using the add new user option in menu --%>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
