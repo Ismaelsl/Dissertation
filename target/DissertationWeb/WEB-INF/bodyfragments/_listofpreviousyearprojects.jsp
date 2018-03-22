@@ -31,14 +31,14 @@ function getSearchValue() {
     var searchValue = document.getElementById("search-value-id").value;
     search.value = searchValue;
 }
-
- function checkone(d){
- if (!d.checked) return; //if it's unchecked, then do nothing
- var os=document.getElementsByTagName('input');
- for (var i=0;i<os.length;i++){
-    if (os[i].checked&&os[i]!=d) os[i].checked=false;
-  } 
- }
+<%-- Method that only allow to choose one of the checkboxe at the same time --%>
+function checkone(d){
+ 	if (!d.checked) return; //if it's unchecked, then do nothing
+ 	var os=document.getElementsByTagName('input');
+ 	for (var i=0;i<os.length;i++){
+    	if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  	} 
+}
  <%-- Method that show options based on which kind of user you are --%>
 window.onload = function() {
 	var user = document.getElementById("userType").value;
@@ -52,16 +52,10 @@ window.onload = function() {
         admindiv.style.display = 'none';
         userdiv.style.display = 'visible';
     }
-   <%-- DC code, is comment out because I am still not implementing his functionality
-   if(user == 3){
-        admindiv.style.display = 'none';
-        userdiv.style.display = 'none';
-        dcdiv.style.display = 'visible';
-    } --%>
-   
 }
  </script>
-<h1>Project list by year</h1><h4>Click in any circle to see further details of the year projects</h4>
+ <h4>Click in any circle to see further details of the year projects</h4>
+<h1>Project list by year</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">

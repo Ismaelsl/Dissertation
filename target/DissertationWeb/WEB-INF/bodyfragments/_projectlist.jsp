@@ -48,14 +48,14 @@ function getSearchValue() {
     var searchValue = document.getElementById("search-value-id").value;
     search.value = searchValue;
 }
-
+<%-- Function that only allow to choose one of the checkboxes at the same time --%>
 function checkone(d){
- if (!d.checked) return; //if it's unchecked, then do nothing
- var os=document.getElementsByTagName('input');
- for (var i=0;i<os.length;i++){
-    if (os[i].checked&&os[i]!=d) os[i].checked=false;
-  } 
- }
+ 	if (!d.checked) return; //if it's unchecked, then do nothing
+ 	var os=document.getElementsByTagName('input');
+ 	for (var i=0;i<os.length;i++){
+    	if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  	} 
+}
  <%-- Method that show options based on which kind of user you are --%>
 window.onload = function() {
 	var user = document.getElementById("userType").value;
@@ -125,13 +125,15 @@ function clearContents(element) {
 			<button onclick="getSearchValue();" id="search-id"
 					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
 </form:form>
-<h1>Project List</h1><h4>Click in any circle to see further details of the projects</h4>
+<h4>Click in any circle to see further details of the projects</h4>
+<h1>Project List</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <input type="hidden" id="studentYear" name="userType" value="${studentYear}">
 <input type="hidden" id="actualYear" name="userType" value="${actualYear}">
 <c:forEach items="${projectList}" var="project" varStatus="status">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />
@@ -144,11 +146,17 @@ to the view from the controller or the variable names from the class --%>
 			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
 			<br />Lecturer: ${project.user.username}</div></a></b>
 		</div>	
+		<% if(projectNum > oldProjectNum){ 
+				//if I have more projects that the last time I logged in I will update the value of old project num to project num
+				//so in this way the special icon and message in the menu will dissapear
+				session.setAttribute("oldProjectNum", projectNum); 
+		   	} %>
 </c:forEach>
 <c:if test="${not empty newProjectList}">
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
 <h2>New Projects!</h2>
 <c:forEach items="${newProjectList}" var="project" varStatus="status">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 	<c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />

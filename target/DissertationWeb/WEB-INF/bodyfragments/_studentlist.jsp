@@ -26,13 +26,13 @@ function getSearchValue() {
     var searchValue = document.getElementById("search-value-id").value;
     search.value = searchValue;
 }
-
+<%-- Function that only allow to choose one of the checkboxes at the same time --%>
 function checkone(d){
- if (!d.checked) return; //if it's unchecked, then do nothing
- var os=document.getElementsByTagName('input');
- for (var i=0;i<os.length;i++){
-    if (os[i].checked&&os[i]!=d) os[i].checked=false;
-  } 
+ 	if (!d.checked) return; //if it's unchecked, then do nothing
+ 	var os=document.getElementsByTagName('input');
+ 	for (var i=0;i<os.length;i++){
+    	if (os[i].checked&&os[i]!=d) os[i].checked=false;
+  	} 
 }
 <%--Function to remove the text from the textarea when you click over--%>
 function clearContents(element) {
@@ -55,12 +55,14 @@ function clearContents(element) {
 	
 
 </form:form>
-<h1>Students list for the year ${year }</h1><h4>Click in any circle to see further details of the student</h4>
+<h4>Click in any circle to see further details of the student</h4>
+<h1>Students list for the year ${year }</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <div class="divjumper2">
 <c:forEach items="${studentList}" var="student">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 <c:set var = "username" value="${fn:replace(student.username, '\"', '\\'')}" />
 	<div class="projectList"><b><a
 		onclick='modalPopulator("${fn:escapeXml(username)}","${student.userID}","${fn:escapeXml(student.email)}","${student.year}")'

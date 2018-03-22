@@ -1,0 +1,14 @@
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:01:20:57 +0000] "GET /DissertationWeb/ HTTP/1.1" 200 2603 http-bio-8080-exec-10 666
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:01:20:58 +0000] "GET /DissertationWeb/bootstrap/css/mycss.css HTTP/1.1" 304 - http-bio-8080-exec-10 256
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:01:20:59 +0000] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-10 0
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:01:21:08 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 4045 http-bio-8080-exec-10 784
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:01:21:15 +0000] "GET /DissertationWeb/logout HTTP/1.1" 200 2603 http-bio-8080-exec-10 146
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:10:37:29 +0000] "GET /DissertationWeb/bootstrap/images/envelopeblack.png HTTP/1.1" 200 13033 http-bio-8080-exec-5 164
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:10:37:30 +0000] "GET /DissertationWeb/logout HTTP/1.1" 200 2603 http-bio-8080-exec-1 39
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:10:37:30 +0000] "GET /DissertationWeb/bootstrap/css/mycss.css HTTP/1.1" 304 - http-bio-8080-exec-1 26
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:10:37:32 +0000] "GET /DissertationWeb/home HTTP/1.1" 200 2603 http-bio-8080-exec-1 23
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:10:37:46 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 2422 http-bio-8080-exec-1 8476
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:20:27:08 +0000] "GET /DissertationWeb/ HTTP/1.1" 200 2603 http-bio-8080-exec-1 15571
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:20:27:09 +0000] "GET /DissertationWeb/bootstrap/css/mycss.css HTTP/1.1" 304 - http-bio-8080-exec-6 716
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:20:27:11 +0000] "GET /favicon.ico HTTP/1.1" 404 - http-bio-8080-exec-7 0
+0:0:0:0:0:0:0:1 - - [07/Mar/2018:20:27:22 +0000] "POST /DissertationWeb/logincheck HTTP/1.1" 200 2422 http-bio-8080-exec-8 2766

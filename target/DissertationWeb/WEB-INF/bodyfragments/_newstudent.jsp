@@ -2,12 +2,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <link href="bootstrap/css/mycss.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<script>
-<%--Function to remove the text from the textarea when you click over--%>
-function clearContents(element) {
-  element.value = '';
-}
-</script>
 
 <div class="form_css">
 <h1 class ="errormessage">${message}</h1>

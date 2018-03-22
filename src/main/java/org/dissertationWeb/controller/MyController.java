@@ -81,15 +81,15 @@ public class MyController {
 	 * Method that checks if the DB connection is still ON, if is not then will catch the exception and restart the connection to the DB
 	 */
 	public void checkDBConnection() {
-		/*try {
+		try {
 			//if is close will throw one of this two exception, in this case I will catch it and restart the connection
 			newConnection.isClosed();
 		}catch(com.mysql.jdbc.exceptions.jdbc4.CommunicationsException e) {
 			startDBConnection();
 		} catch (SQLException e) {
 			startDBConnection();
-		}*/
-		try {
+		}
+		/*try {
 			if(newConnection == null) {
 				startDBConnection();
 			}else if(newConnection.isClosed()) {
@@ -97,7 +97,7 @@ public class MyController {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	/**
@@ -141,9 +141,9 @@ public class MyController {
 	 * found.
 	 * @throws SQLException
 	 */
-	@Scheduled(fixedRate = 2700000 )//check every 45 minutes
+	@Scheduled(fixedRate = 1800000 )//check every 30 minutes
 	public void keepConnection() throws SQLException {
-		checkDBConnection();
+		//checkDBConnection();
 		sqlController.keepConnectionAlive();
 	}
 	/**

@@ -1,7 +1,6 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<h1>Congratulations on your project selection</h1>
 <script type="text/javascript">
 <%-- Global variable to keep the actual ID, this variable will be update in the modalPopulator function
 in this way I always will have the actual ID of the project open in the modal --%>
@@ -29,7 +28,7 @@ function modalPopulatorNotVisible(title,description,projectID,topics,compulsoryR
     $("#modal-lecturerName").html(lecturerName );
     $("#modal-lecturerEmail").html(lecturerEmail );
     actualID = projectID;
-     var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
+    var withoutInterestdiv = document.getElementById("modal-footer-registerInterest");
    	var withInterestdiv = document.getElementById("modal-footer-removeInterest");
     withInterestdiv.style.visibility  = 'hidden';
     withoutInterestdiv.style.visibility  = 'visible';
@@ -43,10 +42,13 @@ function getProjectID() {
 }
 
  </script>
+ <h4>Click in any circle to see further details of the events</h4>
+ <h1>Congratulations on your project selection</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
 <c:forEach items="${projectList}" var="project">
+<%-- Area where I am setting the values to into var to remove the special characters --%>
 <c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 <c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
 <c:set var = "topics" value="${fn:replace(project.topics, '\"', '\\'')}" />

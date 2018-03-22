@@ -17,6 +17,7 @@ public class DBConnection {
 	private static final String DATABASE_DRIVER = "com.mysql.jdbc.Driver";
 	private static final String DATABASE_URL = "jdbc:mysql://mysql.cs.stir.ac.uk/isa";
 	private static final String MAX_POOL = "2050";
+	private static final String AUTHFILE = "src/main/webapp/auth/auth.txt";
 
 	// init connection object
 	private Connection connection;
@@ -29,7 +30,7 @@ public class DBConnection {
 			try {
 				//this piece of code it is use to get userName and password from an external file, so in this way
 				//I am adding a new layer of security to the application and not hardcoding the username and password into the code
-				BufferedReader userPassIn = new BufferedReader(new FileReader("src/main/webapp/auth/auth.txt"));
+				BufferedReader userPassIn = new BufferedReader(new FileReader(AUTHFILE));
 				String userName = userPassIn.readLine();
 				String pass = userPassIn.readLine();
 				userPassIn.close();

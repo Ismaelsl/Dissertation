@@ -1,334 +1,356 @@
 /*Login page CSS */
 #parent {
-   display: table;
-   width: 100%;
+	display: table;
+	width: 100%;
 }
 
 #form_login {
-  min-width: 500px;
-  position: absolute;
-  text-align: center;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+	min-width: 500px;
+	position: absolute;
+	text-align: center;
+	top: 45%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 /*End login page css*/
 
 /*Main menu CSS*/
-#menuContainer{
+#menuContainer {
 	background-color: #006938;
 }
 
-ul li a{
+ul li a {
 	color: white;
 }
 
-ul li ul li a{
+ul li ul li a {
 	color: green;
 }
 
 .menudiv {
 	background-color: #006938;
 	position: fixed;
-    vertical-align: top;
-    display: table-cell;
-    height:100%;
-    z-index: 9;
-    
+	vertical-align: top;
+	display: table-cell;
+	height: 100%;
+	z-index: 9;
 }
+
 .table {
-    display: table;
-    height:100%;
-    width:100%;
+	display: table;
+	height: 100%;
+	width: 100%;
 }
-.imagestyle{
+
+.imagestyle {
 	height: 37px;
 	width: 37px;
 	display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top:20px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 20px;
 }
-.imagestylesmall{
+
+.imagestylesmall {
 	height: 25px;
 	width: 25px;
 	display: block;
-    margin-left: auto;
-    margin-right: auto;
-    float: right;
+	margin-left: auto;
+	margin-right: auto;
+	float: right;
 }
-.logomenustyle{
+
+.logomenustyle {
 	height: 100px;
 	margin-left: auto;
-    margin-right: auto;
-    margin-top:20px;
-    margin-bottom:20px;
+	margin-right: auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
 }
-#submenu{
+
+#submenu {
 	left: auto;
 	right: 100%;
 	margin-left: 0;
 	margin-right: -1px;
 }
+
 #menuContainer a {
-	text-decoration: none; 
+	text-decoration: none;
 }
+
 #menuContainer ul {
-	text-decoration: none; 
+	text-decoration: none;
 }
 
-#menuContainer :hover { 
-    color:black;
+#menuContainer :hover {
+	color: black;
 }
 
-#ulmenustyle{
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 250px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 15px 36px;
-    z-index: 1;
+#ulmenustyle {
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: 250px;
+	box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+	padding: 15px 36px;
+	z-index: 1;
 	list-style-type: square;
 }
 /*End main menu CSS*/
 
 /*Header area*/
-.headerdiv{
+.headerdiv {
 	background-color: white;
 	padding-left: 3cm;
 	align: center;
 }
-.headerh1{
+
+.headerh1 {
 	color: #006938;
 }
 /*End header area*/
 
 /*Footer area*/
 .footer {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: white;
-  text-align: center;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: white;
+	text-align: center;
 }
-.footertext{
+
+.footertext {
 	font-size: 12px;
 }
-.footerimage{
-	height: 18px; 
+
+.footerimage {
+	height: 18px;
 	width: 18px;
 }
 /*End footer area*/
 
 /*Body area*/
-.bodydiv{
+.bodydiv {
 	height: 100%;
 	padding-left: 5.5cm;
-	
 }
 /*End body area*/
 
 /*Project lists CSS*/
-.projectList{
+.projectList {
 	list-style-type: none;
 	text-decoration: none;
 	display: block;
 	float: left;
 }
-.projectList b a{
+
+.projectList b a {
 	text-decoration: none;
 }
-.buttonyear{
+
+.buttonyear {
 	list-style-type: none;
 	text-decoration: none;
 	background-color: Transparent;
-    background-repeat:no-repeat;
-    border: none;
-    cursor:pointer;
-    overflow: hidden;
-    outline:none;
+	background-repeat: no-repeat;
+	border: none;
+	cursor: pointer;
+	overflow: hidden;
+	outline: none;
 }
-.divjumper2{
-	float:left;
+
+/*div jumper are use in the lists to force a new line*/
+.divjumper2 {
+	float: left;
 }
-.divjumper{
+
+.divjumper {
 	clear: both;
 	display: block;
-	float:left;
+	float: left;
 }
-.divjumperbuttons{
-	 position: relative;
-     min-height: 220px;
-     /*I am moving the invisible div to the back so it not bothering me when I try to click on screen elements*/
-     z-index: -999;
+
+.divjumperbuttons {
+	position: relative;
+	min-height: 220px;
+	/*I am moving the invisible div to the back so it not bothering me when I try to click on screen elements*/
+	z-index: -999;
 }
+/*End div jumper zone*/
+
 #box1 {
-	width:270px;
-	height:220px;
-	margin:25px;
-	padding:10px;
+	width: 270px;
+	height: 220px;
+	margin: 25px;
+	padding: 10px;
 	background: #006938;
 	border-radius: 15px;
 	color: white;
 	float: left;
 	/*Box shadow*/
 	border: 1px solid;
-    padding: 10px;
-    box-shadow: 4px 4px #888888;
-    /*End of box shadow*/
+	padding: 10px;
+	box-shadow: 4px 4px #888888;
+	/*End of box shadow*/
 }
 
 #box1 p {
-	white-space:pre;
-	font-size:smaller;
-	font-family:monospace;
+	white-space: pre;
+	font-size: smaller;
+	font-family: monospace;
 }
+
 #box2 {
-	width:250px;
-	height:150px;
-	margin:25px;
-	padding:10px;
+	width: 250px;
+	height: 150px;
+	margin: 25px;
+	padding: 10px;
 	background: #006938;
 	border-radius: 15px;
 	color: white;
 	float: left;
 	/*Box shadow*/
 	border: 1px solid;
-    padding: 10px;
-    box-shadow: 4px 4px #888888;
-    /*End of box shadow*/
+	padding: 10px;
+	box-shadow: 4px 4px #888888;
+	/*End of box shadow*/
 }
+
 #box2 p {
- padding: 30px;
+	padding: 30px;
 }
-.buttonleft{
+
+.buttonleft {
 	float: left;
 }
 /*End of project lists CSS*/
 
 /*Search menu CSS*/
 .textareaSearch {
-    resize: none;
+	resize: none;
 }
-#search-id{
-	margin-top : -27px;
+
+#search-id {
+	margin-top: -27px;
 	margin-left: 27px;
 }
 /*End search menu CSS*/
 
 /*Formularies*/
 .form_css {
-  min-width: 500px;
-  min-height: 250px;
-  position: absolute;
-  text-align: center;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+	min-width: 500px;
+	min-height: 250px;
+	position: absolute;
+	text-align: center;
+	top: 45%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
-.inputtable { 
+
+.inputtable {
 	border: 0px solid #808080;
 }
+
 .tdtable {
-border:none;
+	border: none;
 }
-.formdisplay{
-	 display: inline-block; 
+
+.formdisplay {
+	display: inline-block;
 }
 /*End of formularies*/
 
 /*Events CSS*/
-.eventList{
+.eventList {
 	list-style-type: none;
 	text-decoration: none;
 	display: block;
 	float: left;
 }
+
 #boxevents {
-	width:250px;
-	height:270px;
-	margin:25px;
-	padding:10px;
+	width: 250px;
+	height: 270px;
+	margin: 25px;
+	padding: 10px;
 	background: #5e0259;
 	border-radius: 15px;
 	color: white;
 	float: left;
 	/*Box shadow*/
 	border: 1px solid;
-    padding: 10px;
-    box-shadow: 4px 4px #888888;
-    /*End of box shadow*/
+	padding: 10px;
+	box-shadow: 4px 4px #888888;
+	/*End of box shadow*/
 }
 
 #boxevents p {
-	white-space:pre;
-	font-size:smaller;
-	font-family:monospace;
+	white-space: pre;
+	font-size: smaller;
+	font-family: monospace;
 }
 /*End events CSS*/
 /*Error CSS*/
-.errormessage{
+.errormessage {
 	color: red;
 }
 /*End error css*/
 
 /*Home Page*/
-.welcometext{
+.welcometext {
 	color: white;
 	font-size: 90px;
 	font-weight: bold;
 }
 /*End Home Page*/
-.infomessage{
+.infomessage {
 	color: #5E0259;
 }
 
 /*Area of info pop when new event or project added after last login*/
 #image {
-  opacity: 1;
-  display: block;
-  transition: .5s ease;
-  backface-visibility: hidden;
-  height: 25px;
-  width: 25px;
-  margin-left: auto;
-  margin-right: auto;
+	opacity: 1;
+	display: block;
+	transition: .5s ease;
+	backface-visibility: hidden;
+	height: 25px;
+	width: 25px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .container {
-    position: relative;
-    width: 100%;
+	position: relative;
+	width: 100%;
 }
 
 .middle {
-  transition: .5s ease;
-  opacity: 0;
-  position: absolute;
-    
+	transition: .5s ease;
+	opacity: 0;
+	position: absolute;
 }
 
 .container:hover .image {
-  opacity: 0.3;
+	opacity: 0.3;
 }
 
 .container:hover .middle {
-  opacity: 1;
+	opacity: 1;
 }
 
 .text {
-  background-color: #4CAF50;
-  color: white;
-  font-size: 16px;
-  padding: 5px 5px;
-  z-index: 10;  
-  position: absolute;  
-  left: 110;  
-  top: -55;  
-  border-radius: 10px;
+	background-color: #4CAF50;
+	color: white;
+	font-size: 16px;
+	padding: 5px 5px;
+	z-index: 10;
+	position: absolute;
+	left: 110;
+	top: -55;
+	border-radius: 10px;
 }
 /*End area of info pop when new event or project added after last login*/
-
-.importantmessage{
+.importantmessage {
 	color: red;
 }
