@@ -59,9 +59,9 @@ function getChecklistID() {
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
 	if(listSize == 0){
-		$("#secondList").html("You do not have any hiden events");
+		$("#secondList").html("You do not have any hidden events");
 	}else{
-		$("#secondList").html("Here is the list of events that you make invisible to students");
+		$("#secondList").html("Here is the list of events that you have removed");
 	}
 	menu(listSize);<%-- I am calling menu here since I have already one onload function and the first thing that I want to 
 	happens is the menu load --%>
@@ -87,8 +87,8 @@ function menu() {
    
 }
  </script>
- <h4>Click in any circle to see further details of the events</h4>
- <h1>Schedule of events for CSCU9Z7 (In date order)</h1>
+<h4>Click on the box to see event details</h4>
+ <h1>Schedule of events for CSCU9Z7 (in date order)</h1>
 <h1 class="errormessage">${message}</h1><%--An error message to be show when need it --%>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
@@ -107,17 +107,17 @@ to the view from the controller or the variable names from the class --%>
 			href="#" class="test" id="userLoginButton" data-toggle="modal"
 			data-target="#userModal">
 			<div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-				<br /> Date: ${checklist.date}<br />
+				<br />Date: ${checklist.date}<br />
 				<br />Place: ${fn:escapeXml(place)}<br />
-				<br />Starting time: ${checklist.hour}
-				<br />Ending time: ${checklist.endHour}
+				<br />Start time: ${checklist.hour}
+				<br />End time: ${checklist.endHour}
 			</div></a></b>
 		</div>
 </c:forEach>
 </div>
 <c:if test="${not empty newEventList}">
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
-<h2>New Events!</h2>
+<h2>New Event(s)!</h2>
 	<c:forEach items="${newEventList}" var="checklist" varStatus="status">
 	<%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(checklist.eventName, '\"', '\\'')}" />
@@ -129,10 +129,10 @@ to the view from the controller or the variable names from the class --%>
 			"${checklist.checkListID}", "${fn:escapeXml(description)}", "${checklist.hour}","${checklist.endHour}")'
 			href="#" class="test" id="userLoginButton" data-toggle="modal"
 			data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-				<br /> Date: ${checklist.date}<br />
+				<br />Date: ${checklist.date}<br />
 				<br />Place: ${fn:escapeXml(place)}<br />
-				<br />Starting time: ${checklist.hour}
-				<br />Ending time: ${checklist.endHour}
+				<br />Start time: ${checklist.hour}
+				<br />End time: ${checklist.endHour}
 			</div></a></b></div>
 			<% if(eventNum > oldEventNum){ 
 				//if I have more events that the last time I logged in I will update the value of old event to event num
@@ -158,10 +158,10 @@ to the view from the controller or the variable names from the class --%>
 		"${checklist.checkListID}", "${fn:escapeXml(description)}","${checklist.hour}","${checklist.endHour}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="boxevents">Title: ${fn:escapeXml(title)}<br /> 
-				<br /> Date: ${checklist.date}<br />
+				<br />Date: ${checklist.date}<br />
 				<br />Place: ${fn:escapeXml(place)}<br />
-				<br />Starting time: ${checklist.hour}
-				<br />Ending time: ${checklist.endHour}
+				<br />Start time: ${checklist.hour}
+				<br />End time: ${checklist.endHour}
 			</div></a></b></div>
 </c:forEach>
 </div>
@@ -181,9 +181,9 @@ to the view from the controller or the variable names from the class --%>
 					<div class="row">
 						<b>Date:</b>
 						<div class="col-md-12" id="modal-date"></div>
-						<b>Starting time:</b>
+						<b>Start time:</b>
 						<div class="col-md-12" id="modal-hour"></div>
-						<b>Ending time:</b>
+						<b>End time:</b>
 						<div class="col-md-12" id="modal-endhour"></div>
 					</div>
 					<div class="row">

@@ -54,7 +54,7 @@ window.onload = function() {
     } 
 }
  </script>
- <h4>Click in any circle to see further details of the year projects</h4>
+<h4>Click on the box to see student details</h4>
 <h1>Student list by year</h1>
 <h3 class ="importantmessage">${message}</h3><%--This message it is use when you add new users using the add new user option in menu --%>
 <%-- The item within the {} must be the same name that the variable pass 
@@ -64,6 +64,6 @@ to the view from the controller or the variable names from the class --%>
 	<form:form method="post" action="seestudentsbyyear">
 		<button onclick="getProjectID();" id="modal-approveinterest-id"
 			name="year" class="buttonyear" value="${year}">
-			<div id="box1"><b>See students fot the year ${year}</b></div></button>
+			<div id="box1"><b>See students for ${year}</b></div></button>
 	</form:form>
 </c:forEach>

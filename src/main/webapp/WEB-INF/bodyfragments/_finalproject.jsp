@@ -42,7 +42,7 @@ function getProjectID() {
 }
 
  </script>
- <h4>Click in any circle to see further details of the events</h4>
+<h4>Click on the box to see project details</h4>
  <h1>Congratulations on your project selection</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
@@ -58,7 +58,7 @@ to the view from the controller or the variable names from the class --%>
   "${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Title: ${fn:escapeXml(title)}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Technologies:  ${fn:escapeXml(topics)}<br />
 		<br />Lecturer: ${project.user.username}</div></a></b></div>
 </c:forEach>
 
@@ -83,7 +83,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">

@@ -22,7 +22,7 @@
           	<td style="border:none;"><form:input class="w3-input" path="topics"  required='true'/></td>  
         </tr>  
         <tr>    
-          	<td style="border:none;"><b>Compulsory Readings : </b></td>   
+          	<td style="border:none;"><b>Compulsory Reading : </b></td>   
           	<td style="border:none;"><form:input class="w3-input" path="compulsoryReading"  required='true'/></td>  
         </tr>  
         <tr>    

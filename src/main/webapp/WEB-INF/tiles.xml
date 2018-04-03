@@ -82,31 +82,31 @@
    
    <!-- View new checklist Page -->
    <definition name="checklistViewPage" extends="base.definition">  
-       <put-attribute name="title" value="View New Checklist" />  
+       <put-attribute name="title" value="View New Event" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_seechecklist.jsp" />  
    </definition> 
     
    <!-- checklist list Page -->
    <definition name="checklistListPage" extends="base.definition">  
-       <put-attribute name="title" value="View New Checklist" />  
+       <put-attribute name="title" value="Schedule" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_checklistlist.jsp" />  
    </definition>
    
    <!-- Edit checklist list Page -->
    <definition name="editchecklistPage" extends="base.definition">  
-       <put-attribute name="title" value="Edit Checklist" />  
+       <put-attribute name="title" value="Edit Event" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_editchecklist.jsp" />  
    </definition>
    
    <!-- Register interest Page -->
    <definition name="registerInterestsuccessfullyPage" extends="base.definition">  
-       <put-attribute name="title" value="Register interest succesfull" />  
+       <put-attribute name="title" value="Interest registration successful" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_registerInterestSuccessfully.jsp" />  
    </definition>
    
    <!-- Interest in projects list Page -->
    <definition name="interestProjectListPage" extends="base.definition">  
-       <put-attribute name="title" value="Project you are interested" />  
+       <put-attribute name="title" value="My interest list" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_interestprojectlist.jsp" />  
    </definition>
    
@@ -124,37 +124,37 @@
    
    <!-- List of projects not visible by a lecturer Page -->
    <definition name="notVisibleProjectPage" extends="base.definition">  
-       <put-attribute name="title" value="Projects that you remove" />  
+       <put-attribute name="title" value="Projects that you removed" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_notvisibleprojectlist.jsp" />  
    </definition>   
    
    <!-- List of projects by lecturer with interest Page -->
    <definition name="yourPersonalListPageWithInterest" extends="base.definition">  
-       <put-attribute name="title" value="Project with interest" />  
+       <put-attribute name="title" value="Projects with interest" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_personallecturerprojectlistwithinterest.jsp" />  
    </definition>  
    
    <!-- Approved project Page -->
    <definition name="finalProjectPage" extends="base.definition">  
-       <put-attribute name="title" value="Your approved project" />  
+       <put-attribute name="title" value="Your approved projects" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_finalproject.jsp" />  
    </definition>  
    
    <!-- Student list Page -->
    <definition name="studentListPage" extends="base.definition">  
-       <put-attribute name="title" value="List of all the students" />  
+       <put-attribute name="title" value="Student list" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_studentlist.jsp" />  
    </definition>  
    
    <!-- All project of a student Page -->
    <definition name="allStudentProjectPage" extends="base.definition">  
-       <put-attribute name="title" value="List of all the projects" />  
+       <put-attribute name="title" value="All project list" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_allstudentprojects.jsp" />  
    </definition>  
      
    <!-- All year project Page -->
    <definition name="yearListProjectPage" extends="base.definition">  
-       <put-attribute name="title" value="Years with project" />  
+       <put-attribute name="title" value="Project list by year" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofpreviousyearprojects.jsp" />  
    </definition>  
    
@@ -178,7 +178,7 @@
    
    <!-- Upload excel file for student information Page -->
    <definition name="newstudentsuploadPage" extends="base.definition">  
-       <put-attribute name="title" value="New students upload file" />  
+       <put-attribute name="title" value="New student upload file" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_uploadfile.jsp" />  
    </definition> 
    
@@ -190,7 +190,7 @@
    
    <!-- List of students by year Page -->
    <definition name="listtStudentsByYearPage" extends="base.definition">  
-       <put-attribute name="title" value="List of students by year" />  
+       <put-attribute name="title" value="List of student by year" />  
        <put-attribute name="body" value="/WEB-INF/bodyfragments/_listofstudentbyyear.jsp" />  
    </definition> 
    

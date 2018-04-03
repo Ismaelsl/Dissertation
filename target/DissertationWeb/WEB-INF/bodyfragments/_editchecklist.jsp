@@ -25,11 +25,11 @@
 				<td style="border:none;"><form:input class="w3-input" path="description" required='true' size="55"/></td>
 			</tr>
 			<tr>
-				<td style="border:none;"><b>Starting Time :</b></td>
+				<td style="border:none;"><b>Start Time :</b></td>
 				<td style="border:none;"><form:input class="w3-input" type="time" path="hour" required='true' size="45" value=""/></td>
 			</tr>
 			<tr>
-				<td style="border:none;"><b>Ending Time :</b></td>
+				<td style="border:none;"><b>End Time :</b></td>
 				<td style="border:none;"><form:input class="w3-input" type="time" path="endHour" required='true' size="45" value=""/></td>
 			</tr>
 			<tr>

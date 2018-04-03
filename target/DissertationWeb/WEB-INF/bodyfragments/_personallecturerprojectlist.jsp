@@ -35,14 +35,14 @@ function getProjectID() {
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
 	if(listSize == 0){
-		$("#secondList").html("For now none students applied to your projects");
+		$("#secondList").html("No students have applied to your projects");
 	}else{
-		$("#secondList").html("You have students who had interest on your projects!");
+		$("#secondList").html("Students have shown interest in your projects");
 	}
 }
  </script>
-<h4>Click in any circle to see further details of the projects</h4>
-<h1>Your personal list of projects for ${actualYear}</h1>
+<h4>Click on the box to see project details</h4>
+<h1>Your list of projects for ${actualYear}</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -59,13 +59,13 @@ to the view from the controller or the variable names from the class --%>
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Technologies:  ${fn:escapeXml(topics)}<br />
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
 </div>
 <div class="divjumper"><%--This div is here to force a new line between the first and second list--%>
-<h1>Your personal list of projects for ${nextYear}</h1>
+<h1>Your list of projects for ${nextYear}</h1>
 <c:forEach items="${projectListNextYear}" var="project">
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
 	<c:set var = "description" value="${fn:replace(project.description, '\"', '\\'')}" />
@@ -77,7 +77,7 @@ to the view from the controller or the variable names from the class --%>
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Technologies:  ${fn:escapeXml(topics)}<br />
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
@@ -111,7 +111,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">

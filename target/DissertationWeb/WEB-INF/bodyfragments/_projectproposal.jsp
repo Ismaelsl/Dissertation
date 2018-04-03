@@ -4,7 +4,7 @@
 
 <div class="form_css">
 	<div class="w3-container w3-blue">	
-		<h1>Project proposal form</h1>
+		<h1>New Project Proposal</h1>
 	</div>   
        <form:form method="post" action="sendProposal">    
         <table >    
@@ -21,7 +21,7 @@
           <td style="border:none;"><form:input class="w3-input" path="topics"  required='true'/></td>  
          </tr>  
           <tr>    
-          <td style="border:none;">Compulsory Readings : </td>   
+          <td style="border:none;">Compulsory Reading : </td>   
           <td style="border:none;"><form:input class="w3-input" path="compulsoryReading"  required='true'/></td>  
          </tr>  
           <tr>    

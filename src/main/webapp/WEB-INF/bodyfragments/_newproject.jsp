@@ -4,7 +4,7 @@
 
 <div class="form_css">
 	<div class="w3-container w3-teal">	
-		<h1>New project for the actual year</h1>
+		<h1>New project for ${year}</h1>
 	</div>   
        <form:form method="post" action="save">    
         <table >    
@@ -22,7 +22,7 @@
          </tr>  
           <tr>    
           <%--Compulsory readings is the only optional element in the form, the rest are necessary to create a project --%>
-          <td style="border:none;"><b>Compulsory Readings : (optional)</b></td>   
+          <td style="border:none;"><b>Compulsory Reading : (optional)</b></td>   
           <td style="border:none;"><form:input class="w3-input" path="compulsoryReading" /></td>  
          </tr>  
           <tr>    

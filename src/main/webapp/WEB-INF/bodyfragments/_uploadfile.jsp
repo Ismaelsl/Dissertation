@@ -6,13 +6,13 @@
 <div class="form_css">
 <h1 class ="errormessage">${message}</h1>
 	<div class="w3-container w3-teal">	
-		<h1>Please choose the Excel file with students information</h1>
+		<h1>Please choose the Excel file with student information</h1>
 	</div>
 	 <form method="POST" action="uploadFile" enctype="multipart/form-data">
 	<table class ="inputtable">
    
            <tr><td> File to upload: <input type="file" name="file">
-            <input type="submit" value="Upload"> Upload the file!</td></tr>
+            <input type="submit" value="Upload"> Upload file</td></tr>
        
         </table>
          </form>

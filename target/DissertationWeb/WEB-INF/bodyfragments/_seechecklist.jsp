@@ -11,9 +11,9 @@
 <br>
 <b>Description: </b> ${description}
 <br>
-<b>Starting Time: </b> ${hour}
+<b>Start Time: </b> ${hour}
 <br>
-<b>Ending Time: </b> ${endhour}
+<b>End Time: </b> ${endhour}
 </div>
 <br>
 <form:form method="get" action="checklistlist">

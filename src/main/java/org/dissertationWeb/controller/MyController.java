@@ -89,15 +89,6 @@ public class MyController {
 		} catch (SQLException e) {
 			startDBConnection();
 		}
-		/*try {
-			if(newConnection == null) {
-				startDBConnection();
-			}else if(newConnection.isClosed()) {
-				startDBConnection();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}*/
 	}
 
 	/**
@@ -153,7 +144,6 @@ public class MyController {
 	@Scheduled(cron = "59 59 17 * * FRI")
 	public void checkSchedule() {
 		checkDBConnection();
-		System.out.println("inside automatic method for schedule");
 		//I am getting all the events coming within a week
 		List<CheckList> checklistList = sqlController.checkScheduleTime();
 		if(!checklistList.isEmpty()) {
@@ -176,7 +166,7 @@ public class MyController {
 					finalTable = finalTable + title + info + place + divider + " \n";
 				}
 			}
-			mm.sendAutomaticEmailSchedule("Those are the events coming this week \n" + finalTable, "ismael.sanchez.leon@gmail.com",
+			mm.sendAutomaticEmailSchedule("These are the events coming this week \n" + finalTable, "ismael.sanchez.leon@gmail.com",
 					"iss00009uos@gmail.com", "New events coming this week");	
 		}
 	}
@@ -257,7 +247,7 @@ public class MyController {
 		checkDBConnection(); //check if connection is still ON
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");
 	}
 
@@ -322,7 +312,7 @@ public class MyController {
 			return new ModelAndView("contactusPage");
 		}else { //if retrieving the data fail, then an error page it is load
 			//I am passing a message to the error page
-			model.addAttribute("message", "Error retrieving information from the DB, please try again later");
+			model.addAttribute("message", "Error retrieving information from the database, please try again later");
 			return new ModelAndView("errorPage");
 		}
 	}
@@ -381,7 +371,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//I am getting projects that are not approved but are visible (false and true)
@@ -392,7 +382,7 @@ public class MyController {
 		//And passing the userType to the view, in this way I can decide which part of the view I want to show to the user
 		model.addAttribute("userType", user.getUserType());
 		if(projectList.isEmpty()) {//if no projects, then do not bother to load the view
-			model.addAttribute("message", "You do not have any project to approve");
+			model.addAttribute("message", "You do not have any projects to approve");
 			return new ModelAndView("errorPage");
 		}
 		return new ModelAndView("projectListtoapprovePage","projectList",projectList);  
@@ -421,7 +411,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		if(sqlController.approveProject(projectID)!= 0) {//if I am getting 0, that means error
@@ -449,19 +439,19 @@ public class MyController {
 			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 			MailMail mm = (MailMail) context.getBean("mailMail");
 			if(mm.sendAutomaticEmail(actualUser, "Your project has been approved", "ismael.sanchez.leon@gmail.com",
-					"iss00009uos@gmail.com", "Approved project from ")){
+					"iss00009uos@gmail.com", "Approved project")){
 				//Final version will be sending an email to the lecturer letting him now that the project had been approved
 				//(mm.sendAutomaticEmail(actualUser, "Your project has been approved", actualUser.getEmail(),
 				//"iss00009uos@gmail.com", "You approved the project " + project.getTitle())
 				model.addAttribute("previousPage", session.getAttribute("previousURL"));
 				return new ModelAndView("projectPage","project",model);//will display object data 
 			}else {
-				model.addAttribute("message", "An error happens while trying to send the automatic email");
+				model.addAttribute("message", "An error happened while trying to send the automatic email");
 				//I am using the errorPage since I only want to show the message on the screen without create a new view
 				return new ModelAndView("errorPage");
 			}			
 		}else {
-			model.addAttribute("message", "An error happens while trying to approve your project");
+			model.addAttribute("message", "An error happened while trying to approve this project");
 			return new ModelAndView("errorPage");//I am using the errorPage since I only want to show the message on the screen without create a new view
 		}
 	}
@@ -477,7 +467,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/approveproject",method = RequestMethod.GET)  
 	public ModelAndView approveProjectGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -496,7 +486,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
@@ -523,7 +513,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
@@ -550,7 +540,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//I am sending the actualYear to the front end since I am not allowing lectures to change the year. 
@@ -580,7 +570,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//here, we are displaying project object to prove project has data  
@@ -593,7 +583,7 @@ public class MyController {
 				project.getCompulsoryReading(),project.getTitle(),project.getTopics());
 		String emailFrom = user.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
 		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","New project proposal from " + user.getUsername(),message);
-		model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
+		model.addAttribute("message", "Your proposal has been succesfully sent to the dissertation coordinator");
 		return new ModelAndView("homePage"); 
 	} 
 
@@ -608,7 +598,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/sendProposal",method = RequestMethod.GET)  
 	public ModelAndView saveProposalGet( Model model, HttpServletRequest request){  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}  
 
@@ -687,11 +677,11 @@ public class MyController {
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
 		MailMail mm = (MailMail) context.getBean("mailMail");
-		String message = "The visibility of your project had been deactivated";
+		String message = "The project is now not visible";
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		String lecturerEmail = user.getEmail();
 		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Project removed from " + user.getUsername(),message);
-		model.addAttribute("mainmessage", "You make the project " + project.getTitle() + 
+		model.addAttribute("mainmessage", "You have made the project " + project.getTitle() + 
 				" not visible to students ");
 		model.addAttribute("secondmessage", " If you want to make the project visible again "
 				+ "or edit it, go to your not visible project list");
@@ -709,7 +699,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/remove",method = RequestMethod.GET)  
 	public ModelAndView removeGet(Model model, HttpServletRequest request) throws SQLException {
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
 
@@ -731,7 +721,7 @@ public class MyController {
 		}
 		//Since Year it is editable here, is better to take care than you did not change year to something less than actual year
 		if(project.getYear() < actualYear) {
-			model.addAttribute("message", "Year cannot be before than actual year");
+			model.addAttribute("message", "Year cannot be before the current year");
 			return new ModelAndView("editprojectPage","command",new Project(project.getProjectID(),project.getYear(),
 					project.getTitle(),project.getTopics(),project.getCompulsoryReading(),project.getDescription()));
 		}
@@ -766,14 +756,14 @@ public class MyController {
 			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Modified project from " + user.getUsername(),message);
 			return new ModelAndView("projectPage","project",model);//will display object data  
 		case 1 : 
-			model.addAttribute("message", "That project already exist in the DB");
+			model.addAttribute("message", "This project already exist in the database");
 			return new ModelAndView("errorPage");
 
 		case 2 : 
-			model.addAttribute("message", "Error happens while updating the project, if this error continues please contact the system administrator");
+			model.addAttribute("message", "An error happened while updating this project, if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
-		model.addAttribute("message", "An error happened saving your project, please try again later");
+		model.addAttribute("message", "An error happened while saving your project, please try again later");
 		return new ModelAndView("errorPage");
 	}
 
@@ -788,7 +778,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/saveEdit",method = RequestMethod.GET)  
 	public ModelAndView saveEditGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
 
@@ -838,10 +828,10 @@ public class MyController {
 			String message = mm.newOrApproveProjectMessage(actualUser.getUsername(),project.getTitle(), "created");
 			String emailFrom = actualUser.getEmail(); //In the final version I should be getting the email from the user and send it to the coordinator
 			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","New project from " + actualUser.getUsername(),message);
-			model.addAttribute("message", "Your proposal had arrived succesfully to the dissertation coordinator");
+			model.addAttribute("message", "Your project has been sent to the dissertation coordinator");
 			return new ModelAndView("projectPage","project",model);//will display object data  
 		case 1 : 
-			model.addAttribute("message", "That project already exist in the DB");
+			model.addAttribute("message", "This project already exist in the database");
 			return new ModelAndView("errorPage");
 
 		case 2 : 
@@ -852,7 +842,7 @@ public class MyController {
 				e.printStackTrace();
 			}
 		}
-		model.addAttribute("message", "An error happened saving your project, please try again later");
+		model.addAttribute("message", "An error happened while saving your project, please try again later");
 		return new ModelAndView("errorPage");
 	}  
 
@@ -867,7 +857,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/save",method = RequestMethod.GET)  
 	public ModelAndView saveGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	} 
 
@@ -891,7 +881,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		//If user does not enter any search criteria
 		if(searchValue == null) {
-			model.addAttribute("message", "Please write your search criteria in the search box");
+			model.addAttribute("message", "Please enter your search criteria in the search box");
 			return new ModelAndView("errorPage");
 		}
 		searchValue.toLowerCase();//better if I put everything on lower case
@@ -907,7 +897,7 @@ public class MyController {
 			model.addAttribute("userType", user.getUserType());
 			return new ModelAndView("projectListPage","projectList",projectList);
 		}else {
-			model.addAttribute("message", "Your search criteria does not return any result please try something else");
+			model.addAttribute("message", "Your search criteria does not return any results, please try something else");
 			return new ModelAndView("errorPage");
 		}
 	}
@@ -923,7 +913,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/search",method = RequestMethod.GET)  
 	public ModelAndView searchGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -949,13 +939,13 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		//If user does not enter any search criteria
 		if(searchValue == null) {
-			model.addAttribute("message", "Please write your search criteria in the search box");
+			model.addAttribute("message", "Please enter your search criteria in the search box");
 			return new ModelAndView("errorPage");
 		}
 		searchValue.toLowerCase();//better if I put everything on lower case
 		//If any of the checkboxes had been marked
 		if(name == null && email == null) {
-			model.addAttribute("message", "Please choose any of the three search criteria, lecturer, technology or topic");
+			model.addAttribute("message", "Please choose any of the two search criteria, name or email");
 			return new ModelAndView("errorPage");
 		}
 
@@ -976,7 +966,7 @@ public class MyController {
 		if(!studentList.isEmpty()) {
 			return new ModelAndView("studentListPage","studentList",studentList);
 		}else {
-			model.addAttribute("message", "Your search criteria does not return any result");
+			model.addAttribute("message", "Your search criteria does not return any result, please try something else");
 			return new ModelAndView("errorPage");
 		}
 	}
@@ -992,7 +982,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/searchStudent",method = RequestMethod.GET)  
 	public ModelAndView searchStudentGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1010,7 +1000,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
@@ -1038,14 +1028,14 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();
 		//I am checking if the date entered is less than today, if it is, then I am redirecting back to the form with the data that the user entered before
 		if(checklist.getDate().compareTo(dateFormat.format(date)) < 0) {
-			model.addAttribute("message", "Date cannot be less than today");
+			model.addAttribute("message", "Date cannot be before today");
 			return new ModelAndView("checklistPage","command",checklist);
 		}
 		/**
@@ -1057,7 +1047,7 @@ public class MyController {
 			Date d2 = sdf.parse(checklist.getEndHour());
 			long elapsed = d2.getTime() - d1.getTime(); 
 			if(elapsed < 0) {//If elapsed is negative that mean that the end time is before starting time
-				model.addAttribute("message", "The ending hour cannot be less than the starting hour");
+				model.addAttribute("message", "The end hour cannot be less than the start hour");
 				return new ModelAndView("checklistPage","command",checklist);
 			}
 		} catch (ParseException e1) {
@@ -1077,7 +1067,7 @@ public class MyController {
 				if(checkListID != 0)
 					model.addAttribute("checklistID",checkListID);
 				else {
-					model.addAttribute("message", "Error saving the new enter for the schedule, please try again later");
+					model.addAttribute("message", "An error happened while saving the new event, please try again later");
 					return new ModelAndView("errorPage");
 				}
 			} catch (SQLException e) {
@@ -1087,20 +1077,20 @@ public class MyController {
 					new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
 			MailMail mm = (MailMail) context.getBean("mailMail");
-			String message = "A new element in the scheduled had been added";
+			String message = "A new event has been added to the schedule";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com",
-					"New element in the scheduled added for " + user.getUsername(),message);
+					"New event in the scheduled by " + user.getUsername(),message);
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
 		case 1 : 
-			model.addAttribute("message", "That event already exist in the DB");
+			model.addAttribute("message", "This event already exist in the database");
 			return new ModelAndView("errorPage");
 
 		case 2 : 
-			model.addAttribute("message", "Error happens while saving the event, if this error continues please contact the system administrator");
+			model.addAttribute("message", "An error happened while saving the event, if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
-		model.addAttribute("message", "An error happened saving your event, please try again later");
+		model.addAttribute("message", "An error happened while saving your event, please try again later");
 		return new ModelAndView("errorPage");
 	}
 	/**
@@ -1114,7 +1104,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/savechecklist",method = RequestMethod.GET)  
 	public ModelAndView saveChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1149,7 +1139,7 @@ public class MyController {
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
 		//I am only checking the first list since is the one that should never being empty
 		if(checklistList.isEmpty()) {
-			model.addAttribute("message", "Error loading the events page, please try again later");
+			model.addAttribute("message", "An error happened while loading the schedule, please try again later");
 			return new ModelAndView("errorPage");
 		}
 		//I am sorting both list to be show in a date order
@@ -1210,7 +1200,7 @@ public class MyController {
 		HttpSession session = getSession(request);
 		if(session.getAttribute("userID") == null) return login(request);
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		CheckList checkList = new CheckList();
@@ -1235,7 +1225,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/editChecklist",method = RequestMethod.GET)  
 	public ModelAndView editChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1260,7 +1250,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//false here means "make whatever it is linked with this ID invisible"
@@ -1270,15 +1260,15 @@ public class MyController {
 		MailMail mm = (MailMail) context.getBean("mailMail");
 		CheckList checkList = new CheckList();
 		checkList = sqlController.getchecklist(checklistID);
-		String message = "The element in the scheduled " + checkList.getEventName() + " had been removed";
+		String message = "The event in the schedule " + checkList.getEventName() + " has been removed";
 		User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com",
-				"An element in the scheduled had been removed for " + user.getUsername(),message);
+				"An event in the schedule has been removed for " + user.getUsername(),message);
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
-		model.addAttribute("mainmessage", "You make the event " + checkList.getEventName() + 
+		model.addAttribute("mainmessage", "You have made the event " + checkList.getEventName() + 
 				" not visible to students ");
 		model.addAttribute("secondmessage", " If you want to make the event visible again "
-				+ "or edit it, go to the schedule and check on the bottom on the list");
+				+ "or edit it, go to the schedule and check at the bottom of the list");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1293,7 +1283,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/removeChecklist",method = RequestMethod.GET)  
 	public ModelAndView removeChecklistGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1318,7 +1308,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		sqlController.updateChecklist(checklistID,true);
@@ -1326,7 +1316,7 @@ public class MyController {
 		List<CheckList> checklistListNotApproved = sqlController.getCheckListList(false);
 		//This should never happens since this method is redirecting from a populated list, but better to prevent that regret
 		if(checklistList.isEmpty()) {
-			model.addAttribute("message", "Error loading the events page, please try again later");
+			model.addAttribute("message", "An error happened while loading the schedule, please try again later");
 			return new ModelAndView("errorPage");
 		}
 		bubblesrt(checklistList);
@@ -1374,7 +1364,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		model.addAttribute("date", checklist.getDate());
@@ -1389,22 +1379,22 @@ public class MyController {
 			new ClassPathXmlApplicationContext("Spring-Mail.xml");
 
 			MailMail mm = (MailMail) context.getBean("mailMail");
-			String message = "The element in the scheduled " + checklist.getEventName() + " had been modified";
+			String message = "The event in the schedule " + checklist.getEventName() + " has been modified";
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com",
-					"An element in the scheduled had been modified for " + user.getUsername(),message);
+					"An event in the schedule has been modified by " + user.getUsername(),message);
 			model.addAttribute("previousPage", session.getAttribute("previousURL"));
 			return new ModelAndView("checklistViewPage","checklist",model);//will display object data 
 		case 1 : 
-			model.addAttribute("message", "That event already exist in the DB");
+			model.addAttribute("message", "This event already exist in the database");
 			return new ModelAndView("errorPage");
 
 		case 2 : 
-			model.addAttribute("message", "Error happens while saving your edit of the event, "
+			model.addAttribute("message", "An error happened while saving your edits of the event, "
 					+ "if this error continues please contact the system administrator");
 			return new ModelAndView("errorPage");
 		}
-		model.addAttribute("message", "An error happened saving your edit of the event, please try again later");
+		model.addAttribute("message", "An error happened while saving your edits of the event, please try again later");
 		return new ModelAndView("errorPage");
 	}
 
@@ -1419,7 +1409,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/saveEditChecklist",method = RequestMethod.GET)  
 	public ModelAndView saveEditChecklistGet(Model model, HttpServletRequest request) throws SQLException { 
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1442,7 +1432,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		/**
@@ -1456,7 +1446,7 @@ public class MyController {
 		int result = sqlController.registerInterest((Integer)session.getAttribute("userID"), projectID);
 		switch(result) {
 		case 0 :
-			model.addAttribute("message", "Error happen while trying to register your interest, please try again later"); 
+			model.addAttribute("message", "An error happened while trying to register your interest, please try again later"); 
 			return new ModelAndView("errorPage");
 
 		case 1:
@@ -1465,7 +1455,7 @@ public class MyController {
 			List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 			//I am taking under consideration the situation where a student have only not visible projects in his/her list
 			if(projectList.isEmpty() && projectListNotVisible.isEmpty()) {
-				model.addAttribute("message", "You do not have any project with interest, go to project list and choose one!");
+				model.addAttribute("message", "You have not shown any interest in any projects, you can do so in the project list");
 				return new ModelAndView("errorPage");
 			}
 			model.addAttribute("projectListNotVisible",projectListNotVisible);
@@ -1479,27 +1469,27 @@ public class MyController {
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 			User lecturer = sqlController.getUser(project.getlecturerID());
 
-			String messageLecturer = "Student " + user.getUsername() + " had show interest in your project " + project.getTitle();
+			String messageLecturer = "Student " + user.getUsername() + " has shown interest in your project " + project.getTitle();
 			String messageStudent = "Your interest in the project " + project.getTitle() + 
-					" had been send to the lecturer " + lecturer.getUsername();
+					" has been sent to the lecturer " + lecturer.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone has registered interest in one of your projects",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone has registered interest in one of your projects",messageStudent);
 			return new ModelAndView("interestProjectListPage","projectList",projectList); 
 		case 2:
-			model.addAttribute("message", "You are already register in this project");
+			model.addAttribute("message", "You have already registered interest in this project");
 			return new ModelAndView("errorPage");
 		case 3 :
-			model.addAttribute("message", "You have already a final project approved, "
-					+ "if you want to change your final project, speak with the module coordinator"); 
+			model.addAttribute("message", "You already have a final project approved, "
+					+ "if you want to change your final project, contact the dissertation coordinator"); 
 			return new ModelAndView("errorPage");
 		case 5:
-			model.addAttribute("message", "You already have 5 projects registered on your name, "
-					+ "please remove one before you add new ones"); 
+			model.addAttribute("message", "You have already shown interest in 5 projects, "
+					+ "please remove your interest before you register new ones"); 
 			return new ModelAndView("errorPage");
 		}		
-		model.addAttribute("message", "Error happen while trying to register your interest, please try again later");
+		model.addAttribute("message", "An error happened while trying to register your interest, please try again later");
 		return new ModelAndView("errorPage");	
 	}
 
@@ -1514,7 +1504,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/registerinterest",method = RequestMethod.GET)  
 	public ModelAndView registerinterestGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1538,13 +1528,13 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//I am checking if the project that I am trying to make visible is already been choose or being approved by someone else
 		if(sqlController.checkIfProjectIsAlreadyChoose(projectID)) {
 			//if it is the case then return error and do not make it visible
-			model.addAttribute("message", "Sorry that project it been selected by someone else, try to speak with the module coordinator");
+			model.addAttribute("message", "Sorry that project has been selected by someone else, contact the dissertation coordinator for more information");
 			return new ModelAndView("errorPage");
 		}
 		int count = sqlController.getTotalInterestProject((Integer)session.getAttribute("userID"), true);
@@ -1553,19 +1543,19 @@ public class MyController {
 		//but they are not visible
 		int countNotVisible = sqlController.getTotalInterestProject((Integer)session.getAttribute("userID"), false);
 		if(count == 5) {
-			model.addAttribute("message", "You already have 5 projects registered on your name, "
-					+ "please remove one before you add new ones"); 
+			model.addAttribute("message", "You have already shown interest in 5 projects, "
+					+ "please remove your interest before you register new ones"); 
 			return new ModelAndView("errorPage");
 		}
 		if(count == 0 && countNotVisible == 0){
-			model.addAttribute("message", "You had not register interest for any project yet"); 
+			model.addAttribute("message", "You have not registered interest in any projects"); 
 			return new ModelAndView("errorPage");
 		}else {
 			sqlController.updateInterestProject(projectID,(Integer)session.getAttribute("userID"),true);
 			List<Project> projectList = sqlController.getProjectInterestedListByStudent(true, (Integer)session.getAttribute("userID"));
 			List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 			if(projectList.isEmpty()) {
-				model.addAttribute("message", "You do not have any project with interest, go to project list and choose one!");
+				model.addAttribute("message", "You have not shown any interest in a project, choose one from project list");
 				return new ModelAndView("errorPage");
 			}
 			model.addAttribute("projectListNotVisible",projectListNotVisible);
@@ -1579,12 +1569,12 @@ public class MyController {
 			User user = sqlController.getUser((Integer)session.getAttribute("userID"));
 			User lecturer = sqlController.getUser(project.getlecturerID());
 
-			String messageLecturer = "Student " + user.getUsername() + " had show interest in your project " + project.getTitle();
-			String messageStudent = "Your interest in the project " + project.getTitle() + " had been send to the lecturer " + lecturer.getUsername();
+			String messageLecturer = "Student " + user.getUsername() + " has shown interest in your project " + project.getTitle();
+			String messageStudent = "Your interest in the project " + project.getTitle() + " has been send to the lecturer " + lecturer.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your proejcts",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone has registered interest in one of your projects",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your proejcts",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone has registered interest in one of your projects",messageStudent);
 			return new ModelAndView("interestProjectListPage","projectList",projectList);
 		}
 	}
@@ -1633,15 +1623,15 @@ public class MyController {
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 		User lecturer = sqlController.getUser(project.getlecturerID());
-		String messageStudent = "Lecturer " + lecturer.getUsername() + " had remove your interest in the project " + project.getTitle();
-		String messageLecturer = "You remove the interest in the project " + project.getTitle();
+		String messageStudent = "Lecturer " + lecturer.getUsername() + " has removed your interest in the project " + project.getTitle();
+		String messageLecturer = "You have removed interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You just remove interest from a project",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You have removed interest from a project",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","One of your request for project had been cancel",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","One of your requests for a project has been removed",messageStudent);
 		model.addAttribute("mainmessage", "The interest in " + project.getTitle() + 
 				" had been removed succesfully");
-		model.addAttribute("secondmessage", " Automatic email been sended to student and to yourself");
+		model.addAttribute("secondmessage", " An automatic email has been sent to the student and yourself");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1656,7 +1646,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/removeinterest",method = RequestMethod.GET)  
 	public ModelAndView removeInterestGet(Model model, HttpServletRequest request) throws SQLException {
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1680,7 +1670,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		sqlController.updateInterestFinalProject(projectID,user.getUserID(),false);
@@ -1694,16 +1684,16 @@ public class MyController {
 		//User user = getUser((Integer)session.getAttribute("userID"));
 		User lecturer = sqlController.getUser(project.getlecturerID());
 
-		String messageStudent = "Lecturer " + lecturer.getUsername() + " had cancel your interest in the project " + project.getTitle();
-		String messageLecturer = "You remove the interest in the project " + project.getTitle();
+		String messageStudent = "Lecturer " + lecturer.getUsername() + " has removed your interest in the project " + project.getTitle();
+		String messageLecturer = "You have removed interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Your remoed final interest of a project",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You have removed the final interest of a project",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Your final interest in project had been removed",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Your final interest in the project has been removed",messageStudent);
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
 		model.addAttribute("mainmessage", "The final project in " + project.getTitle() + 
-				" had been removed succesfully ");
-		model.addAttribute("secondmessage", " Automatic email been sended to student and to yourself");
+				" has been removed succesfully ");
+		model.addAttribute("secondmessage", " An automatic email has been sent to the student and yourself");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1718,7 +1708,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/removeinterestfinal",method = RequestMethod.GET)  
 	public ModelAndView removeInterestFinalGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -1745,7 +1735,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		User student = sqlController.getUser((Integer)session.getAttribute("userID"));
@@ -1757,16 +1747,16 @@ public class MyController {
 		Project project = new Project();
 		project = sqlController.getProject(projectID);
 
-		String messageLecturer = "Student " + student.getUsername() + " had cancel the interest in your project " + project.getTitle();
-		String messageStudent = "You remove the interest in the project " + project.getTitle();
+		String messageLecturer = "Student " + student.getUsername() + " has removed the interest in your project " + project.getTitle();
+		String messageStudent = "You have removed the interest in the project " + project.getTitle();
 		//One message is for the lecturer
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","A student remove interest in one of your projects",messageLecturer);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","A student has removed interest in one of your projects",messageLecturer);
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You remove interest in a project",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","You have removed interest in a project",messageStudent);
 		//I am using same page since the final message for project or checklist is the same
 		model.addAttribute("mainmessage", "The interest in " + project.getTitle() + 
-				" had been removed succesfully ");
-		model.addAttribute("secondmessage", " Automatic email been sended to the lecturer and to yourself");
+				" has been removed succesfully ");
+		model.addAttribute("secondmessage", " An automatic email has been sent to the lecturer and yourself");
 		return new ModelAndView("projectRemovedPage");
 	}
 
@@ -1800,7 +1790,7 @@ public class MyController {
 		checkDBConnection(); //check if connection is still ON
 		//only student can access this menu
 		if((Integer)session.getAttribute("userType") != STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//If the student already have a final project approved, then we will only show that project to him
@@ -1818,7 +1808,7 @@ public class MyController {
 		List<Project> projectListNotVisible = sqlController.getProjectInterestedListByStudent(false, (Integer)session.getAttribute("userID"));
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty() && projectListNotVisible.isEmpty()) {
-			model.addAttribute("message", "You do not have any project with interest yet, go to project list and choose one!");
+			model.addAttribute("message", "You have not projects with interest yet, choose one from the project list");
 			return new ModelAndView("errorPage");
 		}	
 		model.addAttribute("projectListNotVisible",projectListNotVisible);
@@ -1840,7 +1830,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectList = sqlController.getProjectListVisible(true, (Integer)session.getAttribute("userID"));	
@@ -1848,11 +1838,11 @@ public class MyController {
 				(Integer)session.getAttribute("userID"), true);
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectList.isEmpty()) {
-			model.addAttribute("message", "You do not have any project register yet, go to project list and choose one!");
+			model.addAttribute("message", "You have not projects registered yet, choose one in project list");
 			return new ModelAndView("errorPage");
 		}	
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
-		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
+		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any projects for next year");
 		model.addAttribute("projectList", projectList);
 		model.addAttribute("projectListNextYear", projectListNextYear);
 		model.addAttribute("actualYear", actualYear);
@@ -1875,7 +1865,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectWithInterest = sqlController.getLecturerProjectList(
@@ -1904,7 +1894,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectWithInterestApproved = sqlController.getLecturerProjectListApprovedInterest(
@@ -1933,7 +1923,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectNotVisibles = sqlController.getProjectListVisible(false, 
@@ -1943,10 +1933,10 @@ public class MyController {
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
-			model.addAttribute("message", "You do not have any project not visible");
+			model.addAttribute("message", "You do not have any projects for this year that are not visible");
 		}	
 		if(projectListNextYear.isEmpty()) {
-			model.addAttribute("nextyearmessage", "You do not have any project not visible for next year");
+			model.addAttribute("nextyearmessage", "You do not have any projects for next year that are not visible");
 		}
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		model.addAttribute("projectListNextYear", projectListNextYear);
@@ -1975,7 +1965,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		sqlController.updateProject(projectID, true);//update the project to visible
@@ -1989,20 +1979,20 @@ public class MyController {
 				(Integer)session.getAttribute("userID"), false);
 		//If project is empty then I will redirect to error page with a message explaining what to do
 		if(projectNotVisibles.isEmpty()) {
-			model.addAttribute("message", "You do not have any project not visible");
+			model.addAttribute("message", "You do not have any projects for this year that are not visible");
 		}	
 		if(projectListNextYear.isEmpty()) {
-			model.addAttribute("nextyearmessage", "You do not have any project for not visible for next year");
+			model.addAttribute("nextyearmessage", "You do not have any projects for next year that are not visible");
 		}	
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		ApplicationContext context =
 				new ClassPathXmlApplicationContext("Spring-Mail.xml");
 		MailMail mm = (MailMail) context.getBean("mailMail");
-		String messageStudent = "You make visible the project " + project.getTitle();
+		String messageStudent = "You made visible the project " + project.getTitle();
 		//Another message it is send to the student
-		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your proejcts",messageStudent);
+		mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone has registered interest in one of your projects",messageStudent);
 		//extra message to show that the project had been made visible
-		model.addAttribute("message", "Project " + project.getTitle() + " is visible now to students");
+		model.addAttribute("message", "Project " + project.getTitle() + " is now visible to students");
 		if(projectListNextYear.isEmpty()) model.addAttribute("listMessage", "You do not have any project for next year");
 		model.addAttribute("projectNotVisibles", projectNotVisibles);
 		model.addAttribute("projectListNextYear", projectListNextYear);
@@ -2022,7 +2012,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/makeItVisible",method = RequestMethod.GET)  
 	public ModelAndView makeItVisibleGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2049,7 +2039,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") == STUDENT) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		if(sqlController.approveInterest(projectID, user)) {//approveInterest return a boolean true if success false if fails
@@ -2064,7 +2054,7 @@ public class MyController {
 			//does not work when the list is with objects
 			model.addAttribute("interestListSize",projectWithInterest.size());
 			model.addAttribute("user", new User());//passing the user allows to return any user value from the frontend 
-			model.addAttribute("message", "Student " + user.getUsername() + " had been registered with your project "
+			model.addAttribute("message", "You have approved the student " + user.getUsername() + " for your project "
 					+ project.getTitle());
 			User student = sqlController.getUser((Integer)session.getAttribute("userID"));
 			ApplicationContext context =
@@ -2079,15 +2069,15 @@ public class MyController {
 			String lecturerEmail = lecturer.getEmail();
 
 			String messageStudent = "Congratulations " + student.getUsername() + " your request for the project " + 
-					project.getTitle() + " had been approved!";
+					project.getTitle() + " had been approved";
 			String messageLecturer = "You approved the interest in the project " + project.getTitle() + "for student " + student.getUsername();
 			//One message is for the lecturer
-			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageLecturer);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Student approved on project",messageLecturer);
 			//Another message it is send to the student
-			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Someone register in one of your projects",messageStudent);
+			mm.sendMail("ismael.sanchez.leon@gmail.com","iss00009uos@gmail.com","Your interest has been approved",messageStudent);
 			return new ModelAndView("yourPersonalListPageWithInterest");
 		}else {
-			model.addAttribute("message", "Error approving project, please try again later");
+			model.addAttribute("message", "An error happened while approving the project, please try again later");
 			return new ModelAndView("errorPage");
 		}
 	}
@@ -2103,7 +2093,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/approveinterest",method = RequestMethod.GET)  
 	public ModelAndView approveInterestGet(Model model, HttpServletRequest request) throws SQLException {  
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2121,7 +2111,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Integer> yearList = sqlController.getAllYearOfStudents();
@@ -2136,7 +2126,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 
@@ -2161,7 +2151,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/seestudentsbyyear",method = RequestMethod.GET)  
 	public ModelAndView allStudentsByYearPageGet(Model model, HttpServletRequest request) throws SQLException {
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2187,7 +2177,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR){
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		//If the student already have a final project approved, then we will only show that project to him
@@ -2216,7 +2206,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/getstudentprojects",method = RequestMethod.GET)  
 	public ModelAndView getStudentProjectsGet(Model model, HttpServletRequest request) throws SQLException {
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");//I am using the errorPage since I only want to show the message on the screen without create a new view 
 	}
 
@@ -2235,13 +2225,13 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR){
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Integer> yearList = sqlController.getAllYearOfProjects();
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
 		if(yearList.isEmpty()) {
-			model.addAttribute("message", "Year list it is empty");
+			model.addAttribute("message", "Year list is empty");
 			return new ModelAndView("errorPage"); 
 		}
 		model.addAttribute("yearList", yearList);
@@ -2269,12 +2259,12 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectList = sqlController.getProjectsByYear(year);
 		if(projectList.isEmpty()) {
-			model.addAttribute("message", "We could not found any project for the year " + year + " please contact the system administrator");
+			model.addAttribute("message", "No projects have been found for the year " + year + " please contact the dissertation coordinator");
 			return new ModelAndView("errorPage"); 
 		}
 		model.addAttribute("previousPage", session.getAttribute("previousURL"));
@@ -2294,7 +2284,7 @@ public class MyController {
 	 */
 	@RequestMapping(value="/seeprojectbyyear",method = RequestMethod.GET)  
 	public ModelAndView seeProjectsByYearGet(Model model, HttpServletRequest request) throws SQLException { 
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		//I am using the errorPage since I only want to show the message on the screen without create a new view
 		return new ModelAndView("homePage"); 
 	}
@@ -2315,12 +2305,12 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectList = sqlController.getAllProjectActualYear();
 		if(projectList.isEmpty()) {
-			model.addAttribute("message", "We could not found any project for the year " + actualYear);
+			model.addAttribute("message", "No projects have been found for the year  " + actualYear + " please contact the dissertation coordinator");
 			return new ModelAndView("errorPage"); 
 		}
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
@@ -2343,12 +2333,12 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}
 		List<Project> projectList = sqlController.getAllProjectNextYear();
 		if(projectList.isEmpty()) {
-			model.addAttribute("message", "We could not found any project for the year " + actualYear+1);
+			model.addAttribute("message", "No projects have been found for the year  " + actualYear+1 + " please contact the dissertation coordinator");
 			return new ModelAndView("errorPage"); 
 		}
 		request.getSession().setAttribute("previousURL", request.getRequestURL());
@@ -2373,7 +2363,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}	
 		return new ModelAndView("addNewstudentsPage", "command", new User());
@@ -2385,11 +2375,11 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}	
 		if(student.getYear() < actualYear) {
-			model.addAttribute("message", "The year cannot be less than actual year " + actualYear);
+			model.addAttribute("message", "The year cannot be less than current year " + actualYear);
 			return new ModelAndView("addNewstudentsPage", "command", new User());
 		}
 		Boolean newStudentAdded = false;
@@ -2400,17 +2390,17 @@ public class MyController {
 		if(!sqlController.checkIfUserExistInDB(student)) {
 			//add new user to the DB, if 0 means that an error happened during the inclusion of the user to the DB
 			if(sqlController.addStudentToDB(student) == 0) {
-				model.addAttribute("message", "User could not be added to the DB, please check the DB or the excel file");
+				model.addAttribute("message", "User could not be added to the database, please check the database or the excel file");
 				return new ModelAndView("errorPage");
 			}
 			newStudentAdded = true;
 		}
 		if(newStudentAdded) {
 			//I am only setting this message if I actually added an user to the DB
-			model.addAttribute("message", "New user added to the system successfully in the year " + student.getYear());
+			model.addAttribute("message", "New user added to the system successfully for the year " + student.getYear());
 		}else {
 			//If not new students found in the file I am showing this message
-			model.addAttribute("message", "User already exist in the DB");
+			model.addAttribute("message", "User already exists in the database");
 		}
 		List<Integer> yearList = sqlController.getAllYearOfStudents();
 		model.addAttribute("yearList", yearList);
@@ -2420,7 +2410,7 @@ public class MyController {
 
 	@RequestMapping( value="/savestudent",method = RequestMethod.GET)
 	public ModelAndView saveStudentGet(Model model, HttpServletRequest request, User student) throws SQLException { 
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");  
 	}
 
@@ -2439,7 +2429,7 @@ public class MyController {
 		if(session.getAttribute("userID") == null) return login(request);
 		checkDBConnection(); //check if connection is still ON
 		if((Integer)session.getAttribute("userType") != COORDINATOR) {
-			model.addAttribute("message", "You been redirected to Home Page since you try to access a restricted area");
+			model.addAttribute("message", "You have been redirected to the Home Page as you have tried to access a restricted area");
 			return new ModelAndView("homePage");
 		}	
 		return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
@@ -2465,7 +2455,7 @@ public class MyController {
 			//If file does not have an .csv or .xlsx extension, then do not let the file go further and return to the previous page with an error message
 			else if(!file.getContentType().equalsIgnoreCase("application/vnd.ms-excel") && 
 					!file.getContentType().equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")){
-				model.addAttribute("message", "The file need to have excel extension csv or xlsx");
+				model.addAttribute("message", "The file must have a csv or xlsx extension");
 				return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
 			}else {
 				/**
@@ -2490,7 +2480,7 @@ public class MyController {
 					if(!sqlController.checkIfUserExistInDB(newStudent)) {
 						//add new user to the DB, if 0 means that an error happened during the inclusion of the user to the DB
 						if(sqlController.addStudentToDB(newStudent) == 0) {
-							model.addAttribute("message", "User could not be added to the DB, please check the DB or the excel file");
+							model.addAttribute("message", "User could not be added to the database, please check the database or the excel file");
 							return new ModelAndView("errorPage");
 						}
 						newStudentAdded = true;
@@ -2502,12 +2492,12 @@ public class MyController {
 				reader.close();
 				if(newStudentAdded) {
 					//I am only setting this message if I actually added an user to the DB
-					model.addAttribute("message",  numberStudentAdded + " new users added to the system successfully and " 
-							+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
+					model.addAttribute("message",  numberStudentAdded + " new users have been added to the system successfully and " 
+							+ numberStudentIgnored + " students have been ignored as they already exist in the database");
 				}else {
 					//If not new students found in the file I am showing this message
-					model.addAttribute("message", numberStudentAdded + " new users added to the system successfully and " 
-							+ numberStudentIgnored + " students had been ignored since they already exist in the DB");
+					model.addAttribute("message", numberStudentAdded + " new users have been added to the system successfully and " 
+							+ numberStudentIgnored + " students have been ignored as they already exist in the database");
 				}
 				//At the end I am showing you the list of all students
 				List<Integer> yearList = sqlController.getAllYearOfStudents();
@@ -2516,7 +2506,7 @@ public class MyController {
 			}	
 			//If the file does not have the correct format then catch the error and go back to the upload file page
 		}catch(java.lang.ArrayIndexOutOfBoundsException e) {
-			model.addAttribute("message", "Not correct file data, the correct content is "
+			model.addAttribute("message", "Incorrect file structure, the correct structure is "
 					+ "Username, Password, Email, UserType and Year");
 			return new ModelAndView("newstudentsuploadPage", "command", new FileBucket());
 		}
@@ -2534,7 +2524,7 @@ public class MyController {
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.GET)
 	public ModelAndView addNewStudentToDBFromCSVGet(Model model, 
 			HttpServletRequest request) throws IOException {
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");  
 	}
 
@@ -2566,7 +2556,7 @@ public class MyController {
 	 */
 	@RequestMapping( value="/editstudent",method = RequestMethod.GET)
 	public ModelAndView editStudentGet(Model model, HttpServletRequest request) throws SQLException { 
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");  
 	}
 
@@ -2588,13 +2578,13 @@ public class MyController {
 		//student list page but showing the correct message that you got from the save edit method
 		switch(resultSavingStudent) {
 		case 0:
-			model.addAttribute("message", "Student " + student.getUsername() + " had been modify succesfully");
+			model.addAttribute("message", "Student " + student.getUsername() + " has been modified succesfully");
 			break;
 		case 1:
-			model.addAttribute("message", "Student " + student.getUsername() + " could not been modify, please try again later");
+			model.addAttribute("message", "Student " + student.getUsername() + " could not be modified, please try again later");
 			break;
 		case 2:
-			model.addAttribute("message", "A SQL error happens, please try again later");
+			model.addAttribute("message", "A SQL error happened, please try again later");
 			break;
 		}
 		//At the end I am showing you the list of all students
@@ -2612,7 +2602,7 @@ public class MyController {
 	 */
 	@RequestMapping( value="/saveEditStudent",method = RequestMethod.GET)
 	public ModelAndView saveEditStudentGet(Model model, HttpServletRequest request) throws SQLException{ 
-		model.addAttribute("message", "You been redirected since the address entered was not correct");
+		model.addAttribute("message", "You have been redirected as the address entered was not correct");
 		return new ModelAndView("homePage");  
 	}
 

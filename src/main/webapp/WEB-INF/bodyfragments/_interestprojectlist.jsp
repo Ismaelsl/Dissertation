@@ -52,16 +52,16 @@ function getProjectID() {
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
 	if(listSize == 0){
-		$("#secondList").html("You do not have any not visible projects");
+		$("#secondList").html("There are no not visible projects");
 	}else{
-		$("#secondList").html("Those are the project that you remove the interest, click on them if you want to make them visibles");
+		$("#secondList").html("You have removed your interest from these projects. Click on the box to see details and re-register your interest");
 	}
 }
  </script>
  <body onload='chooseMessage("${notInterestListSize}")'>
 <div class="divjumper2">
- <h4>Click in any circle to see further details of the projects</h4>
- <h1>Project list that you show interest</h1>
+<h4>Click on the box to see project details</h4>
+<h1>Project(s) you are interested in</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <input type="hidden" id="userType" name="userType" value="${userType}">
@@ -77,7 +77,7 @@ to the view from the controller or the variable names from the class --%>
   		"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Technologies:  ${fn:escapeXml(topics)}<br />
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
@@ -96,7 +96,7 @@ to the view from the controller or the variable names from the class --%>
   		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Technologies:  ${fn:escapeXml(topics)}<br />
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
@@ -123,7 +123,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">
@@ -146,8 +146,7 @@ to the view from the controller or the variable names from the class --%>
 			<div class="modal-footer" id="modal-footer-registerInterest" class="buttonleft">
 				<form:form method="post" action="makeInterestVisible">
 					<button onclick="getProjectID();" id="modal-makeItVisible-id"
-						name="projectID" class="btn btn-success" value=" ">Make
-						it visible</button>
+						name="projectID" class="btn btn-success" value=" ">Register interest</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
 				</form:form>

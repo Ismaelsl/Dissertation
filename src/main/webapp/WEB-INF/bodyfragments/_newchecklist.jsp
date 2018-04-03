@@ -12,7 +12,7 @@ function clearContents(element) {
 <div class="form_css">
 <h1 class ="errormessage">${message}</h1>
 	<div class="w3-container w3-teal">	
-		<h1>New event for the schedule</h1>
+		<h1>New event</h1>
 	</div>
 	<form:form method="post" action="savechecklist">
 		<table class ="inputtable">
@@ -38,11 +38,11 @@ function clearContents(element) {
 				<td style="border:none;"><form:input class="w3-input" path="description" required='true' size="45" /></td>
 			</tr>
 			<tr>
-				<td style="border:none;"><b>Starting Time :</b></td>
+				<td style="border:none;"><b>Start Time :</b></td>
 				<td style="border:none;"><form:input class="w3-input" type="time" path="hour" required='true' size="45" /></td>
 			</tr>
 			<tr>
-				<td style="border:none;"><b>Ending Time :</b></td>
+				<td style="border:none;"><b>End Time :</b></td>
 				<td style="border:none;"><form:input class="w3-input" type="time" path="endHour" required='true' size="45" /></td>
 			</tr>
 			<tr>

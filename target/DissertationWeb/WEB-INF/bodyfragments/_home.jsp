@@ -7,9 +7,9 @@
 		<span class="importantmessage">${username}</span>
 	</h2>
 	<p class="welcometext" style="font-size: 14px;">
-		This web application had been created to help students and lecturer
-		with their dissertations, please if you find any error or have any
-		comment, send it over to the dissertation coordinator.<br />
+		This web application has been created to help students and lecturers
+		with their dissertations. If you find any errors or have any
+		comments please send it to the dissertation coordinator.<br />
 		<br /> You can find contact information in the contact us <br />section
 		on the menu
 	</p>

@@ -42,7 +42,7 @@ function getProjectID() {
 to the view from the controller or the variable names from the class --%>
 <%--I am using and if statement to check if the student have or not a final project, if student have one
 then this piece of code will be load--%>
-<h4>Click in any circle to see further details of the projects</h4>
+<h4>Click on the box to see project details</h4>
 <h1>Final Project</h1>
 <c:if test="${noFinalProject}">
 	<h2>
@@ -66,7 +66,7 @@ of code--%>
 </c:if>
 	<c:if test="${not noFinalProject}">
 	<h2>
-		<div>This student has not final project</div>
+		<div>This student has no final project</div>
 	</h2>
 </c:if>
 <!-- User login Modal -->
@@ -90,7 +90,7 @@ of code--%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">

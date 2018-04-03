@@ -125,7 +125,7 @@ function clearContents(element) {
 			<button onclick="getSearchValue();" id="search-id"
 					name="searchValue" class="btn btn-success" value=" ">Filter</button></div>
 </form:form>
-<h4>Click in any circle to see further details of the projects</h4>
+<h4>Click on the box to see project details</h4>
 <h1>Project List</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
@@ -143,7 +143,7 @@ to the view from the controller or the variable names from the class --%>
   			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 			href="#" class="test" id="userLoginButton" data-toggle="modal"
 			data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
-			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+			<br />Technologies:  ${fn:escapeXml(topics)}<br />
 			<br />Lecturer: ${project.user.username}</div></a></b>
 		</div>	
 		<% if(projectNum > oldProjectNum){ 
@@ -154,7 +154,7 @@ to the view from the controller or the variable names from the class --%>
 </c:forEach>
 <c:if test="${not empty newProjectList}">
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
-<h2>New Projects!</h2>
+<h2>New Projects</h2>
 <c:forEach items="${newProjectList}" var="project" varStatus="status">
 <%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
@@ -166,7 +166,7 @@ to the view from the controller or the variable names from the class --%>
   			"${fn:escapeXml(topics)}","${fn:escapeXml(readings)}","${project.user.username}","${project.user.email}")'
 			href="#" class="test" id="userLoginButton" data-toggle="modal"
 			data-target="#userModal"><div id="box1">Title: ${project.title}<br /> 
-			<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+			<br />Technologies:  ${fn:escapeXml(topics)}<br />
 			<br />Lecturer: ${project.user.username}</div></a></b>
 		</div>	
 		<% if(projectNum > oldProjectNum){ 
@@ -199,7 +199,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">
@@ -220,7 +220,7 @@ to the view from the controller or the variable names from the class --%>
 			</div>
 			<div class="modal-footer" id="modal-footer-nextyear">
 				<form:form method="post" action="">
-					<b>You are not allowed to register yet, wait a little longer</b>
+					<b>You are not allowed to register yet</b>
 				</form:form>
 			</div>
 			<%--User can only register interest--%>

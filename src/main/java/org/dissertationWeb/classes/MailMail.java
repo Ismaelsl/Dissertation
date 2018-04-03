@@ -81,8 +81,8 @@ public class MailMail
 	public String createMessageProjectProposal(String username, String description, 
 			String compulsoryReading, String title, String topics) {
 		String message = username + " has made a new project proposal.\nThe description offered by the student is: "
-				+ description + "\nThe recommended readings are: " + compulsoryReading+ "\nThe title is: "
-				+ title + "\nAnd the topics are: " + topics;
+				+ description + "\nThe recommended reading is: " + compulsoryReading+ "\nThe title is: "
+				+ title + "\nThe topics are: " + topics;
 		return message;
 	}
 

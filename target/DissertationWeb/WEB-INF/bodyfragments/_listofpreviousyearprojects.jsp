@@ -54,7 +54,7 @@ window.onload = function() {
     }
 }
  </script>
- <h4>Click in any circle to see further details of the year projects</h4>
+<h4>Click on the box to see project details</h4>
 <h1>Project list by year</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>

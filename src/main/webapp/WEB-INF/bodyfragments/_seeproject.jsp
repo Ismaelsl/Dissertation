@@ -26,7 +26,7 @@
 <br>
 <b>Technologies:</b> ${topics}
 <br>
-<b>Compulsory Readings:</b> ${compulsoryReading}
+<b>Compulsory Reading:</b> ${compulsoryReading}
 <br>
 <br>
 </div>

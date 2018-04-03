@@ -6,7 +6,7 @@
 
 		<ul class="nav navbar-nav" id="menu">
 			<%
-				//Area where I am getting the values from the sessionfrom the session
+				//Session values are obtained here
 				int user = 0;
 				int projectNum = 0;
 				int eventNum = 0;
@@ -36,28 +36,28 @@
 				<ul class="dropdown-menu" id="ulmenustyle">
 					<li><b><a
 							href="${pageContext.request.contextPath}/newchecklist">New
-								enter to the schedule</a></b></li>
+								schedule entry</a></b></li>
 					<li><b><a
 							href="${pageContext.request.contextPath}/projectlisttoapprove">Project
-								List to approve</a></b></li>
+								List for approval</a></b></li>
 					<li><b><a
 							href="${pageContext.request.contextPath}/previousyearprojects">Previous
 								year projects</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/allprojectsactualyear">See
-								all projects current year</a></b></li>
+							href="${pageContext.request.contextPath}/allprojectsactualyear">Current 
+							year projects</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/nextyearprojects">See
-								all projects next year</a></b></li>
+							href="${pageContext.request.contextPath}/nextyearprojects">Forthcoming
+								year projects</a></b></li>
 					<li><b><a
 							href="${pageContext.request.contextPath}/uploadonestudents">Add
-								one student</a></b></li>
+								single student</a></b></li>
 					<li><b><a
 							href="${pageContext.request.contextPath}/uploadstudents">Add
 								new students</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/studentlist">Student
-								list</a></b></li>
+							href="${pageContext.request.contextPath}/studentlist">Manage 
+							student list</a></b></li>
 				</ul></li>
 			<li class="dropdown" id="lecturer"><a class="dropdown-toggle"
 				data-toggle="dropdown" href="#"> <img class="imagestyle"
@@ -67,23 +67,23 @@
 					class="caret"></span></a>
 				<ul class="dropdown-menu" id="ulmenustyle">
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlecturerlist">Your
-								list of projects</a></b></li>
+							href="${pageContext.request.contextPath}/projectlecturerlist">My
+								project list</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlistwithinterest">Your
-								project with interest</a></b></li>
+							href="${pageContext.request.contextPath}/projectlistwithinterest">My
+								projects with interest</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlistwithinterestapproved">Your
+							href="${pageContext.request.contextPath}/projectlistwithinterestapproved">My
 								approved projects</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">Your
-								not visible project list</a></b></li>
+							href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">My
+								not visible projects</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/newproject">New
-								Project</a></b></li>
+							href="${pageContext.request.contextPath}/newproject">Create new
+								Project for current year</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/newprojectnextyear">New
-								Project next year</a></b></li>
+							href="${pageContext.request.contextPath}/newprojectnextyear">Create new
+								Project for forthcoming year</a></b></li>
 				</ul></li>
 			<li>
 				<div class="container">
@@ -141,23 +141,23 @@
 					class="caret"></span></a>
 				<ul class="dropdown-menu" id="ulmenustyle">
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlecturerlist">Your
-								list of projects</a></b></li>
+							href="${pageContext.request.contextPath}/projectlecturerlist">My
+								project list</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlistwithinterest">Your
-								project with interest</a></b></li>
+							href="${pageContext.request.contextPath}/projectlistwithinterest">My
+								projects with interest</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlistwithinterestapproved">Your
+							href="${pageContext.request.contextPath}/projectlistwithinterestapproved">My
 								approved projects</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">Your
-								not visible project list</a></b></li>
+							href="${pageContext.request.contextPath}/projectlecturerlistnotvisible">My
+								not visible projects</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/newproject">New
-								Project</a></b></li>
+							href="${pageContext.request.contextPath}/newproject">Create new
+								Project for current year</a></b></li>
 					<li><b><a
-							href="${pageContext.request.contextPath}/newprojectnextyear">New
-								Project next year</a></b></li>
+							href="${pageContext.request.contextPath}/newprojectnextyear">Create new
+								Project for forthcoming year</a></b></li>
 				</ul></li>
 			<li>
 				<div class="container">
@@ -213,7 +213,7 @@
 						src='bootstrap/images/projectlist.png'
 						onmouseover="this.src='bootstrap/images/projectlistblack.png';"
 						onmouseout="this.src='bootstrap/images/projectlist.png';" />
-						Project List
+						Project list
 					</a>
 					<%
 						if (projectNum > oldProjectNum) { //if I have more projects that the last time I loged in load plus green icon
@@ -228,6 +228,22 @@
 					%>
 				</div>
 			</li>
+			
+			<li><a
+				href="${pageContext.request.contextPath}/projectinterestedlist">
+					<img class="imagestyle" alt="studentlisticon"
+					src='bootstrap/images/studentlist.png'
+					onmouseover="this.src='bootstrap/images/studentlistblack.png';"
+					onmouseout="this.src='bootstrap/images/studentlist.png';" /> My
+					interest list
+			</a></li>
+			<li><a href="${pageContext.request.contextPath}/projectproposal">
+					<img class="imagestyle" alt="projectproposalicon"
+					src='bootstrap/images/projectproposal.png'
+					onmouseover="this.src='bootstrap/images/projectproposalblack.png';"
+					onmouseout="this.src='bootstrap/images/projectproposal.png';" />
+					Propose a project
+			</a></li>
 			<li>
 				<div class="container">
 					<a href="${pageContext.request.contextPath}/checklistlist"> <img
@@ -250,21 +266,6 @@
 					%>
 				</div>
 			</li>
-			<li><a
-				href="${pageContext.request.contextPath}/projectinterestedlist">
-					<img class="imagestyle" alt="studentlisticon"
-					src='bootstrap/images/studentlist.png'
-					onmouseover="this.src='bootstrap/images/studentlistblack.png';"
-					onmouseout="this.src='bootstrap/images/studentlist.png';" /> Your
-					interest list
-			</a></li>
-			<li><a href="${pageContext.request.contextPath}/projectproposal">
-					<img class="imagestyle" alt="projectproposalicon"
-					src='bootstrap/images/projectproposal.png'
-					onmouseover="this.src='bootstrap/images/projectproposalblack.png';"
-					onmouseout="this.src='bootstrap/images/projectproposal.png';" />
-					Propose a project
-			</a></li>
 			<%
 				}
 				if (user != 3) {
@@ -274,7 +275,7 @@
 					src='bootstrap/images/envelope.png'
 					onmouseover="this.src='bootstrap/images/envelopeblack.png';"
 					onmouseout="this.src='bootstrap/images/envelope.png';" />
-					ContactUs
+					Contact us
 			</a></li>
 			<%
 				}

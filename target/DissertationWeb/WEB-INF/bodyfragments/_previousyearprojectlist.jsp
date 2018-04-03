@@ -35,9 +35,9 @@ function getProjectID() {
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
 	if(listSize == 0){
-		$("#secondList").html("For now none students applied to your projects");
+		$("#secondList").html("No students applied to your projects");
 	}else{
-		$("#secondList").html("You have students who had interest on your projects!");
+		$("#secondList").html("Students have shown interest in your projects");
 	}
 }
 <%--Function to remove the text from the textarea when you click over--%>
@@ -62,8 +62,8 @@ function clearContents(element) {
 </form:form>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
-<h4>Click in any circle to see further details of the projects</h4>
-<h1>Project list for the year ${year}</h1>
+<h4>Click on the box to see project details</h4>
+<h1>Projects for the year ${year}</h1>
 <c:forEach items="${projectList}" var="project">
 <%-- Area where I am setting the values to into var to remove the special characters --%>
 	<c:set var = "title" value="${fn:replace(project.title, '\"', '\\'')}" />
@@ -76,7 +76,7 @@ to the view from the controller or the variable names from the class --%>
 		"${project.user.username}","${project.user.email}")'
 		href="#" class="test" id="userLoginButton" data-toggle="modal"
 		data-target="#projectModal"><div id="box1">Title: ${project.title}<br /> 
-		<br /> Technologies:  ${fn:escapeXml(topics)}<br />
+		<br />Technologies:  ${fn:escapeXml(topics)}<br />
 		<br />Lecturer: ${project.user.username}</div></a></b>
 	</div>
 </c:forEach>
@@ -110,7 +110,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">

@@ -36,14 +36,14 @@ function getProjectID() {
 <%-- This function will decide which message to show based on the size of the list --%>
 function chooseMessage(listSize){
 	if(listSize == 0){
-		$("#secondList").html("For now none students show interest in your projects");
+		$("#secondList").html("No students show interest in your projects");
 	}else{
-		$("#secondList").html("You have students who show interest on your projects!");
+		$("#secondList").html("Students have shown interest in your projects");
 	}
 }
  </script>
- <h4>Click in any circle to see further details of the projects</h4>
- <h1>List of interest showed by students and projects</h1>
+ <h4>Click on the box to see project details</h4>
+ <h1>List of projects with interest</h1>
 <%-- The item within the {} must be the same name that the variable pass 
 to the view from the controller or the variable names from the class --%>
 <h2>${message}</h2>
@@ -97,7 +97,7 @@ to the view from the controller or the variable names from the class --%>
 						<div class="col-md-12" id="modal-topics"></div>
 					</div>
 					<div class="row">
-						<b>Compulsory readings:</b>
+						<b>Compulsory reading:</b>
 						<div class="col-md-12" id="modal-compulsoryReading"></div>
 					</div>
 					<div class="row">
@@ -117,14 +117,14 @@ to the view from the controller or the variable names from the class --%>
 					modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-approveinterest-id"
 						name="projectID" class="btn btn-success" value=" ">Approve
-						request</button>
+						Interest Request</button>
 					<form:hidden id="userID" path="userID" value="" />
 				</form:form>
 				<form:form method="post" action="removeinterest"
 					modelAttribute="user">
 					<button onclick="getProjectID();"
 						id="modal-removeinterestProject-id" name="projectID"
-						class="btn btn-danger" value=" ">Remove Request</button>
+						class="btn btn-danger" value=" ">Remove Interest Request</button>
 					<form:hidden id="userIDRemove" path="userID" value="" />
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>
