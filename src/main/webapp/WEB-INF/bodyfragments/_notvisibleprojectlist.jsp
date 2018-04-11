@@ -68,7 +68,7 @@ to the view from the controller or the variable names from the class --%>
 </c:forEach>
 </div>
 <div class="divjumper2"><%--This div is here to force a new line between the first and second list--%>
-<h1>Your list of projects that are not visible (by students) for ${nextYear}</h1>
+<h1>Projects that are not visible for students for the year ${nextYear}</h1>
 <h2 class ="importantmessage">${nextyearmessage}</h2>
 <c:forEach items="${projectListNextYear}" var="project">
 <%-- Area where I am setting the values to into var to remove the special characters --%>

@@ -117,14 +117,14 @@ to the view from the controller or the variable names from the class --%>
 					modelAttribute="user">
 					<button onclick="getProjectID();" id="modal-approveinterest-id"
 						name="projectID" class="btn btn-success" value=" ">Approve
-						Interest Request</button>
+						Interest</button>
 					<form:hidden id="userID" path="userID" value="" />
 				</form:form>
 				<form:form method="post" action="removeinterest"
 					modelAttribute="user">
 					<button onclick="getProjectID();"
 						id="modal-removeinterestProject-id" name="projectID"
-						class="btn btn-danger" value=" ">Remove Interest Request</button>
+						class="btn btn-danger" value=" ">Remove Interest</button>
 					<form:hidden id="userIDRemove" path="userID" value="" />
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">Close</button>

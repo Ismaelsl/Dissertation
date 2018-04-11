@@ -134,9 +134,9 @@ public class MyController {
 	 */
 	@Scheduled(fixedRate = 1800000 )//check every 30 minutes
 	public void keepConnection() throws SQLException {
-		//checkDBConnection();
 		sqlController.keepConnectionAlive();
 	}
+	
 	/**
 	 * Automatic method that checks every Friday at 17:59:59 if we have new events in the schedule coming within one week
 	 * If we have any events coming, an email will be send to all the students if not, nothing will happens
@@ -154,6 +154,8 @@ public class MyController {
 			String title = "";
 			String info = "";
 			String place = "";
+			String startHour = "";
+			String endHour = "";
 			String divider = "";
 			String finalTable = "";
 
@@ -162,8 +164,10 @@ public class MyController {
 					title = " Event title: " + title + c.getEventName() + " \n";
 					info = " Event description: " + info + c.getDescription() + " \n";
 					place = " Event place: " + place + c.getPlace() + " \n";
+					startHour = " Start time: " + startHour + c.getHour() + " \n";
+					endHour = " End time: " + endHour + c.getEndHour() + " \n";
 					divider = "*******************************************";
-					finalTable = finalTable + title + info + place + divider + " \n";
+					finalTable = finalTable + title + info + place + startHour + endHour + divider + " \n";
 				}
 			}
 			mm.sendAutomaticEmailSchedule("These are the events coming this week \n" + finalTable, "ismael.sanchez.leon@gmail.com",

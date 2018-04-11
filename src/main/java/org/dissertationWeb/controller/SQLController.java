@@ -256,6 +256,8 @@ public class SQLController {
 						checklist.setEventName(rs.getString("eventname"));
 						checklist.setPlace(rs.getString("place"));
 						checklist.setDescription(rs.getString("description"));
+						checklist.setHour(rs.getString("hour"));
+						checklist.setEndHour(rs.getString("endhour"));
 						checklistList.add(checklist);
 					}
 				}
@@ -741,7 +743,6 @@ public class SQLController {
 				}
 				else {
 					//Need to do a second query since the first one I am only getting the count and no the actual table data
-					//System.out.println("This student have " + rs.getInt("total") + " projects already");
 					PreparedStatement ps2 = newConnection.prepareStatement("SELECT * FROM interestproject WHERE year = ?");
 					ps2.setInt(1, actualYear);
 					ps2.getResultSet();
